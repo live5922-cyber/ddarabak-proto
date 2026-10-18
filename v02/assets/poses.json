@@ -1,0 +1,117 @@
+{
+    "note":  "proto_v02_assets.ps1이 art_src/poses_manifest.json(+ art/v0.5/poses/)에서 만듦. 화면 크기 = 그림 px × cssPerPx(CSS px). footX·footY = 발 기준점(그림 px). temp = 임시(03·05 그림으로 자리만 채움).",
+    "poses":  [
+                  {
+                      "id":  "truck",
+                      "char":  "truck",
+                      "states":  [
+                                     "idle"
+                                 ],
+                      "src":  "assets/doll/truck.png",
+                      "w":  743,
+                      "h":  506,
+                      "footX":  438,
+                      "footY":  505,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/06_ch1_truck.png",
+                      "srcBox":  "44,17,1961,1322"
+                  },
+                  {
+                      "id":  "face_look",
+                      "char":  "face",
+                      "states":  [
+                                     "look"
+                                 ],
+                      "src":  "assets/doll/face_look.png",
+                      "w":  385,
+                      "h":  385,
+                      "footX":  199,
+                      "footY":  384,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "43,69,583,584"
+                  },
+                  {
+                      "id":  "face_surprise",
+                      "char":  "face",
+                      "states":  [
+                                     "surprise"
+                                 ],
+                      "src":  "assets/doll/face_surprise.png",
+                      "w":  438,
+                      "h":  394,
+                      "footX":  220,
+                      "footY":  393,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "699,55,667,598"
+                  },
+                  {
+                      "id":  "face_sing",
+                      "char":  "face",
+                      "states":  [
+                                     "sing"
+                                 ],
+                      "src":  "assets/doll/face_sing.png",
+                      "w":  416,
+                      "h":  382,
+                      "footX":  196,
+                      "footY":  381,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "1365,74,633,579"
+                  },
+                  {
+                      "id":  "face_smile",
+                      "char":  "face",
+                      "states":  [
+                                     "pass"
+                                 ],
+                      "src":  "assets/doll/face_smile.png",
+                      "w":  390,
+                      "h":  395,
+                      "footX":  190,
+                      "footY":  394,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "58,698,592,599"
+                  },
+                  {
+                      "id":  "face_worry",
+                      "char":  "face",
+                      "states":  [
+                                     "retry"
+                                 ],
+                      "src":  "assets/doll/face_worry.png",
+                      "w":  438,
+                      "h":  391,
+                      "footX":  203,
+                      "footY":  390,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "699,704,667,593"
+                  },
+                  {
+                      "id":  "face_camera",
+                      "char":  "face",
+                      "states":  [
+                                     "best"
+                                 ],
+                      "src":  "assets/doll/face_camera.png",
+                      "w":  421,
+                      "h":  395,
+                      "footX":  297,
+                      "footY":  394,
+                      "cssPerPx":  0.4,
+                      "temp":  false,
+                      "from":  "art/v0.5/02_hana_faces.png",
+                      "srcBox":  "1365,698,640,599"
+                  }
+              ]
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1B2745">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>따라박 v0.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&family=M+PLUS+Rounded+1c:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-scr="title">
+<div id="safe-probe" aria-hidden="true"></div>
+<canvas id="stage" aria-label="따라박 연주 화면"></canvas>
+
+<!-- 시작 -->
+<section id="scr-title" class="scr">
+  <div class="logo">
+    <h1>따라박</h1>
+    <p>일본어 글자를 따라 치는 리듬게임</p>
+  </div>
+  <div class="bottom">
+    <p class="chapter">1챕터 · 삿포로 · 12월 24일</p>
+    <button id="btn-start" class="btn big wait" type="button">시작</button>
+    <button id="btn-set1" class="btn ghost" type="button">설정</button>
+    <p id="load-status" class="status">곡 준비 중</p>
+  </div>
+</section>
+
+<!-- 지연 보정 -->
+<section id="scr-calib" class="scr">
+  <div class="sheet">
+    <h2>마디 첫 박(쿵)에 톡</h2>
+    <p class="sub">곡이 나오면 네 박마다 오는 큰 북(쿵)에만 아래 원을 톡. 6번이면 폰·이어폰 지연을 맞춤</p>
+    <div id="calib-dots" class="dots"></div>
+    <p id="calib-result" class="result-line"></p>
+    <div id="calib-after" class="row-btns" hidden>
+      <button id="btn-calib-again" class="btn ghost" type="button">다시</button>
+      <button id="btn-calib-go" class="btn small" type="button">이대로 가기</button>
+    </div>
+  </div>
+  <div class="bottom">
+    <div id="calib-pad" class="pad" role="button" aria-label="박에 맞춰 누르기"><i></i></div>
+    <button id="btn-calib-skip" class="btn ghost" type="button">건너뛰기</button>
+  </div>
+</section>
+
+<!-- 판 고르기 -->
+<section id="scr-select" class="scr">
+  <div class="topbar"><p class="chapter">1챕터 · 삿포로 · 「하나도 못 읽어요」</p></div>
+  <div class="bottom">
+    <div id="pan-list" class="pan-list"></div>
+    <div class="row-btns tight">
+      <button id="btn-sel-back" class="btn ghost" type="button">처음으로</button>
+      <button id="btn-set3" class="btn ghost" type="button">설정</button>
+    </div>
+  </div>
+</section>
+
+<!-- 일시정지 -->
+<section id="scr-pause" class="scr scrim">
+  <div class="sheet">
+    <h2>잠깐 멈춤</h2>
+    <button id="chip-sound" class="chip" type="button">가 · A</button>
+    <div class="col-btns">
+      <button id="btn-resume" class="btn big" type="button">이어하기</button>
+      <p class="sub small">세 박 세고 이어짐</p>
+      <button id="btn-restart" class="btn ghost" type="button">처음부터</button>
+      <button id="btn-set2" class="btn ghost" type="button">설정</button>
+      <button id="btn-quit" class="btn ghost" type="button">판 고르기</button>
+    </div>
+  </div>
+</section>
+
+<!-- 설정 -->
+<section id="scr-settings" class="scr scrim">
+  <div class="sheet settings">
+    <h2>설정</h2>
+    <div id="set-rows"></div>
+    <div class="row-btns">
+      <button id="btn-recalib" class="btn ghost" type="button">지연 다시 맞추기</button>
+      <button id="btn-fade-reset" class="btn ghost" type="button">흐려짐 기록 지우기</button>
+    </div>
+    <button id="btn-set-close" class="btn small" type="button">닫기</button>
+    <p class="credit">글자 목소리 VOICEVOX:雨晴はう (시험판 임시)<br>효과음 Freesound CC0 · 곡 Suno</p>
+  </div>
+</section>
+
+<!-- 결과 -->
+<section id="scr-result" class="scr scrim">
+  <div class="sheet result">
+    <div class="res-head">
+      <img id="res-face" alt="" width="96" height="96">
+      <div class="res-score">
+        <p id="res-pan" class="tag">판 1 · あ행</p>
+        <p class="hit"><b id="res-hit">0</b><span id="res-total">/ 12</span></p>
+        <p class="cap">맞힌 수</p>
+      </div>
+    </div>
+    <div id="res-medals" class="medals"></div>
+    <div class="counts">
+      <div><b class="p">PERFECT</b><span id="res-PERFECT">0</span></div>
+      <div><b class="gr">GREAT</b><span id="res-GREAT">0</span></div>
+      <div><b class="go">GOOD</b><span id="res-GOOD">0</span></div>
+      <div><b class="m">MISS</b><span id="res-MISS">0</span></div>
+    </div>
+    <div class="minor"><span>최대 콤보 <b id="res-combo">0</b></span><span>가운데 어긋남 <b id="res-avg">–</b></span></div>
+    <button id="btn-res-offset" class="btn ghost thin" type="button" hidden></button>
+    <div id="res-photos" class="photos"></div>
+    <p class="cap left">오늘 읽은 글자</p>
+    <div id="res-kana" class="kana-grid"></div>
+    <div id="res-words" class="words"></div>
+    <div class="row-btns">
+      <button id="btn-res-sel" class="btn ghost" type="button">판 고르기</button>
+      <button id="btn-retry" class="btn small" type="button">다시 하기</button>
+    </div>
+    <p class="credit">VOICEVOX:雨晴はう</p>
+  </div>
+</section>
+
+<noscript>자바스크립트를 켜야 열림</noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

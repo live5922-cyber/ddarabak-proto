@@ -1,0 +1,59 @@
+{
+  "note": "포즈 묶음 목록(상태 → 포즈). tools/proto_v02_assets.ps1 이 읽어 assets/doll/*.png 와 assets/poses.json 을 만듦. 원본 그림은 읽기만. singles = art/v0.5/poses/ 에 들어올 한 장짜리 투명 PNG(파일이 없으면 건너뜀). sheets 의 placeholder 포즈는 같은 인물·같은 상태를 맡는 진짜 포즈 파일이 생기면 그 상태에서 자동으로 빠짐. 게임은 상태마다 포즈를 하나 고르되 바로 앞 포즈와 같은 것은 피함(js/poses.js).",
+  "animCovers": { "hana": ["idle", "idle_listen", "sing", "tap_left", "tap_right", "hold", "both", "combo", "end", "perfect", "great", "good", "miss", "react_card", "surprise"], "caller": ["call", "watch", "knock", "idle", "end", "combo"], "note": "이 상태들은 동작 이어 그림(assets/anim)이 맡음 → 옛 한 장 포즈는 빼고, 나머지 상태(surprise·react_card 등)에만 남김" },
+  "outPxPerCss": 2.5,
+  "border": 3,
+  "chars": {
+    "hana":   { "cssH": 160, "refStates": ["idle"], "note": "박하나. 화면 키 18~20%(아이폰 12 844px 기준 152~169). 서 있는 포즈(idle) 키 가운데값을 160에 맞추고 같은 인물 포즈는 같은 배율" },
+    "caller": { "cssH": 176, "refStates": ["call", "watch", "idle"], "note": "군고구마 아저씨" },
+    "truck":  { "cssH": 196, "note": "군고구마 경트럭(좌우 뒤집어 가마·초롱이 화면 안)" },
+    "face":   { "cssH": 150, "note": "결과 화면 얼굴(상반신)" }
+  },
+  "singles": [
+    { "file": "art/v0.5/poses/idle_1.png",       "id": "hana_idle_1",   "char": "hana",   "states": ["idle", "idle_listen", "sing"] },
+    { "file": "art/v0.5/poses/idle_2.png",       "id": "hana_idle_2",   "char": "hana",   "states": ["idle", "idle_listen", "sing"] },
+    { "file": "art/v0.5/poses/idle_3.png",       "id": "hana_idle_3",   "char": "hana",   "states": ["idle", "idle_listen", "sing"] },
+    { "file": "art/v0.5/poses/hitL_1.png",       "id": "hana_hitL_1",   "char": "hana",   "states": ["tap_left"] },
+    { "file": "art/v0.5/poses/hitL_2.png",       "id": "hana_hitL_2",   "char": "hana",   "states": ["tap_left"] },
+    { "file": "art/v0.5/poses/hitL_3.png",       "id": "hana_hitL_3",   "char": "hana",   "states": ["tap_left"] },
+    { "file": "art/v0.5/poses/hitR_1.png",       "id": "hana_hitR_1",   "char": "hana",   "states": ["tap_right"] },
+    { "file": "art/v0.5/poses/hitR_2.png",       "id": "hana_hitR_2",   "char": "hana",   "states": ["tap_right"] },
+    { "file": "art/v0.5/poses/hitR_3.png",       "id": "hana_hitR_3",   "char": "hana",   "states": ["tap_right"] },
+    { "file": "art/v0.5/poses/hold.png",         "id": "hana_hold",     "char": "hana",   "states": ["hold"] },
+    { "file": "art/v0.5/poses/both.png",         "id": "hana_both",     "char": "hana",   "states": ["both"] },
+    { "file": "art/v0.5/poses/jump.png",         "id": "hana_jump",     "char": "hana",   "states": ["combo", "end"] },
+    { "file": "art/v0.5/poses/perfect.png",      "id": "hana_perfect",  "char": "hana",   "states": ["perfect"] },
+    { "file": "art/v0.5/poses/great.png",        "id": "hana_great",    "char": "hana",   "states": ["great"] },
+    { "file": "art/v0.5/poses/good.png",         "id": "hana_good",     "char": "hana",   "states": ["good"] },
+    { "file": "art/v0.5/poses/miss_slip.png",    "id": "hana_miss_slip","char": "hana",   "states": ["miss"] },
+    { "file": "art/v0.5/poses/miss_shy.png",     "id": "hana_miss_shy", "char": "hana",   "states": ["miss"] },
+    { "file": "art/v0.5/poses/surprise.png",     "id": "hana_surprise", "char": "hana",   "states": ["react_card", "surprise"] },
+    { "file": "art/v0.5/poses/uncle_point.png",  "id": "caller_point",  "char": "caller", "states": ["watch"] },
+    { "file": "art/v0.5/poses/uncle_clap.png",   "id": "caller_clap2",  "char": "caller", "states": ["knock", "combo"] },
+    { "file": "art/v0.5/poses/uncle_potato.png", "id": "caller_potato", "char": "caller", "states": ["idle", "end"] }
+  ],
+  "sheets": [
+    { "file": "art/v0.5/03_hana_poses_winter.png", "char": "hana", "split": "auto", "placeholder": true,
+      "poses": [
+        { "id": "hana_w_beat",  "states": ["idle", "idle_listen", "sing", "tap_left", "tap_right", "both", "great", "good", "react_card"] },
+        { "id": "hana_w_photo", "states": ["perfect", "hold", "combo", "end"] },
+        { "id": "hana_w_slip",  "states": ["miss"] }
+      ] },
+    { "file": "art/v0.5/05_ch1_caller.png", "char": "caller", "split": "auto", "recolorOlive": "#8C96B4",
+      "poses": [
+        { "id": "caller_call", "states": ["call"] },
+        { "id": "caller_clap", "states": ["watch", "knock", "idle", "end"], "placeholder": true }
+      ] },
+    { "file": "art/v0.5/06_ch1_truck.png", "char": "truck", "split": "auto", "flip": true,
+      "poses": [ { "id": "truck", "states": ["idle"] } ] },
+    { "file": "art/v0.5/02_hana_faces.png", "char": "face", "split": "grid", "grid": [3, 2],
+      "poses": [
+        { "id": "face_look",     "states": ["look"] },
+        { "id": "face_surprise", "states": ["surprise"] },
+        { "id": "face_sing",     "states": ["sing"] },
+        { "id": "face_smile",    "states": ["pass"] },
+        { "id": "face_worry",    "states": ["retry"] },
+        { "id": "face_camera",   "states": ["best"] }
+      ] }
+  ]
+}

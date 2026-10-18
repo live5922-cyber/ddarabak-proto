@@ -1,0 +1,15 @@
+{
+  "format": "ttb-judge/0.2",
+  "units": "ms",
+  "default": "normal",
+  "note": "research/jp/2026-10-18_chart_design.md 3·8-1절. GOOD 창은 같은 쪽 이웃 노트 간격의 절반을 넘지 않음(neighborCap). earlyMiss null = GOOD 밖 일찍 누름은 빈 터치(벌 없음).",
+  "neighborCap": true,
+  "presets": {
+    "loose":  { "label": "느슨하게", "perfect": 70, "great": 110, "good": 145, "lateMiss": 220, "earlyMiss": null,
+                "holdEarlyRelease": 250, "holdGap": 150, "holdLateGrab": true, "bothSync": 100, "mashPresses": 3 },
+    "normal": { "label": "보통", "perfect": 50, "great": 90, "good": 125, "lateMiss": 200, "earlyMiss": null,
+                "holdEarlyRelease": 180, "holdGap": 100, "holdLateGrab": true, "bothSync": 70, "mashPresses": 3 },
+    "strict": { "label": "정확하게", "perfect": 35, "great": 70, "good": 105, "lateMiss": 170, "earlyMiss": 170,
+                "holdEarlyRelease": 120, "holdGap": 60, "holdLateGrab": false, "bothSync": 45, "mashPresses": 3 }
+  }
+}

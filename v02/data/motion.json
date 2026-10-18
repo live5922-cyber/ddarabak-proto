@@ -1,0 +1,77 @@
+{
+  "note": "움직임 값(모션 바이블 research/jp/2026-10-18_motion_bible.md 4~7절 중 지금 그림으로 되는 것 M0). 길이는 박 또는 ms. 화면 숫자는 아이폰 12 CSS px.",
+  "beatCurve": {
+    "note": "박 안 위치 φ(0~1)별 몸 높이(+ 아래 px)·세로 크기·기울기(°). 4-3절",
+    "phi":  [0,    0.125, 0.25, 0.5,  0.75,  0.875, 1],
+    "y":    [3,    1.5,   0,    -1,   -1.5,  -0.5,  3],
+    "sy":   [0.96, 0.98,  1.0,  1.01, 1.02,  1.0,   0.96],
+    "tilt": [3,    2,     1,    0,    -0.5,  -1.5,  -3]
+  },
+  "barAccent": 1.5,
+  "respScale": 0.5,
+  "callerDelayBeats": 0.5,
+  "callerScale": 0.8,
+  "tap": { "squash": 0.92, "down": 3, "stretch": 1.04, "up": 2, "t1Ms": 33, "t2Ms": 125, "t3Ms": 250, "backToIdleMs": 260 },
+  "flip": { "ms": 160, "anticipateMs": 50, "anticipateSy": 0.95, "overshootMs": 110, "overshootSy": 1.05 },
+  "react": {
+    "note": "받는 마디 마지막 노트 다음 빈 박에 한 번(5-5절). perfect = 모두 PERFECT, great = GREAT 이상, good = GOOD 섞임, miss = MISS 있음",
+    "perfect": { "state": "perfect", "beats": 2, "hop": 10, "flash": true },
+    "great":   { "state": "great",   "beats": 1, "hop": 6 },
+    "good":    { "state": "good",    "beats": 1, "nod": 6 },
+    "miss":    { "state": "miss",    "beats": 2, "slide": 16 }
+  },
+  "fallback": {
+    "idle_listen": "idle", "sing": "idle", "react_card": "idle_listen",
+    "tap_left": "idle", "tap_right": "tap_left", "both": "tap_left", "hold": "tap_left",
+    "perfect": "great", "great": "idle", "good": "idle", "miss": "idle", "combo": "perfect", "end": "perfect",
+    "call": "idle", "watch": "idle", "knock": "watch"
+  },
+  "bgFilter": { "note": "배경 물림(색 3안 bgf3 바탕). sat = 채도 배율, contrast = 대비, lift = 남색 쪽 절편(RGB 0~1). 3안 원값 0.35·0.70. 새 겹친 종이 배경은 원래 채도가 낮아 0.6으로 올림(색채도 M 목표 55~70)", "sat": 1.0, "contrast": 0.86, "lift": [0.022, 0.034, 0.075], "warmTh": 0.35, "warmSat": 1.0, "perBg": { "p2": { "sat": 0.72, "contrast": 0.82, "warmSat": 0.9, "note": "판 2는 하늘(Lake)이 진해 채도를 그대로 두면 C*≥40 면이 28% → 물림" } }, "note2": "화면 검토 K1(10-19): 칙칙함(M 46~47) → 겹친 종이 배경은 원래 채도가 낮아 채도는 그대로(1.0), 대비만 0.86으로 물림, 따뜻한 색 보호 문턱 0.6 → 0.35" },
+  "anim": {
+    "note": "동작 이어 그림 넘김 규칙(코디네이터 10-19, 움직임 재검토 10-19 V1~V8 반영). 시각은 박 단위(곡 지도 beatsMs 그대로). 칸 이름은 assets/anim.json.",
+    "idle": {
+      "A1_idle": { "order": ["down", "rise", "up", "fall"], "per": 0.25 },
+      "A2_clap": { "order": ["clap", "open", "wide", "close"], "per": 0.25 },
+      "A3_step": { "order": ["left", "pass1", "right", "pass2"], "per": 0.5 }
+    },
+    "idleSwitchBars": 2,
+    "listen": { "motion": "A1_idle", "order": ["down", "rise"], "per": 0.5, "nodSy": 0.97, "nodBeats": 0.0625, "note": "아저씨가 부를 때 하나는 듣기(박마다 두 칸) + 글자마다 끄덕(V7)" },
+    "hitL": ["B1_hitL", "B2_cheerL"], "roundFirstL": "B3_pointL", "hitR": ["C1_hitR", "C2_stompR", "C3_waveR"],
+    "pre": [["ready", -0.5], ["wind", -0.25]], "preShort": [["wind", -0.25]], "shortGap": 0.75,
+    "after": [["hit", 0], ["bounce", 0.125], ["settle", 0.25]], "afterEnd": 0.5, "nextWithin": 1.0,
+    "hold": { "motion": "D1_hold", "pre": [["ready", -0.5]], "press": "press", "sustain": ["sustainA", "sustainB"], "sustainEvery": 0.5, "release": [["release", 0], ["settle", 0.25]], "releaseEnd": 0.5 },
+    "both": "D2_both",
+    "reactMinGap": 1,
+    "react": {
+      "PERFECT": { "motion": "E1_perfect", "anchor": "next8", "frames": [["lift", -0.125], ["snap", 0], ["hold", 0.125], ["lower", 0.375]], "end": 0.625 },
+      "GREAT":   { "motion": "E2_great", "anchor": "next16", "frames": [["rise", 0], ["thumb", 0.125], ["settle", 0.375]], "end": 0.625 },
+      "GOOD":    { "motion": "E3_good", "anchor": "next16", "frames": [["dip", 0], ["nod", 0.125], ["up", 0.25]], "end": 0.5 },
+      "MISS":    [ { "motion": "F1_slip", "frames": [["slip", 0], ["wobble", 0.125], ["catch", 0.25], ["recover", 0.5]], "end": 0.75 },
+                   { "motion": "F2_shy", "frames": [["handup", 0], ["scratch", 0.125], ["lower", 0.375]], "end": 0.625 } ],
+      "missPressed": "press", "missPass": "nextBeat", "missPassPre": [["ready", -0.125]],
+      "beforeCall": 0.25, "note": "누른 MISS는 누른 즉시(V6), 안 누른 MISS는 다음 박. 반응이 다음 부름 0.25박 전을 넘으면 거기서 끊음"
+    },
+    "combo": { "every": 10, "minGap": 2, "motion": "D3_jump", "frames": [["crouch", 0], ["takeoff", 0.125], ["top", 0.375], ["fall", 0.625], ["land", 1], ["recover", 1.125]], "end": 1.375, "arc": { "from": 0.125, "to": 1, "H": 56 } },
+    "end": { "motion": "D3_jump", "frames": [["crouch", -0.25], ["takeoff", -0.125], ["top", 0.0625], ["fall", 0.3125], ["land", 0.5], ["recover", 0.625]], "arc": { "from": -0.125, "to": 0.5, "H": 56 } },
+    "card": { "motion": "F3_surprise", "frames": [["startle", -0.0625], ["lookup", 0.25], ["delight", 0.5]], "end": 0.75, "kinds": ["row"] },
+    "uncle": {
+      "call": "U1_call", "breatheAt": -0.125, "holdAfter": 0.125, "relaxAfter": 0.375,
+      "point": { "motion": "U3_point", "frames": [["pull", -0.5], ["point", -0.25]] },
+      "cheer": { "motion": "U2_clap", "order": ["clap", "wide"], "per": 0.5 },
+      "rest": [ { "motion": "U2_clap", "order": ["clap", "wide"], "per": 0.5 }, { "motion": "U4_potato", "order": ["look", "lift", "show", "lower"], "per": 0.5 }, { "motion": "U1_call", "order": ["relax", "hold"], "per": 1 } ],
+      "restSwitchBars": 2, "restOffsetBars": 1,
+      "potato": { "motion": "U4_potato", "order": ["lift", "show", "show", "lower"], "per": 0.5 },
+      "missRelax": { "motion": "U1_call", "key": "relax", "beats": 1 }
+    },
+    "code": { "strongSquash": 0.03, "weakSquash": 0.015, "squashBeats": 0.25, "tiltDeg": 1.0, "hitSquash": 0.03, "landSquash": 0.12, "landBeats": 0.125, "landOver": 1.04, "wobbleDeg": 0.8, "wobbleMs": 70, "callerScale": 0.5 }
+  },  "stage": {
+    "bumpScale": 1.012, "bumpBeats": 1, "parallaxTop": 0.5,
+    "freezePerfectMs": 33, "freezeBarMs": 66, "shakePx": 4, "flashMs": 90, "flashAlpha": 0.28
+  },
+  "snow": { "back": 24, "front": 8, "backFallBeats": 16, "frontFallBeats": 8, "swayBeats": 2, "swayPx": 6 },
+  "lights": { "note": "창 불빛 판: 원본에서 밝고 따뜻한 점(L* ≥ 70, b* ≥ 8 또는 창 색 #E9D9B8 ΔE ≤ 18), 40px 칸 바둑판 두 무리. 켜질 때 밝기 +15% 안팎, 마디 첫 박은 두 무리 다", "alpha": 0.55, "comboAlpha": 0.8, "decayBeats": 0.75, "cellPx": 40, "minL": 70, "minB": 8, "winLab": [87, 1.5, 15], "winDE": 18 },
+  "steam": { "rise": 40, "grow": 1.3, "lifeBeats": 2, "chimneyX": 0.20, "chimneyY": 0.17 },
+  "card": { "unfoldMs": 70, "bounce": 8, "respScale": 0.85, "shrinkBeats": 0.32, "litBeats": 0.5 },
+  "note": { "stampBeats": 0.12, "flyBeats": 0.5, "ghostFlashMs": 160 },
+  "caller": { "syllableLean": 4, "megaphonePulse": 1.06, "knockSquash": 0.9, "shards": 3 }
+}

@@ -1,0 +1,27 @@
+{
+    "note":  "proto_v02_assets.ps1이 만듦. 배경 그림 px 기준.",
+    "bg":  {
+               "p1":  {
+                          "src":  "assets/bg/p1.jpg",
+                          "w":  1080,
+                          "h":  1910,
+                          "groundY":  1278.9,
+                          "focusX":  540,
+                          "srcW":  1520,
+                          "sky":  "#273D6A",
+                          "name":  "삿포로역 앞 밤",
+                          "from":  "art/v0.5/bg_ch1_p1_station.png"
+                      },
+               "p2":  {
+                          "src":  "assets/bg/p2.jpg",
+                          "w":  1080,
+                          "h":  1910,
+                          "groundY":  1250.5,
+                          "focusX":  540,
+                          "srcW":  1520,
+                          "sky":  "#4466A9",
+                          "name":  "오도리 공원 크리스마스 시장",
+                          "from":  "art/v0.5/bg_ch1_p2_odori.png"
+                      }
+           }
+}

@@ -1,0 +1,1273 @@
+{
+    "format":  "ttb-voice/0.1",
+    "chapter":  "ch1",
+    "song":  "하나도 못 읽어요",
+    "made":  "2026-10-19",
+    "status":  "시험판 임시(출시판은 원어민 녹음으로 바꿈)",
+    "note":  "맞히면 나는 글자 목소리. 채보 prototype/v0.2/data/ch1_chart.json 노트 id 기준(판 1·2). 음높이 = 그 자리 받는 떼창(곡 스템 Vocals·Backing Vocals)을 재서 맞춤. 21-4는 판 2 길게 → 톡 바뀜(결정 10-19 (2)) 대비 미리 만든 톡.",
+    "engine":  {
+                   "name":  "VOICEVOX Engine",
+                   "version":  "0.25.2",
+                   "file":  "voicevox_engine-windows-cpu-0.25.2.vvpp",
+                   "url":  "https://github.com/VOICEVOX/voicevox_engine/releases/download/0.25.2/voicevox_engine-windows-cpu-0.25.2.vvpp",
+                   "sha256":  "cae07cb718866708d8c6148988769966168a2282610f53f002b19778ebea38e9"
+               },
+    "voice":  {
+                  "character":  "雨晴はう",
+                  "style":  "ノーマル (노래 디코더)",
+                  "speakerId":  3010,
+                  "credit":  "VOICEVOX:雨晴はう",
+                  "method":  "frame_synthesis에 직접 짠 프레임(f0·크기·음소 길이)을 넣음. 노래 지도 모델(6000)은 쓰지 않음."
+              },
+    "alt":  {
+                "character":  "冥鳴ひまり",
+                "speakerId":  3014,
+                "credit":  "VOICEVOX:冥鳴ひまり"
+            },
+    "audio":  "44.1kHz 16bit 모노 wav. 앞 무음 1ms 안팎(-40dBFS 기준), 앞 1.5ms·끝 30ms(길게 40ms) 코사인 페이드. 파일 몸통 RMS(50ms 창 최대) 약 -16.5dBFS, 꼭대기 -1dBFS 아래.",
+    "mix":  {
+                "rule":  "곡 대비: RMS -12dB(소리 검토 I2), 꼭대기 -6dB 이하, 1~4kHz -10dB 이하 중 가장 엄한 값. 곡 크기·필터는 건드리지 않음(덕킹 금지). 아래 eq를 건 상태로 잰 값.",
+                "eq":  [
+                           {
+                               "type":  "highpass",
+                               "frequency":  150,
+                               "Q_webaudio_dB":  -3.01
+                           },
+                           {
+                               "type":  "peaking",
+                               "frequency":  2500,
+                               "Q":  0.7,
+                               "gain":  -6
+                           }
+                       ],
+                "gainDb":  "노트마다 notes[].gainDb. 노트를 모를 때 고정값 fixedGainDb.",
+                "fixedGainDb":  -12,
+                "holdRelease":  "길게 노트를 일찍 떼면 그 자리에서 30ms 페이드로 끊음."
+            },
+    "files":  {
+                  "a_C4.wav":  {
+                                   "kana":  "あ",
+                                   "romaji":  "a",
+                                   "pitch":  [
+                                                 "C4"
+                                             ],
+                                   "targetHz":  [
+                                                    261.6
+                                                ],
+                                   "measuredHz":  [
+                                                      262.1
+                                                  ],
+                                   "centsOff":  [
+                                                    3.1
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1,
+                                   "peakDbfs":  -6.46,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "18fb686f96f9cdd23c9696175031c76699f2cdb2005561a930a7a2a807d7964c"
+                               },
+                  "e_14-3h.wav":  {
+                                      "kana":  "え",
+                                      "romaji":  "e",
+                                      "pitch":  [
+                                                    "G4"
+                                                ],
+                                      "targetHz":  [
+                                                       392
+                                                   ],
+                                      "measuredHz":  [
+                                                         392.9
+                                                     ],
+                                      "centsOff":  [
+                                                       3.8
+                                                   ],
+                                      "lenMs":  490,
+                                      "leadSilenceMs":  1.02,
+                                      "peakDbfs":  -8.22,
+                                      "fadeOutMs":  40,
+                                      "sha256":  "8bafc07c83918f9bc0af019047671c9cede244a6d470bb96324013a80ef0eed9"
+                                  },
+                  "e_C4.wav":  {
+                                   "kana":  "え",
+                                   "romaji":  "e",
+                                   "pitch":  [
+                                                 "C4"
+                                             ],
+                                   "targetHz":  [
+                                                    261.6
+                                                ],
+                                   "measuredHz":  [
+                                                      262.6
+                                                  ],
+                                   "centsOff":  [
+                                                    6.5
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1,
+                                   "peakDbfs":  -8.08,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "80664160b417c23d93204d96f2542308c9af89b01652568eaea1cf55e125b36a"
+                               },
+                  "e_Eb4.wav":  {
+                                    "kana":  "え",
+                                    "romaji":  "e",
+                                    "pitch":  [
+                                                  "Eb4"
+                                              ],
+                                    "targetHz":  [
+                                                     311.1
+                                                 ],
+                                    "measuredHz":  [
+                                                       310.9
+                                                   ],
+                                    "centsOff":  [
+                                                     -1.2
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -7.89,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "53b36ee521321a75e7094bcd56024a93b88ab7843f1738abb4ce027754178d9e"
+                                },
+                  "e_G4.wav":  {
+                                   "kana":  "え",
+                                   "romaji":  "e",
+                                   "pitch":  [
+                                                 "G4"
+                                             ],
+                                   "targetHz":  [
+                                                    392
+                                                ],
+                                   "measuredHz":  [
+                                                      391.3
+                                                  ],
+                                   "centsOff":  [
+                                                    -3
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1,
+                                   "peakDbfs":  -7.21,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "e3da31b662152efac5a23828fa9efc1377900c1cf5f52e59071b5513d8f39d28"
+                               },
+                  "i_A4.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "A4"
+                                             ],
+                                   "targetHz":  [
+                                                    440
+                                                ],
+                                   "measuredHz":  [
+                                                      440.4
+                                                  ],
+                                   "centsOff":  [
+                                                    1.6
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.29,
+                                   "peakDbfs":  -8.36,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "5d626eb1bfae334afc3d86f06f518e64fe81773443297f670b28f586e0d93028"
+                               },
+                  "i_B4.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "B4"
+                                             ],
+                                   "targetHz":  [
+                                                    493.9
+                                                ],
+                                   "measuredHz":  [
+                                                      494.2
+                                                  ],
+                                   "centsOff":  [
+                                                    1.2
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.29,
+                                   "peakDbfs":  -9.44,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "aabc628955b47aaa008d93be545b2ce8c724fb600a15c407548e19833509bfa0"
+                               },
+                  "i_G4.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "G4"
+                                             ],
+                                   "targetHz":  [
+                                                    392
+                                                ],
+                                   "measuredHz":  [
+                                                      392.3
+                                                  ],
+                                   "centsOff":  [
+                                                    1.1
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  0.98,
+                                   "peakDbfs":  -6.5,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "65e534b9b1af9fc3e3f829ace9a985cc89b408d30c708877c158c6d3d5eb999b"
+                               },
+                  "ii_G4A4.wav":  {
+                                      "kana":  "いい",
+                                      "romaji":  "ii",
+                                      "pitch":  [
+                                                    "G4",
+                                                    "A4"
+                                                ],
+                                      "targetHz":  [
+                                                       392,
+                                                       440
+                                                   ],
+                                      "measuredHz":  [
+                                                         392.5,
+                                                         440.1
+                                                     ],
+                                      "centsOff":  [
+                                                       2.3,
+                                                       0.6
+                                                   ],
+                                      "lenMs":  425,
+                                      "leadSilenceMs":  1,
+                                      "peakDbfs":  -5.68,
+                                      "fadeOutMs":  30,
+                                      "sha256":  "c5e2b0d756c00ecc92bf31012476fc05a9fa3e398605414b31824c287376dd39"
+                                  },
+                  "ka_A4.wav":  {
+                                    "kana":  "か",
+                                    "romaji":  "ka",
+                                    "pitch":  [
+                                                  "A4"
+                                              ],
+                                    "targetHz":  [
+                                                     440
+                                                 ],
+                                    "measuredHz":  [
+                                                       440.1
+                                                   ],
+                                    "centsOff":  [
+                                                     0.3
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  0.98,
+                                    "peakDbfs":  -5.73,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "01c969df3534179427a0d6feafe207c180d6c9516f7fab4416806a42b11211a3"
+                                },
+                  "ka_C4.wav":  {
+                                    "kana":  "か",
+                                    "romaji":  "ka",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.6
+                                                   ],
+                                    "centsOff":  [
+                                                     0
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  0.98,
+                                    "peakDbfs":  -6.49,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "1b02adc28b76aa2d424a351c61c5a46cc3661e61c51700332e3396865e76eadf"
+                                },
+                  "ke_C4.wav":  {
+                                    "kana":  "け",
+                                    "romaji":  "ke",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.7
+                                                   ],
+                                    "centsOff":  [
+                                                     0.2
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -7.05,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "3154eeff8be45733e03b702329171d9bedb3c54dbb236c6b01e0fc6c848d727f"
+                                },
+                  "ki_Eb4.wav":  {
+                                     "kana":  "き",
+                                     "romaji":  "ki",
+                                     "pitch":  [
+                                                   "Eb4"
+                                               ],
+                                     "targetHz":  [
+                                                      311.1
+                                                  ],
+                                     "measuredHz":  [
+                                                        310.7
+                                                    ],
+                                     "centsOff":  [
+                                                      -2.4
+                                                  ],
+                                     "lenMs":  220,
+                                     "leadSilenceMs":  1.04,
+                                     "peakDbfs":  -8.22,
+                                     "fadeOutMs":  30,
+                                     "sha256":  "72885f4839a4507e707700ad8a30096bf2ff46b3f5b322e36458d8fac70d34f1"
+                                 },
+                  "ki_G4.wav":  {
+                                    "kana":  "き",
+                                    "romaji":  "ki",
+                                    "pitch":  [
+                                                  "G4"
+                                              ],
+                                    "targetHz":  [
+                                                     392
+                                                 ],
+                                    "measuredHz":  [
+                                                       392.5
+                                                   ],
+                                    "centsOff":  [
+                                                     2.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.02,
+                                    "peakDbfs":  -7.98,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "748dface019e2d106ceb22c379776c640c838b2e158d4ee9d948246809ef1508"
+                                },
+                  "ko_21-4h.wav":  {
+                                       "kana":  "こ",
+                                       "romaji":  "ko",
+                                       "pitch":  [
+                                                     "Eb4"
+                                                 ],
+                                       "targetHz":  [
+                                                        311.1
+                                                    ],
+                                       "measuredHz":  [
+                                                          311.2
+                                                      ],
+                                       "centsOff":  [
+                                                        0.5
+                                                    ],
+                                       "lenMs":  488,
+                                       "leadSilenceMs":  0.98,
+                                       "peakDbfs":  -6.4,
+                                       "fadeOutMs":  40,
+                                       "sha256":  "79b598f07bf5fc76495baa3507bee22e3aa8c27bd37a161ca232733683f837ec"
+                                   },
+                  "ko_A3.wav":  {
+                                    "kana":  "こ",
+                                    "romaji":  "ko",
+                                    "pitch":  [
+                                                  "A3"
+                                              ],
+                                    "targetHz":  [
+                                                     220
+                                                 ],
+                                    "measuredHz":  [
+                                                       219.7
+                                                   ],
+                                    "centsOff":  [
+                                                     -2.7
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.02,
+                                    "peakDbfs":  -8.34,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "2ddef6a40d3b9e4e4e45b24fafcd8b8b0961dc198126ebbb5781c79f15a403fa"
+                                },
+                  "ko_C4.wav":  {
+                                    "kana":  "こ",
+                                    "romaji":  "ko",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.8
+                                                   ],
+                                    "centsOff":  [
+                                                     1.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.02,
+                                    "peakDbfs":  -8.94,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "7c1fb489e15ba5a6970265f59f4c7742f48da8fdf27dd2a64ce61290626a0d93"
+                                },
+                  "ko_Eb4.wav":  {
+                                     "kana":  "こ",
+                                     "romaji":  "ko",
+                                     "pitch":  [
+                                                   "Eb4"
+                                               ],
+                                     "targetHz":  [
+                                                      311.1
+                                                  ],
+                                     "measuredHz":  [
+                                                        311.4
+                                                    ],
+                                     "centsOff":  [
+                                                      1.5
+                                                  ],
+                                     "lenMs":  220,
+                                     "leadSilenceMs":  1.02,
+                                     "peakDbfs":  -9,
+                                     "fadeOutMs":  30,
+                                     "sha256":  "561d94158d664f9b2d52202ff0e23448be001041617f6e5b447889a42ab70208"
+                                 },
+                  "ku_C4.wav":  {
+                                    "kana":  "く",
+                                    "romaji":  "ku",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.7
+                                                   ],
+                                    "centsOff":  [
+                                                     0.2
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.41,
+                                    "peakDbfs":  -8.64,
+                                    "fadeOutMs":  30,
+                                    "sha256":  "85146d1a5928c7b5822e2d0b2104ef9acf4e335a80a1613263ed0f01daf3636c"
+                                },
+                  "o_24-3h.wav":  {
+                                      "kana":  "お",
+                                      "romaji":  "o",
+                                      "pitch":  [
+                                                    "G4"
+                                                ],
+                                      "targetHz":  [
+                                                       392
+                                                   ],
+                                      "measuredHz":  [
+                                                         391.8
+                                                     ],
+                                      "centsOff":  [
+                                                       -0.8
+                                                   ],
+                                      "lenMs":  983,
+                                      "leadSilenceMs":  1.02,
+                                      "peakDbfs":  -8.65,
+                                      "fadeOutMs":  40,
+                                      "sha256":  "800060e234d8ba235f71886e656bdc2a7b01e872b88b468dcb65b390f4d8d858"
+                                  },
+                  "o_A3.wav":  {
+                                   "kana":  "お",
+                                   "romaji":  "o",
+                                   "pitch":  [
+                                                 "A3"
+                                             ],
+                                   "targetHz":  [
+                                                    220
+                                                ],
+                                   "measuredHz":  [
+                                                      219.9
+                                                  ],
+                                   "centsOff":  [
+                                                    -0.6
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.04,
+                                   "peakDbfs":  -10.11,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "eb0c948298878ff4251813345b4e765cc25f9602d11331fb82cd0bfbed7c8ae7"
+                               },
+                  "o_C4.wav":  {
+                                   "kana":  "お",
+                                   "romaji":  "o",
+                                   "pitch":  [
+                                                 "C4"
+                                             ],
+                                   "targetHz":  [
+                                                    261.6
+                                                ],
+                                   "measuredHz":  [
+                                                      262
+                                                  ],
+                                   "centsOff":  [
+                                                    2.3
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  2.97,
+                                   "peakDbfs":  -11.99,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "0e161141959c07e87ec1bb433830e2e70c97aa75934450486a08d346538ebca7"
+                               },
+                  "u_C4.wav":  {
+                                   "kana":  "う",
+                                   "romaji":  "u",
+                                   "pitch":  [
+                                                 "C4"
+                                             ],
+                                   "targetHz":  [
+                                                    261.6
+                                                ],
+                                   "measuredHz":  [
+                                                      261.9
+                                                  ],
+                                   "centsOff":  [
+                                                    1.7
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.07,
+                                   "peakDbfs":  -8.95,
+                                   "fadeOutMs":  30,
+                                   "sha256":  "3a3850650ebfc84a649734ef809a52bb71bd94a29075ebff3f167661a7bbb257"
+                               }
+              },
+    "notes":  [
+                  {
+                      "id":  "10-1",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  19007,
+                      "holdMs":  0,
+                      "file":  "a_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -12.1,
+                      "relSongVocalBandDb":  -13.4,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "10-2",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  19499,
+                      "holdMs":  0,
+                      "file":  "i_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -15.3,
+                      "relSongVocalBandDb":  -20,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "10-3",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "う",
+                      "type":  "tap",
+                      "slotMs":  19992,
+                      "holdMs":  0,
+                      "file":  "u_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -12.2,
+                      "relSongVocalBandDb":  -19.8,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "10-3.5",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "え",
+                      "type":  "tap",
+                      "slotMs":  20239,
+                      "holdMs":  0,
+                      "file":  "e_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -16,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -16.8,
+                      "relSongVocalBandDb":  -20.5,
+                      "pitchSource":  "추정(짧음, 배음 합 C4)"
+                  },
+                  {
+                      "id":  "10-4",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  20486,
+                      "holdMs":  0,
+                      "file":  "o_A3.wav",
+                      "pitch":  [
+                                    "A3"
+                                ],
+                      "hz":  [
+                                 220
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -16.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -12,
+                      "relSongVocalBandDb":  -17.5,
+                      "pitchSource":  "잼(C4→A3 내림, 끝음)"
+                  },
+                  {
+                      "id":  "11-3",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  21969,
+                      "holdMs":  0,
+                      "file":  "a_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -13.1,
+                      "relSongVocalBandDb":  -12,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "11-3.5",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  22216,
+                      "holdMs":  0,
+                      "file":  "o_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -13.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -13.9,
+                      "relSongVocalBandDb":  -22.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "11-4",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  22463,
+                      "holdMs":  0,
+                      "file":  "i_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -17.2,
+                      "relSongVocalBandDb":  -17.7,
+                      "pitchSource":  "추정(C4→A4 올림, 목소리 길이 안 머무는 음)"
+                  },
+                  {
+                      "id":  "12-3",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "う",
+                      "type":  "tap",
+                      "slotMs":  23911,
+                      "holdMs":  0,
+                      "file":  "u_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -13,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -13.2,
+                      "relSongVocalBandDb":  -22.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "12-4",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "え",
+                      "type":  "tap",
+                      "slotMs":  24434,
+                      "holdMs":  0,
+                      "file":  "e_Eb4.wav",
+                      "pitch":  [
+                                    "Eb4"
+                                ],
+                      "hz":  [
+                                 311.1
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -13.4,
+                      "relSongVocalBandDb":  -20.9,
+                      "pitchSource":  "추정(유성 적음, 배음 합 D4+60센트)"
+                  },
+                  {
+                      "id":  "13-4p",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "いい",
+                      "type":  "pill",
+                      "slotMs":  26393,
+                      "holdMs":  0,
+                      "file":  "ii_G4A4.wav",
+                      "pitch":  [
+                                    "G4",
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 392,
+                                 440
+                             ],
+                      "lenMs":  425,
+                      "gainDb":  -12.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -13.8,
+                      "relSongVocalBandDb":  -17.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "14-1",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "え",
+                      "type":  "tap",
+                      "slotMs":  26883,
+                      "holdMs":  0,
+                      "file":  "e_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -11.7,
+                      "relSongVocalBandDb":  -16.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "14-2p",
+                      "pans":  [
+                                   1,
+                                   2
+                               ],
+                      "kana":  "いい",
+                      "type":  "pill",
+                      "slotMs":  27400,
+                      "holdMs":  0,
+                      "file":  "ii_G4A4.wav",
+                      "pitch":  [
+                                    "G4",
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 392,
+                                 440
+                             ],
+                      "lenMs":  425,
+                      "gainDb":  -12.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -13.2,
+                      "relSongVocalBandDb":  -19.5,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "14-3",
+                      "pans":  [
+                                   1
+                               ],
+                      "kana":  "え",
+                      "type":  "tap",
+                      "slotMs":  27862,
+                      "holdMs":  0,
+                      "file":  "e_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -13.5,
+                      "relSongVocalBandDb":  -17.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "14-3h",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "え",
+                      "type":  "hold",
+                      "slotMs":  27862,
+                      "holdMs":  490,
+                      "file":  "e_14-3h.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  490,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -13.8,
+                      "relSongVocalBandDb":  -16,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "20-1",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "か",
+                      "type":  "tap",
+                      "slotMs":  38655,
+                      "holdMs":  0,
+                      "file":  "ka_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -15,
+                      "limitBy":  "1-4kHz",
+                      "relSongRmsDb":  -15.6,
+                      "relSongPeakDb":  -15.7,
+                      "relSongVocalBandDb":  -10.2,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "20-2",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "き",
+                      "type":  "tap",
+                      "slotMs":  39144,
+                      "holdMs":  0,
+                      "file":  "ki_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -16,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -12.1,
+                      "relSongVocalBandDb":  -27.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "20-3",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "く",
+                      "type":  "tap",
+                      "slotMs":  39634,
+                      "holdMs":  0,
+                      "file":  "ku_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -11.3,
+                      "relSongVocalBandDb":  -12.2,
+                      "pitchSource":  "잼(YIN 옥타브 아래 오류 → 배음 합 C4)"
+                  },
+                  {
+                      "id":  "20-3.5",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "け",
+                      "type":  "tap",
+                      "slotMs":  39878,
+                      "holdMs":  0,
+                      "file":  "ke_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -17.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -14.4,
+                      "relSongVocalBandDb":  -17.7,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "20-4",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  40122,
+                      "holdMs":  0,
+                      "file":  "ko_A3.wav",
+                      "pitch":  [
+                                    "A3"
+                                ],
+                      "hz":  [
+                                 220
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -18,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -13.1,
+                      "relSongVocalBandDb":  -18.4,
+                      "pitchSource":  "잼(D4→A3 내림, 끝음)"
+                  },
+                  {
+                      "id":  "21-3",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  41589,
+                      "holdMs":  0,
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -13.7,
+                      "relSongVocalBandDb":  -16.7,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "21-3.5",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  41834,
+                      "holdMs":  0,
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -17,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -18.8,
+                      "relSongVocalBandDb":  -23.7,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "21-4h",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "こ",
+                      "type":  "hold",
+                      "slotMs":  42078,
+                      "holdMs":  488,
+                      "file":  "ko_21-4h.wav",
+                      "pitch":  [
+                                    "Eb4"
+                                ],
+                      "hz":  [
+                                 311.1
+                             ],
+                      "lenMs":  488,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -13.2,
+                      "relSongVocalBandDb":  -17.4,
+                      "pitchSource":  "잼(누르는 동안 D4+80센트, 뗀 뒤 C4로 내림)"
+                  },
+                  {
+                      "id":  "22-3",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "く",
+                      "type":  "tap",
+                      "slotMs":  43545,
+                      "holdMs":  0,
+                      "file":  "ku_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -15,
+                      "relSongVocalBandDb":  -15.2,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "22-3.5",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "く",
+                      "type":  "tap",
+                      "slotMs":  43790,
+                      "holdMs":  0,
+                      "file":  "ku_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -15,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -16.4,
+                      "relSongVocalBandDb":  -21.2,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "22-4",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "き",
+                      "type":  "tap",
+                      "slotMs":  44034,
+                      "holdMs":  0,
+                      "file":  "ki_Eb4.wav",
+                      "pitch":  [
+                                    "Eb4"
+                                ],
+                      "hz":  [
+                                 311.1
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -16.5,
+                      "relSongVocalBandDb":  -22.4,
+                      "pitchSource":  "추정(유성 적음, 배음 합 D4+70센트)"
+                  },
+                  {
+                      "id":  "24-1",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  46488,
+                      "holdMs":  0,
+                      "file":  "i_B4.wav",
+                      "pitch":  [
+                                    "B4"
+                                ],
+                      "hz":  [
+                                 493.9
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -9.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -13.6,
+                      "relSongVocalBandDb":  -19.7,
+                      "pitchSource":  "잼(A#4→B4 올림, 끝음)"
+                  },
+                  {
+                      "id":  "24-2",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "か",
+                      "type":  "tap",
+                      "slotMs":  46979,
+                      "holdMs":  0,
+                      "file":  "ka_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -11.4,
+                      "relSongVocalBandDb":  -14.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "24-3h",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "お",
+                      "type":  "hold",
+                      "slotMs":  47471,
+                      "holdMs":  983,
+                      "file":  "o_24-3h.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  983,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -13.5,
+                      "relSongVocalBandDb":  -14.4,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "21-4",
+                      "pans":  [
+                                   2
+                               ],
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  42078,
+                      "holdMs":  0,
+                      "file":  "ko_Eb4.wav",
+                      "pitch":  [
+                                    "Eb4"
+                                ],
+                      "hz":  [
+                                 311.1
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -15.4,
+                      "relSongVocalBandDb":  -20.7,
+                      "pitchSource":  "잼(21-4h와 같은 자리, 판 2 길게 → 톡 바뀜 대비, 결정 10-19 (2))"
+                  }
+              ]
+}
