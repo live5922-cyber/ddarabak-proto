@@ -1,0 +1,59 @@
+{
+    "note":  "proto_assets.ps1이 만듦. 그림 1px = 화면 cssPerPx CSS px.",
+    "bg":  {
+               "src":  "assets/bg/ch1_pan1_bg.jpg",
+               "w":  1080,
+               "h":  1910,
+               "groundY":  1211.4,
+               "focusX":  680,
+               "cssPerPx":  0.4926,
+               "from":  "art/v0.5/04_ch1_bg2_odori_market.png"
+           },
+    "dolls":  {
+                  "hana_beat":  {
+                                    "src":  "assets/doll/hana_beat.png",
+                                    "w":  360,
+                                    "h":  494,
+                                    "footX":  330,
+                                    "footY":  487,
+                                    "cssPerPx":  0.5,
+                                    "srcBox":  "15,186,898,1246"
+                                },
+                  "hana_photo":  {
+                                     "src":  "assets/doll/hana_photo.png",
+                                     "w":  273,
+                                     "h":  515,
+                                     "footX":  111,
+                                     "footY":  508,
+                                     "cssPerPx":  0.5,
+                                     "srcBox":  "968,130,673,1302"
+                                 },
+                  "hana_slip":  {
+                                    "src":  "assets/doll/hana_slip.png",
+                                    "w":  401,
+                                    "h":  513,
+                                    "footX":  209,
+                                    "footY":  506,
+                                    "cssPerPx":  0.5,
+                                    "srcBox":  "1677,135,1005,1296"
+                                },
+                  "caller_call":  {
+                                      "src":  "assets/doll/caller_call.png",
+                                      "w":  367,
+                                      "h":  533,
+                                      "footX":  210,
+                                      "footY":  526,
+                                      "cssPerPx":  0.5,
+                                      "srcBox":  "320,117,918,1347"
+                                  },
+                  "caller_clap":  {
+                                      "src":  "assets/doll/caller_clap.png",
+                                      "w":  374,
+                                      "h":  571,
+                                      "footX":  122,
+                                      "footY":  564,
+                                      "cssPerPx":  0.5,
+                                      "srcBox":  "1494,19,934,1447"
+                                  }
+              }
+}

@@ -1,5 +1,104 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>따라박 시험판</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#283A66;color:#FFF8EC;font-family:system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;text-align:center}h1{font-size:40px;margin:0 0 8px}p{margin:0;color:#FFB511;font-size:18px}</style>
-</head><body><main><h1>따라박</h1><p>시험판 준비 중</p></main></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#283A66">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>따라박 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-scr="title">
+<div id="safe-probe" aria-hidden="true"></div>
+<canvas id="stage" aria-label="따라박 연주 화면"></canvas>
+
+<!-- 시작 -->
+<section id="scr-title" class="scr">
+  <div class="sheet title-sheet">
+    <h1>따라박</h1>
+    <p class="sub">일본어 글자를 따라 치는 리듬게임</p>
+    <div class="pan"><span class="tag">1챕터 삿포로 · 판 1</span><span class="jp kana-row">あ い う え お</span></div>
+  </div>
+  <div class="bottom">
+    <button id="btn-start" class="big wait" type="button">시작</button>
+    <button id="btn-settings1" class="ghost" type="button">설정</button>
+    <p id="load-status" class="status">소리 준비 중</p>
+  </div>
+</section>
+
+<!-- 지연 보정 -->
+<section id="scr-calib" class="scr" hidden>
+  <div class="sheet">
+    <h2>박에 맞춰 8번 치기</h2>
+    <p class="sub">딱 소리가 날 때 아래 동그라미를 톡</p>
+    <div id="calib-dots" class="dots"></div>
+    <p id="calib-result" class="result-line"></p>
+    <div id="calib-after" class="row-btns" hidden>
+      <button id="btn-calib-again" class="ghost" type="button">다시</button>
+      <button id="btn-calib-go" class="big small" type="button">이대로 시작</button>
+    </div>
+  </div>
+  <div class="bottom">
+    <div id="calib-pad" class="pad" role="button" aria-label="박에 맞춰 누르기"><i></i></div>
+    <button id="btn-calib-skip" class="skip" type="button">건너뛰기</button>
+  </div>
+</section>
+
+<!-- 일시정지 -->
+<section id="scr-pause" class="scr scrim" hidden>
+  <div class="sheet">
+    <h2>잠깐 멈춤</h2>
+    <button id="chip-sound" class="chip" type="button">가 · A</button>
+    <div class="col-btns">
+      <button id="btn-resume" class="big" type="button">이어하기</button>
+      <button id="btn-restart" class="ghost" type="button">처음부터</button>
+      <button id="btn-settings2" class="ghost" type="button">설정</button>
+      <button id="btn-quit" class="ghost" type="button">그만하기</button>
+    </div>
+  </div>
+</section>
+
+<!-- 설정 -->
+<section id="scr-settings" class="scr scrim" hidden>
+  <div class="sheet settings-sheet">
+    <h2>설정</h2>
+    <div id="set-rows"></div>
+    <div class="row-btns">
+      <button id="btn-recalib" class="ghost" type="button">지연 다시 맞추기</button>
+      <button id="btn-fade-reset" class="ghost" type="button">흐려짐 기록 지우기</button>
+    </div>
+    <button id="btn-set-close" class="big small" type="button">닫기</button>
+  </div>
+</section>
+
+<!-- 결과 -->
+<section id="scr-result" class="scr scrim" hidden>
+  <div class="sheet result-sheet">
+    <p class="tag">1챕터 삿포로 · 판 1</p>
+    <p class="hit"><span id="res-hit">0 / 13</span><small>맞힌 수</small></p>
+    <p id="res-pass" class="pass"></p>
+    <div class="counts">
+      <div><b class="p">PERFECT</b><span id="res-PERFECT">0</span></div>
+      <div><b class="gr">GREAT</b><span id="res-GREAT">0</span></div>
+      <div><b class="go">GOOD</b><span id="res-GOOD">0</span></div>
+      <div><b class="m">MISS</b><span id="res-MISS">0</span></div>
+    </div>
+    <div class="minor"><span>최대 콤보 <b id="res-combo">0</b></span><span>평균 어긋남 <b id="res-avg">–</b></span></div>
+    <p class="cap">오늘 읽은 글자</p>
+    <div id="res-kana" class="kana-grid"></div>
+    <div class="row-btns">
+      <button id="btn-home" class="ghost" type="button">처음으로</button>
+      <button id="btn-retry" class="big small" type="button">다시 하기</button>
+    </div>
+  </div>
+</section>
+
+<noscript>자바스크립트를 켜야 열림</noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{
+  "id": "ch1_pan1",
+  "title": "1챕터 삿포로 · 판 1",
+  "scene": "장면 1 · 삿포로역 앞 밤 (배경은 임시로 판 2 오도리 공원 그림)",
+  "letters": "あいうえお",
+  "known": "あいうえお",
+  "pass": { "need": 7, "note": "13개 중 7개 이상 GOOD 이상이면 통과(기획안 v0.5 7절)" },
+
+  "song": {
+    "kind": "synth",
+    "file": "assets/music/ch1_winter_full.mp3",
+    "combo_layer_file": "",
+    "offset": 0.0,
+    "bpm": 120,
+    "beatsPerBar": 4,
+    "bars": 16,
+    "endBar": 17,
+    "tail": 1.2,
+    "note": "kind = synth(코드로 만든 임시 반주) 또는 file(Suno 곡). offset = 곡 파일에서 1마디 1박이 시작하는 초. 판 1은 곡 앞 32초(16마디)만 씀."
+  },
+
+  "chords": ["C", "Am", "F", "G", "C", "Am", "F", "G", "C", "Am", "F", "G", "C", "Am", "G", "C"],
+
+  "listen": [
+    { "bar": 1, "beat": 1, "beats": 12, "who": "caller", "kana": "いしやーきいもー おいもー", "ko": "이시야-키이모- 오이모-", "ro": "ishiyaakiimoo oimoo", "mean": "군고구마 사세요",
+      "sing": [
+        { "beat": 1, "k": "い", "len": 1 }, { "beat": 2, "k": "し", "len": 1 }, { "beat": 3, "k": "や", "len": 2 },
+        { "beat": 5, "k": "き", "len": 1 }, { "beat": 6, "k": "い", "len": 1 }, { "beat": 7, "k": "も", "len": 2 },
+        { "beat": 9, "k": "お", "len": 1 }, { "beat": 10, "k": "い", "len": 1 }, { "beat": 11, "k": "も", "len": 2 }
+      ] },
+    { "bar": 7, "beat": 4, "beats": 1, "who": "caller", "cue": "seino", "kana": "せーの", "ko": "세-노", "ro": "seeno", "mean": "하나 둘 셋(다 같이)",
+      "sing": [ { "beat": 1, "k": "せ", "len": 0.5 }, { "beat": 1.5, "k": "の", "len": 0.5 } ] }
+  ],
+
+  "lyrics": [
+    { "bar": 5, "beat": 1, "beats": 4, "who": "hana", "text": "눈 오는 삿포로 역에 내렸어" },
+    { "bar": 6, "beat": 1, "beats": 4, "who": "hana", "text": "글자는 하나도 못 읽겠어" }
+  ],
+
+  "calls": [
+    { "bar": 7, "word": null, "end": "seino",
+      "syl": [ { "beat": 1, "k": "あ" }, { "beat": 2, "k": "い" }, { "beat": 3, "k": "う" } ] },
+    { "bar": 9, "word": null, "end": "knock",
+      "syl": [ { "beat": 1, "k": "え" }, { "beat": 2, "k": "お" } ] },
+    { "bar": 11, "word": { "kana": "あおい", "ko": "아오이", "ro": "aoi", "mean": "파랗다" }, "end": "knock",
+      "syl": [ { "beat": 1, "k": "あ" }, { "beat": 2, "k": "お" }, { "beat": 3, "k": "い" } ] },
+    { "bar": 13, "word": { "kana": "うえ", "ko": "우에", "ro": "ue", "mean": "위" }, "end": "knock",
+      "syl": [ { "beat": 1, "k": "う" }, { "beat": 2, "k": "え" } ] },
+    { "bar": 15, "word": { "kana": "いいえ", "ko": "이이에", "ro": "iie", "mean": "아니에요" }, "end": "knock",
+      "syl": [ { "beat": 1, "k": "い" }, { "beat": 2, "k": "い" }, { "beat": 3, "k": "え" } ] }
+  ],
+
+  "notes": [
+    { "bar": 8,  "beat": 1, "k": "あ", "btn": "L", "call": 0, "syl": 0 },
+    { "bar": 8,  "beat": 2, "k": "い", "btn": "L", "call": 0, "syl": 1 },
+    { "bar": 8,  "beat": 3, "k": "う", "btn": "L", "call": 0, "syl": 2 },
+    { "bar": 10, "beat": 1, "k": "え", "btn": "L", "call": 1, "syl": 0 },
+    { "bar": 10, "beat": 2, "k": "お", "btn": "L", "call": 1, "syl": 1 },
+    { "bar": 12, "beat": 1, "k": "あ", "btn": "L", "call": 2, "syl": 0 },
+    { "bar": 12, "beat": 2, "k": "お", "btn": "L", "call": 2, "syl": 1 },
+    { "bar": 12, "beat": 3, "k": "い", "btn": "L", "call": 2, "syl": 2 },
+    { "bar": 14, "beat": 1, "k": "う", "btn": "L", "call": 3, "syl": 0 },
+    { "bar": 14, "beat": 2, "k": "え", "btn": "L", "call": 3, "syl": 1 },
+    { "bar": 16, "beat": 1, "k": "い", "btn": "L", "call": 4, "syl": 0 },
+    { "bar": 16, "beat": 2, "k": "い", "btn": "L", "call": 4, "syl": 1 },
+    { "bar": 16, "beat": 3, "k": "え", "btn": "L", "call": 4, "syl": 2 }
+  ],
+
+  "hits": [
+    { "bar": 16, "beat": 4, "kind": "closer", "note": "장면 닫는 한 방(판 1은 소리만, 판 4부터 오른쪽 노트 후보)" }
+  ]
+}
