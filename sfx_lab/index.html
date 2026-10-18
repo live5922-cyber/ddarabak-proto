@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>따라박 효과음 시험실</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --navy:#283A66; --tangerine:#FF6C2F; --crimson:#F65058; --apricot:#F7C6A8; --sun:#FFB511;
+  --sky:#62A8E5; --mint:#82D8D5; --slate:#8C96B4; --paper:#FFF8EC; --sub:#5A6283; --line:#E9DFCC; --card:#FFFFFF;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--navy);font-family:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:16px;line-height:1.5;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+a{color:var(--sub)}
+.top{position:sticky;top:0;z-index:20;background:var(--navy);color:var(--paper);padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
+.top h1{font-size:18px;font-weight:800;margin:0;letter-spacing:-.2px}
+.top .row1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.meter{font-size:13px;font-weight:600;opacity:.95;white-space:nowrap}
+.meter b{font-variant-numeric:tabular-nums}
+.meter.warn b{color:var(--sun)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{min-height:48px;padding:0 16px;border-radius:12px;border:0;background:var(--paper);color:var(--navy);font-weight:700}
+.btn.small{min-height:48px;padding:0 14px;font-size:14px}
+.btn.on{background:var(--tangerine);color:#fff}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--navy)}
+.top .btn.ghost{border-color:rgba(255,248,236,.5);color:var(--paper)}
+.top .btn.ghost.on{background:var(--paper);color:var(--navy);border-color:var(--paper)}
+.seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid rgba(255,248,236,.5)}
+.seg button{min-height:48px;padding:0 12px;border:0;background:transparent;color:var(--paper);font-weight:700;font-size:14px}
+.seg button.on{background:var(--paper);color:var(--navy)}
+.seg.light{border-color:var(--line)}
+.seg.light button{color:var(--navy)}
+.seg.light button.on{background:var(--navy);color:var(--paper)}
+.lbl{font-size:13px;opacity:.85;margin-right:2px}
+main{max-width:980px;margin:0 auto;padding:0 16px}
+.panel{background:var(--card);border-radius:16px;margin:16px 0;padding:16px;box-shadow:0 2px 0 rgba(40,58,102,.10)}
+h2{font-size:20px;font-weight:800;margin:0 0 4px;letter-spacing:-.3px}
+h3{font-size:17px;font-weight:800;margin:0 0 2px}
+.desc{margin:0 0 12px;color:var(--sub);font-size:14px}
+.status{font-size:14px;color:var(--sub);margin:12px 0 0}
+.status.err{color:var(--crimson);font-weight:700}
+/* 치기 시험 */
+.beatrow{display:flex;align-items:center;gap:8px;margin:4px 0 12px;flex-wrap:wrap}
+.dot{width:16px;height:16px;border-radius:50%;background:var(--line)}
+.dot.on{background:var(--tangerine)}
+.dot.on.first{background:var(--crimson)}
+.chord{font-weight:800;min-width:40px;text-align:center;padding:2px 8px;border-radius:8px;background:var(--paper)}
+.jtext{font-weight:900;font-size:22px;min-width:150px;letter-spacing:-.3px}
+.jtext small{font-size:13px;font-weight:600;color:var(--sub);margin-left:6px}
+.pads{display:flex;justify-content:center;gap:56px;padding:12px 0 8px}
+.pad{width:136px;height:136px;border-radius:50%;border:0;background:var(--navy);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #1b2848;transition:transform .05s}
+.pad:active,.pad.hit{transform:translateY(4px);box-shadow:0 2px 0 #1b2848}
+.pad .shape{display:block;width:52px;height:52px;background:var(--paper)}
+.pad .shape.c{border-radius:50%}
+.pad .shape.s{border-radius:14px}
+.pad .cap{position:absolute}
+.padlbl{display:flex;justify-content:center;gap:56px;font-size:13px;color:var(--sub)}
+.padlbl span{width:136px;text-align:center}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:8px;font-size:14px}
+input[type=range]{width:180px;accent-color:var(--tangerine)}
+/* 판정 조합 */
+.layers{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:8px 12px;margin:12px 0}
+.layers label{display:flex;flex-direction:column;font-size:13px;color:var(--sub);font-weight:600;min-width:0}
+.layers select{width:100%;min-height:48px;border-radius:10px;border:2px solid var(--line);background:var(--paper);padding:0 8px;font-size:15px;color:var(--navy)}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;min-height:48px}
+.chk input{width:22px;height:22px;accent-color:var(--tangerine)}
+.jbtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0}
+.jb{min-height:64px;border-radius:14px;border:0;font-weight:900;font-size:18px;color:var(--navy);box-shadow:0 4px 0 rgba(40,58,102,.25)}
+.jb:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(40,58,102,.25)}
+.jb small{display:block;font-size:12px;font-weight:600}
+.jb.P{background:var(--tangerine);color:#fff}
+.jb.G{background:var(--sky);color:#fff}
+.jb.D{background:var(--mint)}
+.jb.M,.jb.N{background:var(--slate);color:#fff}
+.layertable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.layertable th,.layertable td{border-top:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+.layertable th{color:var(--sub);font-weight:700;white-space:nowrap}
+/* 후보 카드 */
+.role{border-top:2px solid var(--line);padding-top:16px;margin-top:16px}
+.role:first-of-type{border-top:0;margin-top:4px;padding-top:4px}
+.cnt{font-size:13px;color:var(--sub);font-weight:600;margin-left:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:8px}
+.card{display:flex;align-items:stretch;gap:10px;border:2px solid var(--line);border-radius:14px;padding:8px;background:var(--paper);min-width:0}
+.card.rec{border-color:var(--tangerine)}
+.card.starred{background:#FFF1DC}
+.card.err{opacity:.5}
+.play{flex:0 0 64px;height:64px;border-radius:50%;border:0;background:var(--navy);color:var(--paper);font-size:22px;align-self:center;box-shadow:0 4px 0 #1b2848}
+.play:active,.play.hit{transform:translateY(3px);box-shadow:0 1px 0 #1b2848}
+.meta{flex:1;min-width:0}
+.nm{font-weight:800;font-size:15px;line-height:1.3}
+.badge{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:var(--tangerine);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.sub{font-size:12px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.an{font-size:12px;color:var(--navy);margin-top:2px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.an .bad{color:var(--crimson);font-weight:700}
+.meta a{font-size:12px}
+.star{flex:0 0 48px;border:0;background:transparent;font-size:28px;color:var(--slate);align-self:center;height:48px}
+.star[aria-pressed=true]{color:var(--sun)}
+/* 고른 목록 */
+textarea{width:100%;min-height:220px;border-radius:12px;border:2px solid var(--line);background:var(--paper);padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--navy)}
+.foot{font-size:12px;color:var(--sub);margin:24px 0}
+@media (max-width:520px){
+  .pads,.padlbl{gap:28px}
+  .pad,.padlbl span{width:120px}
+  .pad{height:120px}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .top h1{font-size:16px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="row1">
+    <h1>따라박 효과음 시험실</h1>
+    <div class="meter" id="meter">효과음 꼭대기 · 곡 대비 <b id="meterVal">−∞</b> dB</div>
+  </div>
+  <div class="ctl">
+    <button class="btn" id="bLoop">반주 켜기</button>
+    <button class="btn ghost" id="bQuant" aria-pressed="false">박에 맞춰 듣기</button>
+    <span class="seg" id="segSize" role="group" aria-label="곡 대비 크기">
+      <button data-v="-4">작게</button><button data-v="0" class="on">보통</button><button data-v="4">크게</button>
+    </span>
+    <span class="seg" id="segNorm" role="group" aria-label="크기 맞춤 기준">
+      <button data-v="peak" class="on">꼭대기 맞춤</button><button data-v="rms">RMS 맞춤</button>
+    </span>
+  </div>
+</header>
+
+<main>
+  <p class="status" id="status">소리 불러오는 중…</p>
+
+  <section class="panel" id="padsec">
+    <h2>치기 시험</h2>
+    <p class="desc">반주를 켜고 박에 맞춰 원을 톡. 손가락이 닿는 즉시 판정대로 아래 '판정 조합'의 층이 울림. 판정 창 PERFECT ±45ms · GREAT ±90 · GOOD ±135 · 그 밖 MISS.</p>
+    <div class="beatrow">
+      <span class="dot" data-b="0"></span><span class="dot" data-b="1"></span><span class="dot" data-b="2"></span><span class="dot" data-b="3"></span>
+      <span class="chord" id="chord">C</span>
+      <span class="jtext" id="jtext"></span>
+    </div>
+    <div class="pads">
+      <button class="pad" id="padL" aria-label="왼쪽 버튼(글자 노트)"><span class="shape c"></span></button>
+      <button class="pad" id="padR" aria-label="오른쪽 버튼(박 노트)"><span class="shape s"></span></button>
+    </div>
+    <div class="padlbl"><span>왼쪽 · 낮은 몸통</span><span>오른쪽 · 높은 몸통</span></div>
+    <div class="row">
+      <span class="lbl">치는 자리</span>
+      <span class="seg light" id="segGrid"><button data-v="1" class="on">박마다</button><button data-v="2">8분마다</button></span>
+      <label class="chk"><input type="checkbox" id="cVib" checked> 진동(안드로이드만)</label>
+    </div>
+    <div class="row">
+      <span class="lbl">지연 보정</span>
+      <input type="range" id="rOff" min="-100" max="200" step="5" value="0">
+      <b id="offVal">0ms</b>
+      <span class="lbl" id="latInfo"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="judgesec">
+    <h2>판정 조합 미리 듣기</h2>
+    <p class="desc">층마다 후보를 바꿔 끼우고 판정 단추를 누름. '박에 맞춰 듣기'가 켜져 있으면 다음 박을 노트 자리로 삼아 울림(꺼져 있으면 지금이 노트 자리).</p>
+    <div class="row">
+      <span class="lbl">어느 버튼</span>
+      <span class="seg light" id="segSide"><button data-v="L" class="on">왼쪽(낮은)</button><button data-v="R">오른쪽(높은)</button></span>
+    </div>
+    <div class="layers" id="layers"></div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="cFloor" checked> ⑤ 바닥 울림(임시 합성 '퉁')</label>
+      <label class="chk"><input type="checkbox" id="cTune" checked> 꼬리를 그 마디 화음 음으로 맞춤</label>
+      <label class="chk"><input type="checkbox" id="cTailHp" checked> 꼬리 5kHz 위만</label>
+      <label class="chk"><input type="checkbox" id="cMissLp" checked> MISS 개그 500Hz 아래만</label>
+      <label class="chk"><input type="checkbox" id="cGagOnce" checked> 치기 시험: 개그는 한 마디에 하나</label>
+      <label class="chk"><input type="checkbox" id="cLimiter" checked> 효과음 길 리미터</label>
+    </div>
+    <div class="jbtns">
+      <button class="jb P" data-j="P">PERFECT<small>5층</small></button>
+      <button class="jb G" data-j="G">GREAT<small>4층</small></button>
+      <button class="jb D" data-j="D">GOOD<small>2층</small></button>
+      <button class="jb M" data-j="M">MISS<small>눌렀음 · 1~2층</small></button>
+      <button class="jb N" data-j="N">MISS<small>안 누름</small></button>
+    </div>
+    <div class="row">
+      <button class="btn small ghost" id="bFillStar">별표로 채우기</button>
+      <button class="btn small ghost" id="bFillRec">추천으로 되돌리기</button>
+    </div>
+    <table class="layertable">
+      <tr><th>판정</th><td>누르는 즉시</td><td>판정 뒤 박에 붙임</td></tr>
+      <tr><th>PERFECT</th><td>몸통 0dB(곡 대비 −10) + 어택(−16) + (③ 목소리: 아직 없음)</td><td>노트 + 1/16박 꼬리 밑음, + 1/8박 5도(−20) + 바닥 울림(−22)</td></tr>
+      <tr><th>GREAT</th><td>몸통 −2dB + 어택 −6dB</td><td>노트 + 1/8박 작은 꼬리 한 음(−22)</td></tr>
+      <tr><th>GOOD</th><td>몸통 −5dB, 3kHz 위를 더 깎음</td><td>없음(설계). 시험용으로만 작은 꼬리를 고를 수 있음</td></tr>
+      <tr><th>MISS 눌렀음</th><td>작은 종이 '톡'(−18)</td><td>다음 박에 개그(−12, 500Hz 아래)</td></tr>
+      <tr><th>MISS 안 누름</th><td>없음</td><td>다음 박에 개그</td></tr>
+    </table>
+  </section>
+
+  <section class="panel" id="rolesec">
+    <h2>역할별 후보</h2>
+    <p class="desc">▶ = 누르는 즉시 듣기(박에 맞춰 듣기를 켜면 다음 박). ☆ = 마음에 드는 것 표시(여러 개 가능). 모두 Freesound CC0. 앞 무음은 자동으로 자르고, 크기는 역할 기준(곡 대비 dB)에 자동으로 맞춤.</p>
+    <div id="roles"></div>
+  </section>
+
+  <section class="panel" id="picksec">
+    <h2>고른 목록</h2>
+    <p class="desc">별표와 판정 조합이 바뀔 때마다 자동으로 고쳐지고 이 폰(브라우저)에 저장됨. 복사해서 대화에 붙여 주세요.</p>
+    <textarea id="picked" readonly></textarea>
+    <div class="row">
+      <button class="btn small ghost" id="bCopy">복사</button>
+      <button class="btn small ghost" id="bClear">별표 모두 지우기</button>
+      <span class="lbl" id="copyMsg"></span>
+    </div>
+  </section>
+
+  <p class="foot">반주는 곡 대신 쓰는 임시 합성 루프(빠르기 120, C장조, C–G–Am–F). 곡 길에는 아무것도 걸지 않음(덕킹 0). 효과음 하나하나의 꼭대기는 곡 꼭대기보다 6dB 이상 작게 자동 제한. 아이폰은 무음 스위치를 끄고 들으세요.</p>
+</main>
+
+<script>
+'use strict';
+(function () {
+  var BPM = 120, SPB = 60 / BPM, SR = 48000;
+  var SONG_PEAK = 0.9;                 // 반주 꼭대기(선형). 모든 dB는 이것 대비
+  var RULE_CAP_DB = -6;                // 효과음 하나의 꼭대기 상한(곡 대비)
+  var BASE = './sfx/';
+  var LS_KEY = 'ttarabak_sfx_lab_v1';
+  var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  var AC = window.AudioContext || window.webkitAudioContext;
+
+  // 역할: 곡 대비 크기(level dB), 최대 길이, 끝 페이드, 필터 사슬
+  var HP5 = [['hp', 5000, 0.707], ['hp', 5000, 0.707]];
+  var ROLES = [
+    { key: 'body_low', ko: '맞힘 몸통 · 왼쪽 버튼(낮은 소리)', level: -10, maxLen: 0.35, fade: 0.04,
+      desc: '글자 노트. 짧고 앞이 날카로운 낮은 나무·몸 타악. 지금은 임시, 곡이 나오면 곡 스템 타악으로 바꿈. 곡 대비 −10dB, 1.5~3.5kHz를 3dB 깎음.',
+      chains: { main: [['pk', 2300, -3, 0.8]], alt: [['pk', 2300, -3, 0.8], ['lp', 3000, 0.707]] }, shareAlt: true },
+    { key: 'body_high', ko: '맞힘 몸통 · 오른쪽 버튼(높은 소리)', level: -10, maxLen: 0.35, fade: 0.04,
+      desc: '박 노트. 손뼉·림샷·우드블록·카혼 때림. 임시. 곡 대비 −10dB, 1.5~3.5kHz를 3dB 깎음.',
+      chains: { main: [['pk', 2300, -3, 0.8]], alt: [['pk', 2300, -3, 0.8], ['lp', 3000, 0.707]] }, shareAlt: true },
+    { key: 'attack', ko: '어택 층 · 5kHz 위 짧은 틱', level: -16, maxLen: 0.025, fade: 0.012,
+      desc: '누르는 즉시 몸통 위에 얹는 20ms 남짓의 마른 소리. 5kHz 아래를 걷어 내 노래를 안 가림. 곡 대비 −16dB.',
+      chains: { main: HP5 } },
+    { key: 'tail_perfect', ko: 'PERFECT 꼬리 · 반짝(화음 안 음)', level: -20, maxLen: 0.7, fade: 0.35, pitched: true,
+      desc: '노트 + 1/16박에 그 마디 화음 밑음, + 1/8박에 5도(올라가는 \'티링\'). ▶는 두 음을 이어 들려줌. 5kHz 위만, 곡 대비 −20dB.',
+      chains: { main: HP5, alt: [] } },
+    { key: 'tail_small', ko: 'GREAT·GOOD 작은 꼬리', level: -22, maxLen: 0.45, fade: 0.25, pitched: true,
+      desc: 'GREAT = 노트 + 1/8박에 한 음. GOOD은 설계상 꼬리 없음(시험용으로만 고를 수 있음). 5kHz 위만, 곡 대비 −22dB.',
+      chains: { main: HP5, alt: [] } },
+    { key: 'miss', ko: 'MISS 개그 · 눈 위 털썩·부드러운 쿵', level: -12, maxLen: 0.8, fade: 0.15,
+      desc: '다음 박에 떨어짐. 500Hz 아래만 남겨(저역 통과) 노래를 안 가림. 곡 대비 −12dB. 박에 맞춰 듣기를 켜면 다음 박에.',
+      chains: { main: [['lp', 600, 0.707], ['lp', 600, 0.707]], alt: [] } },
+    { key: 'empty', ko: '빈 터치 · 아주 작은 종이', level: -30, maxLen: 0.15, fade: 0.03,
+      desc: '노트가 없을 때 누른 소리. 벌 없음, 곡 대비 −30dB. MISS(눌렀음)의 작은 종이 \'톡\'(−18dB)으로도 씀.',
+      chains: { main: [['hp', 4000, 0.707]] } },
+    { key: 'call_end', ko: '부름 끝 신호 · 나무 딱따기 두 번', level: -14, maxLen: 0.3, fade: 0.05, pitched: true, tuneMode: 'nearest',
+      desc: '부르는 마디 4박과 4박 반에 \'딱딱\'. 곡에 딱따기가 없을 때만 게임이 얹음, 곡 대비 −14dB. 나무도 음높이가 있어 그 마디 화음 음 중 가장 가까운 음으로 맞춤. 박에 맞춰 듣기를 켜면 다음 마디 4박에.',
+      chains: { main: [] } },
+    { key: 'combo', ko: '콤보 고비 · 손뼉 무리·헤이', level: -14, maxLen: 1.2, fade: 0.1,
+      desc: '콤보 10·20·30에 다음 마디 첫 박. 곡 대비 −14dB. \'헤이\'는 노래 대역이라 노래가 쉬는 자리에만. 박에 맞춰 듣기를 켜면 다음 마디 첫 박에.',
+      chains: { main: [] } },
+    { key: 'ui_page', ko: 'UI · 카드 넘김', level: -14, maxLen: 0.7, fade: 0.08,
+      desc: '웹툰 컷·메뉴 카드 넘김(곡 밖).', chains: { main: [] } },
+    { key: 'ui_click', ko: 'UI · 버튼 딸깍', level: -16, maxLen: 0.25, fade: 0.03,
+      desc: '메뉴 버튼(곡 밖).', chains: { main: [] } }
+  ];
+  var ROLE = {}; ROLES.forEach(function (r) { ROLE[r.key] = r; });
+
+  // 판정 조합 층(고르는 칸)
+  var LAYERS = [
+    { key: 'bodyL', role: 'body_low', ko: '① 몸통 · 왼쪽' },
+    { key: 'bodyH', role: 'body_high', ko: '① 몸통 · 오른쪽' },
+    { key: 'attack', role: 'attack', ko: '② 어택' },
+    { key: 'tailP', role: 'tail_perfect', ko: '④ PERFECT 꼬리' },
+    { key: 'tailG', role: 'tail_small', ko: '④ GREAT 꼬리' },
+    { key: 'tailD', role: 'tail_small', ko: '④ GOOD 꼬리(설계: 없음)', none: true, defNone: true },
+    { key: 'tok', role: 'empty', ko: 'MISS 작은 종이 톡' },
+    { key: 'gag', role: 'miss', ko: 'MISS 개그' }
+  ];
+
+  var CHORDS = [
+    { name: 'C', root: 0, third: 4, notes: [48, 60, 64, 67] },
+    { name: 'G', root: 7, third: 11, notes: [43, 59, 62, 67] },
+    { name: 'Am', root: 9, third: 0, notes: [45, 60, 64, 69] },
+    { name: 'F', root: 5, third: 9, notes: [41, 60, 65, 69] }
+  ];
+  var NOTE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  var NOTE_KO = ['도', '도#', '레', '레#', '미', '파', '파#', '솔', '솔#', '라', '라#', '시'];
+  var MAJOR = [0, 2, 4, 5, 7, 9, 11];
+
+  var S = {
+    ctx: null, songOut: null, sfxIn: null, limiter: null, analyser: null,
+    loopBuf: null, songRms: 0.2, loopSrc: null, playing: false, origin: 0,
+    sounds: [], byId: {}, loaded: 0, failed: 0, total: 0,
+    set: { quant: false, size: 0, norm: 'peak', grid: 1, vib: true, off: 0, floor: true, tune: true, tailHp: true, missLp: true, gagOnce: true, limiter: true, side: 'L' },
+    stars: {}, picks: {}, lastGagBar: -999, meterPeak: 0, meterAt: 0
+  };
+  window.__lab = S;
+
+  function $(q) { return document.querySelector(q); }
+  function $all(q) { return Array.prototype.slice.call(document.querySelectorAll(q)); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function dbl(db) { return Math.pow(10, db / 20); }
+
+  // ---------- 저장 ----------
+  function saveLS() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ set: S.set, stars: S.stars, picks: S.picks })); } catch (e) { /* 저장 못 해도 동작 */ }
+  }
+  function loadLS() {
+    try {
+      var raw = localStorage.getItem(LS_KEY); if (!raw) return;
+      var o = JSON.parse(raw);
+      if (o.set) for (var k in o.set) if (k in S.set) S.set[k] = o.set[k];
+      if (o.stars) S.stars = o.stars;
+      if (o.picks) S.picks = o.picks;
+    } catch (e) { /* 무시 */ }
+  }
+
+  // ---------- 소리 계산 ----------
+  function fft(re, im) {
+    var n = re.length, i, j = 0, bit, len, t;
+    for (i = 1; i < n; i++) {
+      bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit;
+      if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+    }
+    for (len = 2; len <= n; len <<= 1) {
+      var ang = -2 * Math.PI / len, wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
+      for (i = 0; i < n; i += len) {
+        var cr = 1, ci = 0;
+        for (var k = 0; k < half; k++) {
+          var a = i + k, b = a + half;
+          var tr = re[b] * cr - im[b] * ci, ti = re[b] * ci + im[b] * cr;
+          re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+          var ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
+        }
+      }
+    }
+  }
+  function spectrum(d, start, N, win) {
+    var re = new Float64Array(N), im = new Float64Array(N), i;
+    for (i = 0; i < N && start + i < d.length; i++) {
+      var w = 1;
+      if (win === 'hann') w = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
+      else if (i > N / 2) w = 0.5 + 0.5 * Math.cos(Math.PI * (i - N / 2) / (N / 2)); // 앞은 그대로, 뒤만 줄임(어택을 살림)
+      re[i] = d[start + i] * w;
+    }
+    fft(re, im);
+    var m = new Float64Array(N / 2);
+    for (i = 0; i < N / 2; i++) m[i] = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
+    return m;
+  }
+  function toMono(buf) {
+    var n = buf.length, ch = buf.numberOfChannels, out = new Float32Array(n);
+    for (var c = 0; c < ch; c++) { var d = buf.getChannelData(c); for (var i = 0; i < n; i++) out[i] += d[i] / ch; }
+    return out;
+  }
+  function peakOf(d) { var p = 0; for (var i = 0; i < d.length; i++) { var a = Math.abs(d[i]); if (a > p) p = a; } return p; }
+  function shortRms(d, sr) { // 20ms 창 RMS 중 가장 큰 값
+    var w = Math.max(1, Math.round(0.02 * sr)), acc = 0, mx = 0;
+    for (var i = 0; i < d.length; i++) {
+      acc += d[i] * d[i]; if (i >= w) acc -= d[i - w] * d[i - w];
+      var r = acc / Math.min(w, i + 1); if (r > mx) mx = r;
+    }
+    return Math.sqrt(Math.max(mx, 1e-12));
+  }
+  // 앞 무음 자르기(꼭대기 −30dB 처음 넘는 곳 − 1.5ms), 끝 −50dB 아래 자르기, 최대 길이·페이드
+  function trim(x, sr, role) {
+    var pk = peakOf(x);
+    if (pk < 1e-6) return { data: new Float32Array(32), lead: 0 };
+    var th = pk * 0.0316, on = 0;
+    while (on < x.length && Math.abs(x[on]) < th) on++;
+    on = Math.max(0, on - Math.round(0.0015 * sr));
+    var thEnd = pk * 0.00316, end = x.length - 1;
+    while (end > on && Math.abs(x[end]) < thEnd) end--;
+    end = Math.min(x.length, end + Math.round(0.01 * sr));
+    var len = end - on, cap = Math.round(role.maxLen * sr), capped = false;
+    if (len > cap) { len = cap; capped = true; }
+    var d = x.slice(on, on + len), i;
+    var fi = Math.min(Math.round(0.0008 * sr), len);
+    for (i = 0; i < fi; i++) d[i] *= i / fi;
+    var fo = Math.min(Math.round((capped ? role.fade : 0.004) * sr), len);
+    for (i = 0; i < fo; i++) { var g = i / fo; d[len - 1 - i] *= g * g; }
+    return { data: d, lead: on / sr, capped: capped };
+  }
+  function detectPitch(d, sr) {
+    var N = 8192, start = Math.min(Math.round(0.02 * sr), Math.max(0, d.length - 1024));
+    var m = spectrum(d, start, N, 'hann');
+    var lo = Math.floor(300 * N / sr), hi = Math.min(m.length - 2, Math.ceil(6000 * N / sr));
+    var best = lo, sum = 0;
+    for (var k = lo; k <= hi; k++) { sum += m[k]; if (m[k] > m[best]) best = k; }
+    var mean = sum / (hi - lo + 1);
+    var a = Math.log(m[best - 1] + 1e-12), b = Math.log(m[best] + 1e-12), c = Math.log(m[best + 1] + 1e-12);
+    var p = 0.5 * (a - c) / (a - 2 * b + c); if (!isFinite(p)) p = 0;
+    var hz = (best + p) * sr / N;
+    var midi = 69 + 12 * Math.log(hz / 440) / Math.LN2;
+    return { hz: hz, midi: midi, conf: m[best] / (mean + 1e-12) };
+  }
+  function analyze(d, sr, pitched) {
+    var pk = 0, pkI = 0, i;
+    for (i = 0; i < d.length; i++) { var a = Math.abs(d[i]); if (a > pk) { pk = a; pkI = i; } }
+    var N = 4096, m = spectrum(d, 0, N, 'half'), tot = 0, low = 0, voc = 0, high = 0, cen = 0, mag = 0;
+    for (i = 1; i < m.length; i++) {
+      var f = i * sr / N, e = m[i] * m[i];
+      if (f < 20) continue;
+      tot += e; if (f < 500) low += e; if (f >= 1000 && f <= 4000) voc += e; if (f > 5000) high += e;
+      cen += f * e; mag += e;
+    }
+    var r = { peak: pk, rms: shortRms(d, sr), toPeakMs: pkI / sr * 1000, centroid: cen / (mag || 1),
+      low: low / (tot || 1), voc: voc / (tot || 1), high: high / (tot || 1), lenMs: d.length / sr * 1000 };
+    if (pitched) r.pitch = detectPitch(d, sr);
+    return r;
+  }
+  function startRendering(oc) {
+    return new Promise(function (res, rej) {
+      oc.oncomplete = function (e) { res(e.renderedBuffer); };
+      var p = oc.startRendering(); if (p && p.then) p.then(res, rej);
+    });
+  }
+  function renderChain(data, sr, chain) {
+    var pad = Math.round(0.02 * sr);
+    var oc = new OAC(1, data.length + pad, sr);
+    var b = oc.createBuffer(1, data.length, sr); b.getChannelData(0).set(data);
+    var s = oc.createBufferSource(); s.buffer = b;
+    var last = s;
+    chain.forEach(function (f) {
+      var bq = oc.createBiquadFilter();
+      if (f[0] === 'hp') { bq.type = 'highpass'; bq.frequency.value = f[1]; bq.Q.value = f[2]; }
+      else if (f[0] === 'lp') { bq.type = 'lowpass'; bq.frequency.value = f[1]; bq.Q.value = f[2]; }
+      else if (f[0] === 'pk') { bq.type = 'peaking'; bq.frequency.value = f[1]; bq.gain.value = f[2]; bq.Q.value = f[3]; }
+      last.connect(bq); last = bq;
+    });
+    last.connect(oc.destination); s.start(0);
+    return startRendering(oc);
+  }
+  var decCtx = null;
+  function decode(ab) {
+    if (!decCtx) decCtx = new OAC(1, 1, SR);
+    return new Promise(function (res, rej) {
+      var p = decCtx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej);
+    });
+  }
+
+  // ---------- 반주(곡 대신 임시 합성 루프) ----------
+  function renderLoop() {
+    var bars = 4, beats = bars * 4, len = Math.round(beats * SPB * SR);
+    var oc = new OAC(1, len, SR), out = oc.destination, t, i;
+    var nb = oc.createBuffer(1, SR, SR), nd = nb.getChannelData(0);
+    for (i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    function env(g, t0, a, peak, dec) {
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(peak, t0 + a);
+      g.gain.exponentialRampToValueAtTime(0.0005, t0 + a + dec);
+    }
+    function kick(t0) {
+      var o = oc.createOscillator(), g = oc.createGain();
+      o.frequency.setValueAtTime(140, t0); o.frequency.exponentialRampToValueAtTime(48, t0 + 0.12);
+      env(g, t0, 0.002, 0.95, 0.32); o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + 0.4);
+    }
+    function snare(t0) {
+      var s = oc.createBufferSource(); s.buffer = nb;
+      var bp = oc.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 0.6;
+      var g = oc.createGain(); env(g, t0, 0.001, 0.42, 0.16);
+      s.connect(bp); bp.connect(g); g.connect(out); s.start(t0, Math.random() * 0.5); s.stop(t0 + 0.22);
+      var o = oc.createOscillator(), g2 = oc.createGain(); o.type = 'triangle'; o.frequency.value = 190;
+      env(g2, t0, 0.001, 0.3, 0.08); o.connect(g2); g2.connect(out); o.start(t0); o.stop(t0 + 0.12);
+    }
+    function hat(t0, v) {
+      var s = oc.createBufferSource(); s.buffer = nb;
+      var hp = oc.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7500;
+      var g = oc.createGain(); env(g, t0, 0.001, v, 0.035);
+      s.connect(hp); hp.connect(g); g.connect(out); s.start(t0, Math.random() * 0.5); s.stop(t0 + 0.06);
+    }
+    function tone(t0, midi, type, peak, dec, lp) {
+      var o = oc.createOscillator(), g = oc.createGain(); o.type = type;
+      o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+      env(g, t0, 0.006, peak, dec);
+      if (lp) { var f = oc.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; o.connect(f); f.connect(g); }
+      else o.connect(g);
+      g.connect(out); o.start(t0); o.stop(t0 + dec + 0.05);
+    }
+    for (var bar = 0; bar < bars; bar++) {
+      var ch = CHORDS[bar];
+      for (var b8 = 0; b8 < 8; b8++) {
+        t = (bar * 4 + b8 / 2) * SPB;
+        var beat = b8 / 2;
+        if (beat === 0 || beat === 2 || beat === 2.5) kick(t);
+        if (beat === 1 || beat === 3) snare(t);
+        hat(t, b8 % 2 ? 0.07 : 0.12);
+        // 베이스: 1, 2&, 3, 4
+        if (beat === 0 || beat === 1.5 || beat === 2 || beat === 3) tone(t, ch.notes[0], 'triangle', 0.42, 0.24, 700);
+        // 전자 피아노 같은 화음: 1(길게)과 뒷박
+        if (beat === 0 || b8 % 2 === 1) {
+          for (var n = 1; n < 4; n++) {
+            tone(t, ch.notes[n], 'sine', beat === 0 ? 0.11 : 0.07, beat === 0 ? 0.9 : 0.28);
+            tone(t, ch.notes[n] + 12, 'sine', beat === 0 ? 0.03 : 0.02, 0.2);
+          }
+        }
+      }
+    }
+    return startRendering(oc).then(function (buf) {
+      var d = buf.getChannelData(0), pk = peakOf(d), g = SONG_PEAK / pk, acc = 0;
+      for (i = 0; i < d.length; i++) { d[i] *= g; acc += d[i] * d[i]; }
+      S.songRms = Math.sqrt(acc / d.length);
+      S.loopBuf = buf;
+    });
+  }
+
+  // ---------- 오디오 길 ----------
+  function ensureCtx() {
+    if (S.ctx) { if (S.ctx.state !== 'running') S.ctx.resume(); return S.ctx; }
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* 지원 안 함 */ }
+    var ctx;
+    try { ctx = new AC({ latencyHint: 'interactive' }); } catch (e) { ctx = new AC(); }
+    S.ctx = ctx;
+    S.songOut = ctx.createGain(); S.songOut.gain.value = 1; S.songOut.connect(ctx.destination); // 곡 길: 고정, 아무것도 안 걺
+    S.sfxIn = ctx.createGain(); S.sfxIn.gain.value = 1;
+    S.limiter = ctx.createDynamicsCompressor();
+    S.limiter.threshold.value = 20 * Math.log10(SONG_PEAK) + RULE_CAP_DB - 0.5; S.limiter.knee.value = 0; // 0.5dB 여유(압축기는 벽이 아님)
+    S.limiter.ratio.value = 20; S.limiter.attack.value = 0.001; S.limiter.release.value = 0.08;
+    // 압축기는 스스로 메이크업 이득((1/전체 범위 이득)^0.6, 여기서 약 +3.9dB)을 더함 → 같은 만큼 되돌림
+    var T = S.limiter.threshold.value, fullRangeDb = T * (1 - 1 / 20);
+    S.makeup = ctx.createGain(); S.makeup.gain.value = dbl(0.6 * fullRangeDb);
+    S.analyser = ctx.createAnalyser(); S.analyser.fftSize = 1024;
+    routeSfx();
+    S.analyser.connect(ctx.destination);
+    if (ctx.state !== 'running') ctx.resume();
+    var lat = ((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000;
+    $('#latInfo').textContent = '브라우저가 알려 준 출력 지연 약 ' + Math.round(lat) + 'ms(자동 반영)';
+    requestAnimationFrame(tick);
+    return ctx;
+  }
+  function routeSfx() {
+    if (!S.ctx) return;
+    try { S.sfxIn.disconnect(); } catch (e) { }
+    try { S.limiter.disconnect(); } catch (e) { }
+    try { S.makeup.disconnect(); } catch (e) { }
+    if (S.set.limiter) { S.sfxIn.connect(S.limiter); S.limiter.connect(S.makeup); S.makeup.connect(S.analyser); }
+    else S.sfxIn.connect(S.analyser);
+  }
+  function outLat() { var c = S.ctx; return c ? (c.baseLatency || 0) + (c.outputLatency || 0) : 0; }
+  function barOf(t) { return Math.floor((t - S.origin) / (4 * SPB) + 1e-6); }
+  function chordAt(t) { var b = barOf(t); return CHORDS[((b % 4) + 4) % 4]; }
+  function nextBeat(t, sub) { var g = SPB / (sub || 1); return S.origin + Math.ceil((t + 0.02 - S.origin) / g) * g; }
+  function nextBarBeat(t, beatInBar) {
+    var b = Math.floor((t - S.origin) / (4 * SPB));
+    for (var k = b; k < b + 3; k++) { var tt = S.origin + (k * 4 + beatInBar) * SPB; if (tt >= t + 0.02) return tt; }
+    return t;
+  }
+
+  function linGain(item, vname, db) {
+    var v = item.v[vname] || item.v.main;
+    var ref = (ROLE[item.role].shareAlt && vname !== 'main') ? item.v.main : v;
+    var g;
+    if (S.set.norm === 'rms') g = S.songRms * dbl(db) / ref.rms;
+    else g = SONG_PEAK * dbl(db) / ref.peak;
+    var cap = SONG_PEAK * dbl(RULE_CAP_DB);
+    if (v.peak * g > cap) g = cap / v.peak;          // 원칙 4: 하나하나 곡 꼭대기 −6dB 이하
+    return g;
+  }
+  // when = 0 이면 즉시(누르는 순간)
+  function play(item, vname, when, db, rate) {
+    if (!item || !item.v) return;
+    var ctx = S.ctx, v = item.v[vname] || item.v.main;
+    var src = ctx.createBufferSource(); src.buffer = v.buf;
+    if (rate && rate !== 1) src.playbackRate.value = rate;
+    var g = ctx.createGain(); g.gain.value = linGain(item, vname, db + S.set.size);
+    src.connect(g); g.connect(S.sfxIn);
+    src.start(when && when > ctx.currentTime ? when : 0);
+  }
+  function playFloor(t) { // ⑤ 바닥 울림 임시 합성: 화음 밑음 짧은 '퉁', 800Hz 아래
+    var ctx = S.ctx, ch = chordAt(t), o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = 440 * Math.pow(2, (36 + ch.root - 69) / 12);
+    var peak = SONG_PEAK * dbl(-22 + S.set.size);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0003, t + 0.2);
+    o.connect(g); g.connect(S.sfxIn); o.start(t); o.stop(t + 0.22);
+  }
+  function nearestPc(m, pc) { var k = Math.round((m - pc) / 12); return pc + 12 * k; }
+  function tuneRate(item, which, t) {
+    if (!S.set.tune || !item || !item.an || !item.an.pitch || item.an.pitch.conf < 5) return 1;
+    var ch = chordAt(t), m = item.an.pitch.midi;
+    var root = nearestPc(m, ch.root), target = root;
+    if (which === 'fifth') target = root + 7;
+    if (which === 'nearest') {
+      [ch.root, ch.third, (ch.root + 7) % 12].forEach(function (pc) {
+        var c = nearestPc(m, pc); if (Math.abs(c - m) < Math.abs(target - m)) target = c;
+      });
+    }
+    return Math.pow(2, (target - m) / 12);
+  }
+  function tailVar() { return S.set.tailHp ? 'main' : 'alt'; }
+  function gagVar() { return S.set.missLp ? 'main' : 'alt'; }
+  function pick(layerKey) {
+    var id = S.picks[layerKey];
+    if (id === 'none') return null;
+    return S.byId[id] || null;
+  }
+
+  // 판정 하나를 층대로 울림. pressAt = 0(즉시) 또는 예약 시각, noteT = 노트 시각(곡 격자)
+  function fireJudge(j, side, noteT, pressAt, fromPad) {
+    var ctx = S.ctx, now = ctx.currentTime, base = pressAt || now;
+    var body = pick(side === 'L' ? 'bodyL' : 'bodyH');
+    if (j === 'P' || j === 'G' || j === 'D') {
+      var bodyDb = { P: 0, G: -2, D: -5 }[j];
+      if (body) play(body, j === 'D' ? 'alt' : 'main', pressAt, ROLE[body.role].level + bodyDb);
+      if (j !== 'D') { var at = pick('attack'); if (at) play(at, 'main', pressAt, ROLE.attack.level + (j === 'P' ? 0 : -6)); }
+      var tails = [];
+      if (j === 'P') tails = [[SPB / 4, 'root', pick('tailP'), ROLE.tail_perfect.level], [SPB / 2, 'fifth', pick('tailP'), ROLE.tail_perfect.level]];
+      if (j === 'G') tails = [[SPB / 2, 'root', pick('tailG'), ROLE.tail_small.level]];
+      if (j === 'D') tails = [[SPB / 2, 'root', pick('tailD'), ROLE.tail_small.level - 4]];
+      tails.forEach(function (tl) {
+        var t = noteT + tl[0];
+        if (!tl[2] || t < base + 0.04) return;           // 꼬리가 몸통과 40ms 안에 겹치면 뺌
+        play(tl[2], tailVar(), t, tl[3], tuneRate(tl[2], tl[1], t));
+      });
+      if (j === 'P' && S.set.floor && noteT + SPB / 4 >= base + 0.04) playFloor(noteT + SPB / 4);
+    } else {
+      if (j === 'M') { var tok = pick('tok'); if (tok) play(tok, 'main', pressAt, -18); }
+      var gag = pick('gag');
+      var tg = nextBeat(Math.max(noteT, base));
+      if (gag && !(fromPad && S.set.gagOnce && barOf(tg) === S.lastGagBar)) { play(gag, gagVar(), tg, ROLE.miss.level); S.lastGagBar = barOf(tg); }
+    }
+  }
+  function vibrate(j, noteT, pressCorr) {
+    if (!S.set.vib || !('vibrate' in navigator)) return;
+    var pat = null;
+    if (j === 'P') { var gap = Math.max(40, Math.round((noteT + SPB / 4 - pressCorr) * 1000)); pat = [14, gap - 14, 8]; }
+    else if (j === 'G') pat = [12];
+    else if (j === 'D') pat = [8];
+    else if (j === 'M') pat = [25, 60, 25];
+    try { if (pat) navigator.vibrate(pat); } catch (e) { }
+  }
+
+  // ---------- 화면 ----------
+  var JCOLOR = { P: '#FF6C2F', G: '#62A8E5', D: '#3BA9A4', M: '#8C96B4', N: '#8C96B4' };
+  var JNAME = { P: 'PERFECT', G: 'GREAT', D: 'GOOD', M: 'MISS', N: 'MISS' };
+  function showJudge(j, dtMs) {
+    var el = $('#jtext');
+    el.style.color = JCOLOR[j];
+    el.innerHTML = JNAME[j] + (dtMs != null ? '<small>' + (dtMs > 0 ? '+' : '') + Math.round(dtMs) + 'ms ' + (dtMs > 0 ? '늦음' : dtMs < 0 ? '빠름' : '') + '</small>' : '');
+  }
+  function padDown(side, el) {
+    return function (e) {
+      e.preventDefault();
+      if (!ready) return;
+      ensureCtx();
+      var now = S.ctx.currentTime;
+      var t = now - outLat() - S.set.off / 1000;      // 들린 박 기준으로 되돌림
+      var g = SPB / S.set.grid;
+      var k = Math.round((t - S.origin) / g), noteT = S.origin + k * g, dt = (t - noteT) * 1000, a = Math.abs(dt);
+      var j = a <= 45 ? 'P' : a <= 90 ? 'G' : a <= 135 ? 'D' : 'M';
+      fireJudge(j, side, noteT, 0, true);
+      vibrate(j, noteT, t);
+      showJudge(j, dt);
+      el.classList.add('hit'); setTimeout(function () { el.classList.remove('hit'); }, 90);
+    };
+  }
+  var meterEl, meterVal, dots, chordEl;
+  var tbuf = null;
+  function tick() {
+    var ctx = S.ctx; if (!ctx) return;
+    if (S.analyser) {
+      if (!tbuf) tbuf = new Float32Array(S.analyser.fftSize);
+      if (S.analyser.getFloatTimeDomainData) S.analyser.getFloatTimeDomainData(tbuf);
+      var p = peakOf(tbuf), nowMs = performance.now();
+      if (p > S.meterPeak || nowMs - S.meterAt > 1500) { if (p > S.meterPeak || nowMs - S.meterAt > 1500) { S.meterPeak = p; S.meterAt = nowMs; } }
+      var db = S.meterPeak > 1e-5 ? 20 * Math.log10(S.meterPeak / SONG_PEAK) : -Infinity;
+      meterVal.textContent = isFinite(db) ? (db >= 0 ? '+' : '−') + Math.abs(db).toFixed(1) : '−∞';
+      meterEl.classList.toggle('warn', db > RULE_CAP_DB + 0.05);
+    }
+    var t = ctx.currentTime - outLat();
+    var beat = Math.floor((t - S.origin) / SPB + 1e-6), inBar = ((beat % 4) + 4) % 4;
+    var frac = (t - S.origin) / SPB - beat;
+    dots.forEach(function (d, i) { var on = S.playing && i === inBar && frac < 0.35; d.classList.toggle('on', on); d.classList.toggle('first', on && i === 0); });
+    chordEl.textContent = chordAt(t).name;
+    var nowMs2 = performance.now();
+    if (!S.latShownAt || nowMs2 - S.latShownAt > 1000) {
+      S.latShownAt = nowMs2;
+      $('#latInfo').textContent = '브라우저가 알려 준 출력 지연 약 ' + Math.round(outLat() * 1000) + 'ms(자동 반영)';
+    }
+    requestAnimationFrame(tick);
+  }
+  function anText(it) {
+    if (it.err) return '<span class="bad">불러오기 실패: ' + esc(it.err) + '</span>';
+    if (!it.an) return '분석 중…';
+    var a = it.an, s = [];
+    s.push('길이 ' + Math.round(a.lenMs) + 'ms' + (it.capped ? '(잘림)' : ''));
+    s.push('앞 무음 ' + Math.round(it.lead * 1000) + 'ms 자름');
+    s.push('꼭대기까지 ' + a.toPeakMs.toFixed(1) + 'ms');
+    s.push('밝기 중심 ' + (a.centroid / 1000).toFixed(1) + 'kHz');
+    var line2 = '노래대역(1~4kHz) ' + Math.round(a.voc * 100) + '% · 500Hz 아래 ' + Math.round(a.low * 100) + '% · 5kHz 위 ' + Math.round(a.high * 100) + '%';
+    var line3 = '';
+    if (a.pitch) {
+      var m = a.pitch.midi, r = Math.round(m), pc = ((r % 12) + 12) % 12, cents = Math.round((m - r) * 100);
+      var inKey = MAJOR.indexOf(pc) >= 0 && Math.abs(cents) <= 30;
+      line3 = '<br>음 ' + NOTE[pc] + (Math.floor(r / 12) - 1) + '(' + NOTE_KO[pc] + ') ' + (cents >= 0 ? '+' : '') + cents + '센트 · ' +
+        (a.pitch.conf < 5 ? '<span class="bad">음높이 흐림</span>' : inKey ? 'C장조 안' : '<span class="bad">C장조 밖 → 맞춤 필요</span>');
+    }
+    return s.join(' · ') + '<br>' + line2 + line3;
+  }
+  function renderRoles() {
+    var host = $('#roles'); host.innerHTML = '';
+    ROLES.forEach(function (r) {
+      var items = S.sounds.filter(function (s) { return s.role === r.key; });
+      if (!items.length) return;
+      var sec = document.createElement('section'); sec.className = 'role'; sec.id = 'role_' + r.key;
+      sec.innerHTML = '<h3>' + esc(r.ko) + '<span class="cnt">' + items.length + '개</span></h3><p class="desc">' + esc(r.desc) + '</p><div class="cards"></div>';
+      var cards = sec.querySelector('.cards');
+      items.forEach(function (it) {
+        var c = document.createElement('div');
+        c.className = 'card' + (it.rec ? ' rec' : '') + (it.err ? ' err' : '') + (S.stars[it.id] ? ' starred' : '');
+        c.innerHTML = '<button class="play" aria-label="' + esc(it.ko) + ' 듣기">▶</button>' +
+          '<div class="meta"><div class="nm">' + esc(it.ko) + (it.rec ? '<span class="badge">추천</span>' : '') + '</div>' +
+          '<div class="sub">#' + it.id + ' · ' + esc(it.name) + ' · ' + esc(it.user) + ' · CC0</div>' +
+          '<div class="an">' + anText(it) + '</div>' +
+          '<a href="' + esc(it.url) + '" target="_blank" rel="noopener">Freesound에서 보기</a></div>' +
+          '<button class="star" aria-pressed="' + (S.stars[it.id] ? 'true' : 'false') + '" aria-label="별표">' + (S.stars[it.id] ? '★' : '☆') + '</button>';
+        var pb = c.querySelector('.play');
+        pb.addEventListener('pointerdown', function (e) { e.preventDefault(); preview(it); pb.classList.add('hit'); setTimeout(function () { pb.classList.remove('hit'); }, 90); });
+        var sb = c.querySelector('.star');
+        sb.addEventListener('click', function () {
+          if (S.stars[it.id]) delete S.stars[it.id]; else S.stars[it.id] = true;
+          var on = !!S.stars[it.id]; sb.setAttribute('aria-pressed', on ? 'true' : 'false'); sb.textContent = on ? '★' : '☆';
+          c.classList.toggle('starred', on); saveLS(); renderPicked();
+        });
+        cards.appendChild(c);
+      });
+      host.appendChild(sec);
+    });
+  }
+  function preview(it) {
+    if (!ready || !it.v) return;
+    var ctx = ensureCtx(), now = ctx.currentTime, r = ROLE[it.role], t = 0;
+    if (S.set.quant) {
+      if (r.key === 'call_end') t = nextBarBeat(now, 3);
+      else if (r.key === 'combo') t = nextBarBeat(now, 0);
+      else t = nextBeat(now);
+    }
+    var at = t || now;
+    var vn = r.key === 'tail_perfect' || r.key === 'tail_small' ? tailVar() : r.key === 'miss' ? gagVar() : 'main';
+    if (r.key === 'tail_perfect') {
+      play(it, vn, t, r.level, tuneRate(it, 'root', at));
+      play(it, vn, at + SPB / 4, r.level, tuneRate(it, 'fifth', at));
+    } else if (r.key === 'tail_small') {
+      play(it, vn, t, r.level, tuneRate(it, 'root', at));
+    } else if (r.key === 'call_end') {
+      var rr = tuneRate(it, 'nearest', at);
+      play(it, vn, t, r.level, rr); play(it, vn, at + SPB / 2, r.level - 1, rr);
+    } else play(it, vn, t, r.level);
+  }
+  function buildLayers() {
+    var host = $('#layers'); host.innerHTML = '';
+    LAYERS.forEach(function (L) {
+      var items = S.sounds.filter(function (s) { return s.role === L.role && !s.err; });
+      var lab = document.createElement('label');
+      var opts = (L.none ? '<option value="none">없음</option>' : '') + items.map(function (s) {
+        return '<option value="' + s.id + '">' + esc(s.ko) + ' · #' + s.id + (s.rec ? ' (추천)' : '') + '</option>';
+      }).join('');
+      lab.innerHTML = esc(L.ko) + '<select data-layer="' + L.key + '">' + opts + '</select>';
+      host.appendChild(lab);
+      var sel = lab.querySelector('select');
+      var cur = S.picks[L.key];
+      var valid = cur === 'none' ? !!L.none : items.some(function (s) { return String(s.id) === String(cur); });
+      if (!valid) S.picks[L.key] = defaultPick(L);
+      sel.value = String(S.picks[L.key]);
+      sel.addEventListener('change', function () { S.picks[L.key] = sel.value === 'none' ? 'none' : +sel.value; saveLS(); renderPicked(); });
+    });
+  }
+  function defaultPick(L) {
+    if (L.defNone) return 'none';
+    var items = S.sounds.filter(function (s) { return s.role === L.role && !s.err; });
+    var rec = items.filter(function (s) { return s.rec; });
+    // 같은 역할을 쓰는 두 번째 칸(GREAT 꼬리 등)은 추천 중 첫째
+    return (rec[0] || items[0] || { id: 'none' }).id;
+  }
+  function fillFrom(kind) {
+    LAYERS.forEach(function (L) {
+      if (kind === 'rec') { S.picks[L.key] = defaultPick(L); return; }
+      var st = S.sounds.filter(function (s) { return s.role === L.role && S.stars[s.id] && !s.err; });
+      if (st.length && !L.defNone) S.picks[L.key] = st[0].id;
+    });
+    buildLayers(); saveLS(); renderPicked();
+  }
+  function renderPicked() {
+    var lines = [], d = new Date();
+    lines.push('따라박 효과음 고른 목록 (' + d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + ')');
+    lines.push('');
+    lines.push('[별표]');
+    ROLES.forEach(function (r) {
+      var st = S.sounds.filter(function (s) { return s.role === r.key && S.stars[s.id]; });
+      lines.push('- ' + r.ko + ': ' + (st.length ? st.map(function (s) { return '#' + s.id + ' ' + s.ko + ' (' + s.name + ', ' + s.user + ')'; }).join(' / ') : '없음'));
+    });
+    lines.push('');
+    lines.push('[판정 조합]');
+    LAYERS.forEach(function (L) {
+      var it = pick(L.key);
+      lines.push('- ' + L.ko + ': ' + (it ? '#' + it.id + ' ' + it.ko : '없음'));
+    });
+    lines.push('- 바닥 울림: ' + (S.set.floor ? '켬' : '끔') + ' · 꼬리 화음 맞춤: ' + (S.set.tune ? '켬' : '끔') + ' · 꼬리 5kHz 위만: ' + (S.set.tailHp ? '켬' : '끔') + ' · 개그 500Hz 아래만: ' + (S.set.missLp ? '켬' : '끔'));
+    lines.push('');
+    lines.push('[설정] 크기 ' + ({ '-4': '작게', '0': '보통', '4': '크게' }[String(S.set.size)]) + ' · 크기 맞춤 ' + (S.set.norm === 'rms' ? 'RMS' : '꼭대기') + ' · 지연 보정 ' + S.set.off + 'ms');
+    $('#picked').value = lines.join('\n');
+  }
+
+  // ---------- 조작 ----------
+  function segInit(id, key, cast, onChange) {
+    var seg = $(id);
+    $all(id + ' button').forEach(function (b) {
+      b.classList.toggle('on', String(S.set[key]) === b.dataset.v);
+      b.addEventListener('click', function () {
+        S.set[key] = cast(b.dataset.v);
+        $all(id + ' button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        saveLS(); renderPicked(); if (onChange) onChange();
+      });
+    });
+    return seg;
+  }
+  function chkInit(id, key, onChange) {
+    var el = $(id); el.checked = !!S.set[key];
+    el.addEventListener('change', function () { S.set[key] = el.checked; saveLS(); renderPicked(); if (onChange) onChange(); });
+  }
+  function bindUI() {
+    meterEl = $('#meter'); meterVal = $('#meterVal'); dots = $all('.dot'); chordEl = $('#chord');
+    var bLoop = $('#bLoop');
+    bLoop.addEventListener('click', function () {
+      if (!ready) return;
+      var ctx = ensureCtx();
+      if (S.playing) { try { S.loopSrc.stop(); } catch (e) { } S.loopSrc = null; S.playing = false; bLoop.textContent = '반주 켜기'; bLoop.classList.remove('on'); return; }
+      var src = ctx.createBufferSource(); src.buffer = S.loopBuf; src.loop = true; src.connect(S.songOut);
+      var t0 = ctx.currentTime + 0.08; src.start(t0); S.origin = t0; S.loopSrc = src; S.playing = true; S.lastGagBar = -999;
+      bLoop.textContent = '반주 끄기'; bLoop.classList.add('on');
+    });
+    var bQ = $('#bQuant');
+    function qShow() { bQ.classList.toggle('on', S.set.quant); bQ.setAttribute('aria-pressed', S.set.quant ? 'true' : 'false'); }
+    qShow();
+    bQ.addEventListener('click', function () { S.set.quant = !S.set.quant; qShow(); saveLS(); });
+    segInit('#segSize', 'size', Number);
+    segInit('#segNorm', 'norm', String);
+    segInit('#segGrid', 'grid', Number);
+    segInit('#segSide', 'side', String);
+    chkInit('#cVib', 'vib'); chkInit('#cFloor', 'floor'); chkInit('#cTune', 'tune'); chkInit('#cTailHp', 'tailHp');
+    chkInit('#cMissLp', 'missLp'); chkInit('#cGagOnce', 'gagOnce'); chkInit('#cLimiter', 'limiter', routeSfx);
+    var r = $('#rOff'); r.value = S.set.off; $('#offVal').textContent = S.set.off + 'ms';
+    r.addEventListener('input', function () { S.set.off = +r.value; $('#offVal').textContent = r.value + 'ms'; saveLS(); renderPicked(); });
+    var pl = $('#padL'), pr = $('#padR');
+    pl.addEventListener('pointerdown', padDown('L', pl));
+    pr.addEventListener('pointerdown', padDown('R', pr));
+    $all('.jb').forEach(function (b) {
+      b.addEventListener('pointerdown', function (e) {
+        e.preventDefault(); if (!ready) return;
+        var ctx = ensureCtx(), now = ctx.currentTime, j = b.dataset.j;
+        if (S.set.quant) { var nt = nextBeat(now); fireJudge(j, S.set.side, nt, nt); }
+        else fireJudge(j, S.set.side, now, 0);
+        showJudge(j, null);
+      });
+    });
+    $('#bFillStar').addEventListener('click', function () { fillFrom('star'); });
+    $('#bFillRec').addEventListener('click', function () { fillFrom('rec'); });
+    $('#bCopy').addEventListener('click', function () {
+      var ta = $('#picked'), msg = $('#copyMsg');
+      function done() { msg.textContent = '복사됨'; setTimeout(function () { msg.textContent = ''; }, 1500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } });
+      else { ta.select(); try { document.execCommand('copy'); done(); } catch (e) { } }
+    });
+    $('#bClear').addEventListener('click', function () { S.stars = {}; saveLS(); renderRoles(); renderPicked(); });
+  }
+
+  // ---------- 불러오기 ----------
+  var ready = false;
+  function prepare(item, buf) {
+    var role = ROLE[item.role];
+    var mono = toMono(buf), sr = buf.sampleRate;
+    var t = trim(mono, sr, role);
+    item.lead = t.lead; item.capped = t.capped;
+    item.an = analyze(t.data, sr, !!role.pitched);
+    item.v = {};
+    var names = Object.keys(role.chains);
+    return Promise.all(names.map(function (n) {
+      return renderChain(t.data, sr, role.chains[n]).then(function (rb) {
+        var d = rb.getChannelData(0);
+        item.v[n] = { buf: rb, peak: Math.max(peakOf(d), 1e-6), rms: shortRms(d, sr) };
+      });
+    }));
+  }
+  function setStatus(msg, err) { var el = $('#status'); el.textContent = msg; el.classList.toggle('err', !!err); }
+  function loadAll() {
+    return fetch(BASE + 'sounds.json', { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('sounds.json ' + r.status); return r.json();
+    }).then(function (list) {
+      S.sounds = list; S.total = list.length;
+      list.forEach(function (s) { S.byId[s.id] = s; });
+      setStatus('소리 불러오는 중… 0/' + S.total);
+      return Promise.all(list.map(function (item) {
+        return fetch(BASE + item.file).then(function (r) {
+          if (!r.ok) throw new Error('파일 ' + r.status); return r.arrayBuffer();
+        }).then(decode).then(function (buf) { return prepare(item, buf); }).then(function () {
+          S.loaded++;
+        }, function (e) {
+          item.err = (e && e.message) || String(e); S.failed++;
+        }).then(function () { setStatus('소리 불러오는 중… ' + (S.loaded + S.failed) + '/' + S.total); });
+      }));
+    });
+  }
+
+  loadLS();
+  bindUI();
+  S.ready = Promise.all([renderLoop(), loadAll()]).then(function () {
+    ready = true;
+    // 후보 목록이 바뀌었으면 판정 조합 칸은 추천으로 되돌림(별표는 남은 후보 것만 유지)
+    var sig = S.sounds.map(function (s) { return s.id; }).join(',');
+    var oldSig = null; try { oldSig = localStorage.getItem(LS_KEY + '_sig'); } catch (e) { }
+    if (oldSig !== sig) {
+      S.picks = {};
+      var st = {}; S.sounds.forEach(function (s) { if (S.stars[s.id]) st[s.id] = true; }); S.stars = st;
+      try { localStorage.setItem(LS_KEY + '_sig', sig); } catch (e) { }
+    }
+    renderRoles(); buildLayers(); renderPicked(); saveLS();
+    setStatus('후보 ' + S.loaded + '개 준비됨' + (S.failed ? ' · 실패 ' + S.failed + '개' : '') + '. 아무 단추나 누르면 소리가 켜짐.', S.failed > 0);
+  }).catch(function (e) {
+    setStatus('불러오기 실패: ' + ((e && e.message) || e), true);
+  });
+})();
+</script>
+</body>
+</html>
