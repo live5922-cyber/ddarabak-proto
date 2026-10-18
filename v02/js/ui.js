@@ -63,7 +63,7 @@ function buildSettings() {
   for (const s of SEG) {
     const row = document.createElement('div'); row.className = 'row';
     row.innerHTML = `<div class="lab">${s.label}</div>`;
-    if (s.vib && !canVibrate) { const p = document.createElement('div'); p.className = 'note'; p.textContent = '이 브라우저는 진동이 안 됨(아이폰 사파리). 앱에서 됨'; row.appendChild(p); }
+    if (s.vib && !canVibrate) { const p = document.createElement('div'); p.className = 'note'; p.textContent = '이 기기에서는 진동을 쓸 수 없어요'; row.appendChild(p); }
     else {
       const seg = document.createElement('div'); seg.className = 'seg';
       for (const [v, txt] of s.opts) {
@@ -107,13 +107,14 @@ export function showResult(r) {
   if (H.stamps) H.stamps(md.map((m, i) => r.medal > i ? 0.15 + i * 0.25 + 0.1 : null).filter(x => x != null));
   for (const k of ['PERFECT', 'GREAT', 'GOOD', 'MISS']) $('res-' + k).textContent = r.counts[k];
   $('res-combo').textContent = r.maxCombo;
-  $('res-avg').textContent = r.medMs == null ? '–' : (r.medMs > 0 ? '+' : '') + r.medMs + 'ms';
+  // 연주·결과 화면에는 ms 숫자를 안 보임(숫자는 설정·보정 화면에서만, 사용자 10-19)
+  $('res-avg').textContent = r.medMs == null ? '–' : Math.abs(r.medMs) <= 25 ? '딱 맞음' : r.medMs > 0 ? '조금 늦은 편' : '조금 이른 편';
   const ob = $('btn-res-offset');
-  if (r.suggest) { ob.hidden = false; ob.textContent = `가운데 ${Math.abs(r.medMs)}ms ${r.medMs > 0 ? '늦게' : '일찍'} 침 · 지연 보정 ${r.suggest > 0 ? '+' : ''}${r.suggest}ms로 맞추기`; ob.onclick = () => { H.applyOffset(r.suggest); ob.hidden = true; }; }
+  if (r.suggest) { ob.hidden = false; ob.textContent = r.medMs > 0 ? '조금 늦게 치는 편이에요 · 맞추기' : '조금 일찍 치는 편이에요 · 맞추기'; ob.onclick = () => { H.applyOffset(r.suggest); ob.hidden = true; }; }
   else ob.hidden = true;
   const ph = $('res-photos'); ph.innerHTML = ''; for (const c of r.photos || []) ph.appendChild(c);
   const box = $('res-kana'); box.innerHTML = '';
   for (const k of r.letters) { const c = document.createElement('div'); c.className = 'kc' + (r.stamped.has(k) ? ' st' : ''); c.innerHTML = `<b>${k}</b><span>${r.info(k)}</span>`; box.appendChild(c); }
-  $('res-words').innerHTML = (r.words || []).map(w => `<span><b>${w.w}</b>${w.m}</span>`).join('');
+  $('res-words').innerHTML = (r.words || []).map(w => `<span><b>${w.w}</b>${w.m || ''}</span>`).join('');
   show('result');
 }

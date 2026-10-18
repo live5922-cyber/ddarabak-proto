@@ -737,15 +737,16 @@ function drawChip(t) {
   const w = g.measureText(c.res).width + 22, h = size + 6;
   g.fillStyle = C.navyD; cutRect(-w / 2, -h / 2, w, h, 6, 4); g.fill();
   g.fillStyle = col; g.fillText(c.res, 0, 1);
-  if ((c.res === 'GREAT' || c.res === 'GOOD') && c.delta != null && c.fastSlow) { g.font = '700 13px ' + FONT_KO; g.fillStyle = C.paperD; g.fillText(c.delta < 0 ? '빠름' : '느림', 0, h / 2 + 10); }
+  if ((c.res === 'GREAT' || c.res === 'GOOD') && c.delta != null && c.fastSlow) { g.font = '700 13px ' + FONT_KO; g.fillStyle = C.paperD; g.fillText(c.delta < 0 ? '빠름' : '늦음', 0, h / 2 + 10); }
   g.restore();
 }
 
 // ── 글자 카드 · 한국어 가사 ─────────────────────────────
 function cardGeom(ph) {
-  const n = ph.kana.length, row = ph.kind === 'row';
-  const fs = row ? 40 : 46, step = row ? 52 : 54;
-  const w = Math.max(160, Math.ceil((n * step + 32) / 8) * 8), h = row ? 104 : 124;
+  // row = 행 한 줄 · word = 낱말(뜻 줄) · sound = 글자 연습(곡이 낱말과 다르게 부른 곳: 가나를 가운뎃점으로 띄우고 소리 줄만, 뜻 없음)
+  const n = ph.kana.length, row = ph.kind === 'row', snd = ph.kind === 'sound';
+  const fs = row ? 40 : snd ? 44 : 46, step = row ? 52 : snd ? 66 : 54;
+  const w = Math.max(160, Math.ceil((n * step + 32) / 8) * 8), h = row || snd ? 104 : 124;
   return { fs, step, w, h, x0: 195 - (n - 1) * step / 2 };
 }
 function drawCard(t) {
@@ -774,25 +775,24 @@ function drawCard(t) {
     g.fillStyle = sung ? C.paper : C.slate; g.font = '600 ' + G.fs + 'px ' + FONT_CARD; g.fillText(ph.kana[i], 0, 0);
     g.restore();
     if (ph.hitIdx.has(i)) { g.fillStyle = C.tan; g.fillRect(kx - 14, ky + G.fs / 2 + 2, 28, 4); }
-    if (ph.kind === 'row' && mode !== 'off') {
+    if (ph.kind === 'sound' && i < ph.kana.length - 1) { g.fillStyle = t >= ph.at[i + 1] ? C.paper : C.slate; g.font = '600 ' + Math.round(G.fs * 0.7) + 'px ' + FONT_CARD; g.fillText('・', kx + G.step / 2, ky); }
+    if ((ph.kind === 'row' || ph.kind === 'sound') && mode !== 'off') {
       const a = fadeAlpha(ph.kana[i]); if (a > 0.01) {
         g.globalAlpha = a; g.fillStyle = sung ? C.paper : C.slate; g.font = '700 15px ' + FONT_KO;
         g.fillText(mode === 'ro' ? ph.ro[i] : mode === 'ko+ro' ? ph.snd[i] + ' ' + ph.ro[i] : ph.snd[i], kx, ky + 42); g.globalAlpha = 1;
       }
     }
   }
-  if (ph.kind !== 'row') {
+  if (ph.kind === 'word') {
     let line = '';
     if (mode !== 'off') {
-      const sep = ph.kind === 'sound' ? ' ' : '';
-      const ko = ph.snd.join(sep), ro = ph.ro.join(sep);
+      const ko = ph.snd.join(''), ro = ph.ro.join('');
       line = mode === 'ro' ? ro : mode === 'ko+ro' ? ko + ' · ' + ro : ko;
     }
     const a = Math.max(...ph.kana.map(fadeAlpha));
     g.font = '700 16px ' + FONT_KO; g.fillStyle = C.paper;
     if (line && a > 0.01) { g.globalAlpha = a; g.fillText(line, 0, y + 80); g.globalAlpha = 1; }
     if (ph.kind === 'word' && settings.meaning && ph.mean) { g.font = '700 15px ' + FONT_KO; g.fillStyle = C.paperD; g.fillText('뜻 · ' + ph.mean, 0, y + 104); }
-    if (ph.kind === 'sound') { g.font = '600 13px ' + FONT_KO; g.fillStyle = C.paperD; g.fillText('들린 소리 그대로', 0, y + 104); }
   }
   g.restore();
 }

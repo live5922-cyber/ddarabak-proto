@@ -40,7 +40,7 @@ function loadImg(src) {
 function fontsReady() {
   if (!document.fonts || !document.fonts.load) return Promise.resolve();
   const p = Promise.all([document.fonts.load('800 30px "M PLUS Rounded 1c"', 'あいうえおかきくけこ'), document.fonts.load('600 40px "Klee One"', 'あいうえおかきくけこ'),
-    document.fonts.load('800 20px "Pretendard Variable"', '따라박한글콤보빠름느림')]).catch(() => {});
+    document.fonts.load('800 20px "Pretendard Variable"', '따라박한글콤보빠름늦음타이밍')]).catch(() => {});
   return Promise.race([p, new Promise(r => setTimeout(r, 2500))]);
 }
 async function boot() {
@@ -78,7 +78,7 @@ async function boot() {
     await AUm.loadVoice('assets/voice/ch1/').catch(e => console.warn('목소리 없음', e));
     for (const id of Object.keys(chart.pans)) R.preloadBg(chart.pans[id].bg);
     S.prepMs = Math.round(performance.now() - t0);
-    S.ready = true; UI.setStatus(MUTE ? '소리 끔(시험)' : '', true);
+    S.ready = true; UI.setStatus('', true);
     if (GO) start();
     else if (S.startWanted) afterUnlock();
   } catch (e) { S.err = String(e && e.stack || e); console.error(e); UI.setStatus('불러오기 실패 · 로컬 서버로 열었는지 확인', false); }
