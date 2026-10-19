@@ -37,16 +37,36 @@
     },
     "idleSwitchBars": 2,
     "listen": { "motion": "A1_idle", "order": ["down", "rise"], "durs": [0.375, 0.125], "nodSy": 0.97, "nodBeats": 0.0625, "note": "부를 때 하나는 듣기(박 위 down 길게) + 글자마다 끄덕(V7)" },
-    "bend": { "from": 0.94, "ms": 70 },
+    "note3": "v0.3 검토 고침(10-19, V1·V3·V5): 칸마다 다른 그림이 '같은 사람'으로 안 보임 → 들을 때·쉴 때 = 기본 그림 1장 + 코드 박 움직임(beatCurve), 사건만 핵심 칸 1~2개(keys). 조연도 기본 1장, 부를 때 글자마다 코드 숙임(caller), 받기 끝 뒤 응원 1장.",
+    "base": ["B1_hitL", "ready"],
+    "keys": {
+      "L": { "wind": ["B3_pointL", "wind"], "hit": ["B2_cheerL", "hit"] },
+      "R": { "wind": ["C3_waveR", "wind"], "hit": ["C3_waveR", "hit"] },
+      "both": { "hit": ["D1_hold", "release"] },
+      "hold": { "press": ["D1_hold", "press"], "release": ["D1_hold", "release"] },
+      "react": { "PERFECT": ["E1_perfect", "snap"], "GREAT": ["E2_great", "thumb"], "GOOD": ["E3_good", "nod"], "MISSpress": ["F1_slip", "slip"], "MISSpass": ["F2_shy", "scratch"] },
+      "jump": { "crouch": ["D3_jump", "crouch"], "top": ["D3_jump", "top"], "land": ["D3_jump", "land"] },
+      "clap": ["A2_clap", "clap"],
+      "hitBeats": 0.25, "reactBeats": 0.5, "windAt": -0.25, "windMinGap": 0.75
+    },
+    "castBase": { "uncle": ["U3_point", "ready"], "stall": ["S3_stall_idle", "rise"], "crab": ["K3_crab_idle", "rise"] },
+    "castKeys": {
+      "uncle": { "breathe": ["U1_call", "breathe"], "call": ["U1_call", "call"], "point": ["U3_point", "point"], "cheer": ["U2_clap", "open"], "potato": ["U4_potato", "show"] },
+      "stall": { "breathe": ["S1_stall_call", "breathe"], "call": ["S1_stall_call", "call"], "cheer": ["S2_stall_bell", "right"] },
+      "crab":  { "breathe": ["K1_crab_call", "breathe"], "call": ["K1_crab_call", "call"], "cheer": ["K2_crab_lift", "up"] }
+    },
+    "caller": { "leanDeg": 4, "leanBeats": 0.125, "pulse": 1.06, "pulseBeats": 0.0625, "watchBobPx": 2, "cheerBeats": 1, "pointAt": -0.375 },
+    "pop": { "layAt": -0.5, "layBeats": 0.25, "standBeats": 0.25, "over": 1.08, "stagger": 0.0625 },
+    "bend": { "from": 0.94, "ms": 70, "beatFrom": 0.97 },
     "shadow": { "rx": 30, "ry": 5, "alpha": 0.42, "dy": -2 },
     "flip": { "beats": 1, "slidePx": 130, "inBeats": 1, "stagger": 0.125 },
     "place": {
       "hanaX": 112, "truckX": 262,
       "station": { "uncle": [262, 1, 0] },
-      "odori": { "stall": [268, 1, 0] },
-      "nijo": { "crab": [268, 1, 0] },
-      "lights": { "crab": [206, 0.84, -8], "stall": [346, 0.82, -8], "uncle": [280, 1, 0] },
-      "note": "[x, 크기, 발 높이] · 일루미네이션은 양옆이 한 줄 뒤(작게·8px 위), 가운데 아저씨가 앞장"
+      "odori": { "stall": [318, 0.9, -10] },
+      "nijo": { "crab": [252, 0.9, -10] },
+      "lights": { "crab": [190, 0.8, -12], "stall": [340, 0.8, -12], "uncle": [268, 0.92, -4] },
+      "note": "[x, 크기, 발 높이] · 검토 V4: 장면마다 그 가게 앞(역 앞 = 트럭 옆, 오도리 = 오른쪽 노점 오두막 앞, 니조 = 게 진열대 옆), 한 줄 뒤는 0.8~0.9배·10px 위. 일루미네이션 몸 겹침 25% 이하·화면 끝 8px 안"
     },
     "stall": {
       "call": "S1_stall_call", "breatheAt": -0.125, "holdAfter": 0.125, "relaxAfter": 0.375,

@@ -40,7 +40,8 @@ h2 { margin: 0 0 6px; font-size: 23px; font-weight: 800; }
 .tag { margin: 0; padding: 6px 14px; background: var(--scar); color: var(--paper); font-size: 14px; font-weight: 800; border: 2px solid var(--paper); box-shadow: 2px 3px 0 rgba(27,39,69,.5); transform: rotate(-1deg);
   clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%); padding-right: 22px; }
 .tag.small { font-size: 12px; padding: 4px 18px 4px 10px; }
-.head { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.head { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+#scr-select .bottom { padding-top: 0; }
 .song { margin: 0; padding: 10px 22px; font-size: 24px; }
 
 .bottom { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
@@ -74,22 +75,26 @@ button { font-family: inherit; -webkit-appearance: none; appearance: none; curso
 .pad.beat { transform: translateY(5px); box-shadow: 0 1px 0 var(--navyD); }
 .pad.done { opacity: 0.5; }
 
-/* 난이도 고르기 */
-.level-list { display: flex; flex-direction: column; gap: 14px; width: min(100%, 352px); }
-.level-card { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 10px; padding: 14px 16px 14px 18px; text-align: left;
-  background: var(--cream); color: var(--navy); border: 3px solid var(--paper); border-radius: 3px; box-shadow: var(--shadow); }
-.level-card.lv-easy { transform: rotate(-1.2deg); } .level-card.lv-normal { transform: rotate(0.8deg); } .level-card.lv-hard { transform: rotate(-0.6deg); }
-.level-card:active { box-shadow: 1px 1px 0 rgba(27,39,69,.55); translate: 2px 3px; }
-.level-card .nm { grid-column: 1; font-size: 24px; font-weight: 900; letter-spacing: -0.02em; }
-.level-card .mv { grid-column: 1; font-size: 14px; font-weight: 700; color: var(--slateD); }
-.level-card .info { grid-column: 1; font-size: 13px; font-weight: 600; color: var(--slate); }
-.level-card .stamps { grid-column: 2; grid-row: 1 / span 3; display: flex; gap: 6px; }
-.level-card .stamps i { width: 22px; height: 22px; border-radius: 50%; border: 2px dashed var(--slate); box-sizing: border-box; }
-.level-card .stamps i.on { border: 3px solid var(--scar); background: var(--paper); transform: rotate(-8deg); }
-.level-card .rec { position: absolute; right: 12px; top: -11px; padding: 3px 10px; background: var(--sun); color: var(--navy); font-size: 12px; font-weight: 900; transform: rotate(3deg);
+/* 난이도 고르기 = 기차표 3장(검토 V11): 왼쪽 떼는 칸에 펀치 구멍 1·2·3개, 점선, 최고 도장 3칸 + 이름(S7). 아래 40% 안에만 */
+.level-list { display: flex; flex-direction: column; gap: 8px; width: min(100%, 358px); }
+.ticket { position: relative; display: grid; grid-template-columns: 34px 1fr auto; align-items: stretch; padding: 0; text-align: left; color: var(--navy);
+  background: var(--cream); border: 3px solid var(--paper); border-radius: 4px; box-shadow: var(--shadow); transition: transform 90ms; }
+.ticket.lv-easy { transform: rotate(-1deg); } .ticket.lv-normal { transform: rotate(0.6deg); } .ticket.lv-hard { transform: rotate(-0.4deg); }
+.ticket.picked { transform: scale(1.05) rotate(-2deg); }
+.ticket .stub { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-right: 2px dashed var(--slate); background: var(--paper); }
+.ticket .stub i, .ticket .stub u { width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box; }
+.ticket .stub i { background: var(--navyD); } .ticket .stub u { border: 2px solid var(--line); }
+.ticket .body { display: flex; flex-direction: column; gap: 0; padding: 6px 6px 6px 12px; }
+.ticket .nm { font-size: 19px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
+.ticket .mv { font-size: 12px; font-weight: 700; color: var(--slateD); }
+.ticket .info { font-size: 11px; font-weight: 600; color: var(--slate); }
+.ticket .stamps { display: flex; gap: 4px; align-items: center; padding: 0 10px 0 4px; }
+.ticket .st { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 40px; }
+.ticket .st i { width: 20px; height: 20px; border-radius: 50%; border: 2px dashed var(--slate); box-sizing: border-box; }
+.ticket .st.on i { border: 3px solid var(--scar); background: var(--paper); transform: rotate(-8deg); }
+.ticket .st b { font-size: 10px; font-weight: 800; color: var(--slateD); white-space: nowrap; }
+.ticket .rec { position: absolute; right: 12px; top: -11px; padding: 3px 10px; background: var(--sun); color: var(--navy); font-size: 12px; font-weight: 900; transform: rotate(3deg);
   clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%, 5% 50%); }
-.level-card.lv-hard .nm { color: var(--navy); }
-
 /* 설정 */
 .settings { max-height: calc(100% - 10px); overflow-y: auto; touch-action: pan-y; text-align: left; }
 .settings h2 { text-align: center; }
@@ -120,7 +125,7 @@ button { font-family: inherit; -webkit-appearance: none; appearance: none; curso
 .medal { width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box;
   border: 2px dashed var(--slate); color: var(--slate); }
 .medal b { font-size: 15px; font-weight: 900; }
-.medal small { font-size: 10px; font-weight: 700; margin-top: 1px; }
+.medal small { font-size: 9.5px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
 .medal.on { border: 4px solid var(--scar); color: var(--scar); background: var(--paper); box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4.5px var(--scar);
   animation: stampin .3s cubic-bezier(.2,1.6,.4,1) both; transform: rotate(-8deg); }
 .medal.m3.on { border-color: var(--tan); color: var(--tan); box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4.5px var(--tan); }
@@ -142,7 +147,7 @@ button { font-family: inherit; -webkit-appearance: none; appearance: none; curso
 .kc { position: relative; height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--line); border-radius: 50%; box-sizing: border-box; aspect-ratio: 1; margin: 0 auto; width: 56px; color: var(--slate); }
 .kc b { font-family: var(--kana); font-weight: 600; font-size: 24px; line-height: 1.05; }
 .kc span { font-size: 10px; font-weight: 700; }
-.kc.st { border: 3px solid var(--tan); color: var(--navy); background: var(--paper); transform: rotate(-6deg); }
+.kc.st { border: 2px solid var(--tan); color: var(--navy); background: var(--paper); transform: rotate(-6deg); }
 .kc.st span { color: var(--slateD); }
 .words { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--slateD); }
 .words b { font-family: var(--kana); font-weight: 600; font-size: 17px; color: var(--navy); margin-right: 4px; }
@@ -150,3 +155,19 @@ button { font-family: inherit; -webkit-appearance: none; appearance: none; curso
 @media (max-height: 700px) { h1 { font-size: 46px; } .scr { padding-top: calc(env(safe-area-inset-top) + 18px); } .btn.big { min-height: 54px; } .hit b { font-size: 38px; } .level-card { padding: 10px 14px; } .level-list { gap: 10px; } }
 
 .credit { margin: 12px 0 0; font-size: 12px; font-weight: 600; color: var(--slateD); text-align: center; line-height: 1.5; }
+
+/* 결과 차례 연출(V11): --d 뒤에 종이처럼 붙음. 맞힌 수 끝에 쾅 */
+.seq { animation: seqin .22s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+@keyframes seqin { from { opacity: 0; transform: translateY(-10px) scale(1.15) rotate(-4deg); } to { opacity: 1; } }
+.photos figure.seq { animation-name: photoin; }
+@keyframes photoin { from { opacity: 0; transform: translateY(-16px) rotate(-8deg); } to { opacity: 1; transform: rotate(var(--r, 0deg)); } }
+.kc.st.seq { animation-name: stampk; }
+@keyframes stampk { from { opacity: 0; transform: scale(1.5) rotate(-14deg); } to { opacity: 1; transform: rotate(-6deg); } }
+.hit.slam b { animation: slam .2s ease-out; display: inline-block; }
+@keyframes slam { from { transform: scale(1.3); } to { transform: none; } }
+#scr-result .page { animation: pagein .3s ease-out both; }
+@keyframes pagein { from { opacity: 0; transform: translateY(24px) rotate(-3deg); } to { opacity: 1; transform: rotate(-0.6deg); } }
+.p80 { display: inline-block; margin-left: 6px; padding: 1px 6px; border: 2px solid var(--tan); color: var(--tan); font-family: var(--dela); font-size: 10px; transform: rotate(-4deg); }
+.mash { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: var(--scar); }
+/* 단추는 수첩 바닥에 늘 보임(I7) */
+.row-btns.stick { position: sticky; bottom: -16px; margin: 12px -16px -16px; padding: 10px 12px 14px; background: var(--cream); border-top: 2px dashed var(--line); z-index: 2; }

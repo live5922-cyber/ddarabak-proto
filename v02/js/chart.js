@@ -96,11 +96,13 @@ function parseNote(str, tt, kanaTab, phrases, out, idp) {
         const find = from => { for (let i = from; i < ph.kana.length; i++) if (ph.kana[i] === kanaChars[0]) return i; return -1; };
         i0 = find(ph.ptr); if (i0 < 0) i0 = find(0); if (i0 < 0) i0 = 0;
       }
-      idx = kanaChars.map((_, j) => Math.min(ph.kana.length - 1, i0 + j));
+      // 두 글자 알약: 구절 글자와 같은 것만 번호를 받음(いい가 い・か・お에 걸리면 い 하나만)
+      idx = kanaChars.map((c, j) => (j === 0 || ph.kana[i0 + j] === c) ? Math.min(ph.kana.length - 1, i0 + j) : i0);
       ph.ptr = idx[idx.length - 1] + 1;
     }
   }
-  const reveal = ph ? Math.min(...idx.map(i => ph.at[i])) : -1e9;
+  // 글자가 보이는 때 = 그 글자를 부른 때. 다 같이 부르는 구절(끝 おいしい)은 부르기 시작부터(검토 C2)
+  const reveal = ph ? (ph.all ? ph.call0 : Math.min(...idx.map(i => ph.at[i]))) : -1e9;
   const mk = (side, id) => ({
     id, vid, t, k: side === 'R' ? '' : k, kanaChars: side === 'R' ? [] : kanaChars, side, type: side === 'R' ? 'tap' : type,
     end: side === 'R' ? null : end, tail: side === 'R' ? null : tail, release: side === 'R' ? null : release,
@@ -145,14 +147,17 @@ export function buildRun(chart, song, kanaTab, level) {
   const knocks = chart.knocks.map(k => ({ t: T.t(k.at), hi: !!k.hi }));
   const free = (chart.free[level] || []).map(f => ({ t0: T.t(f.from), t1: T.t(f.to), at: f.at.map(tt) }));
   // 장면: t0 = 시작 박, f0 = 그 1박 전(종이 넘김 시작, 명세 2절)
-  const scenes = chart.scenes.map(s => { const t0 = s.from === '1:1' ? -1 : T.t(s.from); return { id: s.id, t0, f0: t0 > 0 ? T.timeOfPos(T.pos(t0) - 1) : -2, bg: s.bg, cast: s.cast, lead: s.lead || s.cast[0], truck: !!s.truck, name: s.name }; });
+  // develop = 셔터 길게가 그 장면 첫 박에 끝나면 책장 넘김 대신 '찰칵 → 새 사진이 현상되듯'(검토 V20)
+  const scenes = chart.scenes.map(s => { const t0 = s.from === '1:1' ? -1 : T.t(s.from); return { id: s.id, t0, f0: t0 > 0 ? T.timeOfPos(T.pos(t0) - 1) : -2, bg: s.bg, cast: s.cast, lead: s.lead || s.cast[0], truck: !!s.truck, name: s.name,
+    develop: t0 > 0 && notes.some(n => n.release === 'shutter' && Math.abs(n.end - t0) < 0.03) }; });
   const from = T.t(chart.from), retryFrom = T.t(chart.retryFrom), hitAt = T.t(chart.hitAt);
   const lastNote = notes.length ? Math.max(...notes.map(n => n.end || n.t)) : hitAt;
-  const LV = chart.levels[level];
+  const LV = chart.levels[level], H = chart.practice && chart.practice.hint;
+  const hint = H && H.level === level ? { t0: T.t(H.from), t1: T.t(H.to), line: H.line, sub: H.sub, icon: H.icon } : null;
   return {
     id: level, level, kind: 'run', name: LV.name, move: LV.move, letters: chart.letters, words: chart.words || [],
     from, retryFrom, hitAt, end: chart.end, lastNote,
-    phrases, notes, ghosts, groups, lyrics, knocks, free, scenes, echoes: ghostsEcho(notes, ghosts), T,
+    phrases, notes, ghosts, groups, lyrics, knocks, free, scenes, hint, echoes: ghostsEcho(notes, ghosts), T,
     pass: Math.floor(notes.length / 2) + 1,
   };
 }
@@ -187,7 +192,7 @@ export function buildPractice(chart, song, kanaTab, key) {
   const repEnd = t => { const r = Math.floor((t * 1000 - leadMs) / segMs); return Math.min(end, (leadMs + (Math.max(0, r) + 1) * segMs) / 1000); };
   const songOf = t => { const ms = t * 1000; if (ms < leadMs) return B[la] / 1000 + t; return segA + ((ms - leadMs) % segMs) / 1000; };
   return {
-    id: 'practice-' + key, kind: 'practice', key, line: P.line, icon: P.icon, need: P.need, count: P.count, name: '연습',
+    id: 'practice-' + key, kind: 'practice', key, line: P.line, sub: P.sub || '', icon: P.icon, need: P.need, count: P.count, name: '연습',
     letters: chart.letters, words: [], from: 0, retryFrom: 0, hitAt: end, end, lastNote: end,
     phrases, notes, ghosts, groups, lyrics: [], knocks, free: [], echoes: ghostsEcho(notes, ghosts), T,
     scenes: [{ id: sc.id, t0: -1, f0: -2, bg: sc.bg, cast: sc.cast, lead: sc.lead || sc.cast[0], truck: !!sc.truck, name: sc.name }],

@@ -27,11 +27,11 @@ export function createAnimator(lib, M, who) {
     const m = lib.motions[motion]; if (!m) return null;
     return m.frames[key] || null;
   };
-  // 덧붙임 동작: frames = [[칸, 시각]] (시각은 곡 초), t1 = 끝
+  // 덧붙임 동작: frames = [[칸, 시각(곡 초), 동작(없으면 motion)]], t1 = 끝 — v0.3 고침: 칸마다 다른 동작의 핵심 칸을 섞어 씀
   A.add = function (kind, t0, t1, motion, frames, extra) {
     if (!lib.motions[motion]) return;
     A.clips = A.clips.filter(c => c.kind === 'card' || (c.t1 > t0 - 4 && !(c.kind === kind && c.t0 >= t0 - 1e-4)));
-    A.clips.push(Object.assign({ kind, t0, t1, motion, frames: frames.filter(f => lib.motions[motion].frames[f[0]]) }, extra || {}));
+    A.clips.push(Object.assign({ kind, t0, t1, motion, frames: frames.filter(f => lib.motions[f[2] || motion] && lib.motions[f[2] || motion].frames[f[0]]) }, extra || {}));
   };
   A.cancel = function (kind, after) { A.clips = A.clips.filter(c => !(c.kind === kind && c.t0 >= after)); };
   A.clear = function () { A.clips.length = 0; };
@@ -39,8 +39,8 @@ export function createAnimator(lib, M, who) {
     let best = null;
     for (const c of A.clips) if (t >= c.t0 && t < c.t1 && (!best || c.t0 >= best.t0)) best = c;
     if (!best) return null;
-    let key = null; for (const f of best.frames) if (t >= f[1]) key = f[0];
-    return key ? { motion: best.motion, key, kind: best.kind, arc: best.arc || null } : null;
+    let key = null, mo = best.motion; for (const f of best.frames) if (t >= f[1]) { key = f[0]; mo = f[2] || best.motion; }
+    return key ? { motion: mo, key, kind: best.kind, arc: best.arc || null } : null;
   };
   // 칸 바뀜 기록(시험: 몸 옆 튐·같은 그림 멈춤)
   // noStat = 메뉴 뒤 화면(시계가 곡 시계가 아님) → 칸만 바꾸고 셈은 안 함

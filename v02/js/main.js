@@ -93,8 +93,8 @@ function start() {
 }
 function afterUnlock() {
   S.startWanted = false;
-  if (!settings.calibrated && !AUTOPLAY && !GO && !MASH && !PRACQ) startCalib();
-  else if (PRACQ) startPractice([PRACQ], LEVELQ || 'easy');
+  // 검토 I5: 첫 실행에 지연 보정을 강요하지 않음(연습 먼저). 보정은 설정 '지연 다시 맞추기'와 결과 화면 '맞추기' 단추로
+  if (PRACQ) startPractice([PRACQ], LEVELQ || 'easy');
   else if (LEVELQ) chooseLevel(LEVELQ);
   else toSelect();
 }
@@ -112,12 +112,12 @@ function toSelect() {
 }
 function home() { stopAll(); S.state = 'title'; R.setTitleBg('p1'); UI.show('title'); }
 function stopAll() { Clock.stopSong(); AUm.stopPending(); AUm.loopStop(); vibrateHold('stop'); }
-// 연습이 필요한 것(명세 4절): 처음이면 '따라 부르기', 보통·어려움 처음이면 '길게', 어려움 처음이면 '손뼉'
+// 연습이 필요한 것(명세 4절): 처음이면 '따라 부르기', 보통·어려움 처음이면 '길게'·'손뼉'
 function practiceNeeds(lv) {
   const p = settings.practiced || {}, q = [];
   if (!p.tap) q.push('tap');
   if (lv !== 'easy' && !p.hold) q.push('hold');
-  if (lv === 'hard' && !p.right) q.push('right');
+  if (lv !== 'easy' && !p.right) q.push('right');   // 검토 I4: 오른쪽 손뼉은 보통부터
   return q;
 }
 function chooseLevel(lv) {
@@ -133,11 +133,11 @@ function nextPractice() {
   AUm.buildLoopBuffer(pan.pieces);
   S.prac = { key, ok: 0, need: pan.need, doneAt: null, passed: false };
   setupPlay(pan, 0, 'practice');
-  R.setPractice({ line: pan.line, icon: pan.icon, need: pan.need, ok: 0, passed: false });
+  R.setPractice({ line: pan.line, sub: pan.sub, icon: pan.icon, need: pan.need, ok: 0, passed: false });
   UI.show('practice');
 }
 function practiceDone() {
-  if (S.prac) { settings.practiced[S.prac.key] = true; saveSettings(); }
+  if (S.prac && S.prac.passed) { settings.practiced[S.prac.key] = true; saveSettings(); }   // 검토 I5④: 한 번도 못 했으면 다음에 또 나옴
   S.prac = null; R.setPractice(null); nextPractice();
 }
 function skipPractice() {
@@ -153,6 +153,7 @@ function startRun(lv, retry) {
   AUm.buildPanBuffer(pan);
   const from = FROMQ && !retry ? pan.T.t(FROMQ) : retry ? pan.retryFrom : pan.from;
   setupPlay(pan, from, 'run');
+  R.setHint(lv === 'easy' && !settings.practiced.free && !AUTOPLAY);
   UI.show(null);
 }
 function setupPlay(pan, from, mode) {
@@ -191,15 +192,15 @@ function suggestOffset(J, pan) {
   ds.sort((a, b) => a - b);
   return { n: ds.length, med: ds.length ? Math.round(ds[Math.floor(ds.length / 2)]) : null };
 }
-// 메달: 1 통과(절반 넘게 GOOD 이상) · 2 다 맞힘(MISS 0) · 3 완벽(PERFECT 80% + 빈 터치 ≤ 노트 수 × 0.5)
+// 메달(검토 I1·I2, 코디네이터 판단 10-19): 1 통과 = GOOD 이상 절반 넘게 + 빈 터치 ≤ 노트 수 × 1.75(마구 누르기·박 연타는 통과 못 함)
+// · 2 잘함 = MISS ≤ 노트 수 10% · 3 다 맞힘 = MISS 0. PERFECT 80%는 메달이 아니라 결과의 작은 표시
 function medalOf(J, pan, noEmptyRule) {
   const total = pan.notes.length, good = J.goodOrBetter();
-  let m = good >= pan.pass ? 1 : 0;
-  if (m && J.counts.MISS === 0) m = 2;
-  if (m === 2 && J.counts.PERFECT / total >= 0.8 && (noEmptyRule || J.emptyCount <= total * 0.5)) m = 3;
-  return m;
+  if (!(good >= pan.pass && (noEmptyRule || J.emptyCount <= total * 1.75))) return 0;
+  if (J.counts.MISS === 0) return 3;
+  return J.counts.MISS <= Math.ceil(total * 0.1) ? 2 : 1;
 }
-// 모의 연주(소리·화면 없이 판정만): opts = { n, bias(초), jitter(초, σ), ghosts(보기 글자·꼬리도 따라 침), mash(초당), rules(false면 마구 누르기·흡수 규칙 끔), missRate(안 누름 비율) }
+// 모의 연주(소리·화면 없이 판정만): opts = { n, bias(초), jitter(초, σ), ghosts(보기 글자·꼬리도 따라 침), follow(곡에서 받는 글자·외침을 다 따라 침, C1), mash(초당), beatTap(박마다 왼쪽), rules(false면 규칙 끔), missRate(안 누름 비율) }
 function simRun(level, o) {
   let seed = o.seed || 1; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   const gauss = () => { const u = Math.max(1e-9, rnd()), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
@@ -210,8 +211,10 @@ function simRun(level, o) {
     const J = createJudge(pan.notes, preset(), { echoes: rules ? pan.echoes : [], beat: pan.T.avgBeat, noEcho: !rules, noMash: !rules });
     const ev = [];
     if (o.mash) { for (let t = pan.from + 0.5 + rnd() / o.mash; t < pan.hitAt; t += 1 / o.mash) { ev.push([t, 'down', 'L']); ev.push([t + 0.04, 'up', 'L']); } }
+    else if (o.beatTap) { for (let p = 2; pan.T.timeOfPos(p) < pan.hitAt; p++) { const t = pan.T.timeOfPos(p) + gauss() * 0.03; ev.push([t, 'down', 'L']); ev.push([t + 0.06, 'up', 'L']); } }
     else {
       for (const n of pan.notes) { if (o.missRate && rnd() < o.missRate) continue; const p = n.t + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', n.side]); ev.push([n.type === 'hold' ? n.end + (o.bias || 0) + gauss() * (o.jitter || 0) * 0.5 : p + 0.07, 'up', n.side]); }
+      if (o.follow) for (const v of S.D.song.vocal) { if (v.kind !== 'resp' && v.kind !== 'shout') continue; const p = v.ms / 1000 + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', 'L']); ev.push([p + 0.06, 'up', 'L']); }
       if (o.ghosts) for (const e of pan.echoes) { const p = e + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', 'L']); ev.push([p + 0.06, 'up', 'L']); }
     }
     ev.sort((a, b) => a[0] - b[0]);
@@ -228,12 +231,14 @@ function finish() {
   const J = S.judge, pan = S.pan, total = pan.notes.length, good = J.goodOrBetter();
   const medal = medalOf(J, pan);
   const sg = suggestOffset(J, pan), med = sg.med;
-  const suggest = med != null && sg.n >= 2 && Math.abs(med) > 25 ? Math.round((settings.offsetMs + med) / 5) * 5 : 0;
+  const suggest = med != null && sg.n >= 5 && Math.abs(med) > 25 ? Math.round((settings.offsetMs + med) / 5) * 5 : 0;
+  const mashed = good >= pan.pass && J.emptyCount > total * 1.75, perfect80 = J.counts.PERFECT / total >= 0.8;
+  if (pan.level === 'easy' && pan.hint) { settings.practiced.free = true; saveSettings(); }
   const stamped = new Set(); for (const l of J.log) if (l.res !== 'MISS') for (const k of Array.from(l.k || '')) stamped.add(k);
   const faceId = medal >= 3 ? 'face_camera' : medal >= 1 ? 'face_smile' : 'face_worry';
   saveRecord(pan.level, { medal, good, total, perfect: J.counts.PERFECT });
   S.result = { level: pan.level, medal, good, total, counts: Object.assign({}, J.counts), maxCombo: J.maxCombo, medMs: med, suggest, photos: S.photos.length };
-  UI.showResult({ levelName: pan.name, good, total, medal, counts: J.counts, maxCombo: J.maxCombo, medMs: med, suggest,
+  UI.showResult({ levelName: pan.name, good, total, medal, counts: J.counts, maxCombo: J.maxCombo, medMs: sg.n >= 5 ? med : null, suggest, mashed, perfect80,
     face: S.images[faceId] ? S.images[faceId].src : '', photos: S.photos.slice(-4), letters: pan.letters, stamped, info: k => (S.D.kana[k] || {}).ko || '', words: pan.words });
   const T = S.Tsong; AUm.loopStart(T.t('1:1'), T.t('5:1'), -8, 0.2);   // 결과 음악: 곡 전주 네 마디 고리
 }
@@ -283,7 +288,9 @@ function onPress(side, e) {
   if (r.res !== 'MISS' && r.note.side === 'L' && (r.how === 'press' || r.how === 'head' || r.how === 'lategrab')) {
     const n = r.note, bl0 = S.pan.T.beatInfo(n.t).beatLen;
     let vh = AUm.voiceNow(n.vid);
+    if (!vh && n.type === 'pill') vh = AUm.voiceNow(n.vid.replace(/p$/, ''));   // 새 알약(C1)은 머리 글자 목소리
     if (!vh && n.type === 'tap') vh = AUm.voiceNow(n.vid + 'h', bl0 * 0.5);
+    if (!vh) { const twin = S.pan.notes.find(x => x !== n && x.ph === n.ph && x.k === n.k && AUm.hasVoice(x.vid)); if (twin) vh = AUm.voiceNow(twin.vid); }   // 같은 구절 같은 글자 목소리(어려움 43:4.5 등)
     if (vh && r.how !== 'press') S.voiceHold = { n, vh };
   }
   const bl = S.pan.T.beatInfo(r.note.t).beatLen;
@@ -322,7 +329,7 @@ function afterJudge(r, tNow) {
   if (S.mode === 'practice' && S.prac && !S.prac.passed) {   // 연습 성공 셈(벌 없음)
     const P = S.prac, okRes = r.res !== 'MISS';
     const hit = P.key === 'hold' ? n.type === 'hold' && okRes && r.ok !== false : P.key === 'right' ? n.side === 'R' && okRes : n.side === 'L' && okRes;
-    if (hit) { P.ok++; if (P.ok >= P.need) { P.passed = true; P.doneAt = pan.repEnd(n.end || n.t); } R.setPractice({ line: pan.line, icon: pan.icon, need: P.need, ok: P.ok, passed: P.passed }); }
+    if (hit) { P.ok++; if (P.ok >= P.need) { P.passed = true; P.doneAt = pan.repEnd(n.end || n.t); } R.setPractice({ line: pan.line, sub: pan.sub, icon: pan.icon, need: P.need, ok: P.ok, passed: P.passed }); }
   }
   // 콤보 10·20·30: 무리 손뼉(고역만)을 '다음 빈 박'에 — 부르는 구절 안이면 그 받는 마디 첫 박으로 미룸(I3). 하나는 다음 강박에 점프
   if (r.res !== 'MISS' && J.combo > 0 && J.combo % 10 === 0 && S.mode === 'run') {
@@ -424,7 +431,7 @@ function frame(now, fromTimer) {
     holdTicks(t);
     while (S.photoQ.length && t >= S.photoQ[0].at) { S.photoQ.shift(); S.photos.push(R.capturePhoto()); }
     const pan = S.pan;
-    if (S.mode === 'run' && !S.endDone && t >= pan.hitAt - 0.005) { S.endDone = true; R.endHit(pan.hitAt); S.photoQ.push({ at: pan.hitAt + 0.06 }); }
+    if (S.mode === 'run' && !S.endDone && t >= pan.hitAt - 0.005) { S.endDone = true; S.photos.push(R.capturePhoto()); R.endHit(pan.hitAt); }   // 끝 사진 = 흰 번쩍·폴라로이드 전 장면
     const d0 = performance.now();
     R.draw(t, 'play', dbg, settings.visualMs);
     if (S.drawMs.length < 20000) S.drawMs.push(performance.now() - d0);
@@ -483,6 +490,7 @@ function report() {
     anim: { hanaFrames: HA.changes.length + 1, hanaFootJumpPx: 0, hanaBodyShift: body(HA), hanaMaxStillBeats: +HA.maxStill.toFixed(2), cast },
     animDur: animDur(HA), echoCount: J.echoCount, emptyCount: J.emptyCount, freeTaps: S.freeTaps || 0, atlas: { fmt: S.atlasFmt, ms: S.atlasMs }, voiceFiles: AU.stats.voiceFiles,
     autoFired: S.autoFired, autoLate: S.autoLate, prepMs: S.prepMs, bakeMs: S.bakeMs, songPeakDb: AU.stats.songPeakDb, decodeShiftMs: AU.stats.decodeShiftMs, hitPeakDb: AU.stats.hitPeakDb,
+    voiceMissing: S.pan.notes.filter(n => n.side === 'L' && n.kanaChars.length && !(AUm.hasVoice(n.vid) || AUm.hasVoice(n.vid.replace(/p$/, '')) || AUm.hasVoice(n.vid + 'h') || S.pan.notes.some(x => x !== n && x.ph === n.ph && x.k === n.k && AUm.hasVoice(x.vid)))).map(n => n.vid),
     vis: R.visibility(t), photos: S.photos.length, prac: S.prac ? { key: S.prac.key, ok: S.prac.ok, passed: S.prac.passed } : null, practiced: settings.practiced, err: S.err,
   };
 }

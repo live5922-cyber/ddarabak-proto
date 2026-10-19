@@ -55,13 +55,13 @@
   <div class="head">
     <p class="tag">1챕터 · 삿포로</p>
     <h2 class="song paper tilt-l">하나도 못 읽어요</h2>
+    <div class="row-btns tight">
+      <button id="btn-sel-back" class="btn ghost thin" type="button">처음으로</button>
+      <button id="btn-set3" class="btn ghost thin" type="button">설정</button>
+    </div>
   </div>
   <div class="bottom">
     <div id="level-list" class="level-list"></div>
-    <div class="row-btns tight">
-      <button id="btn-sel-back" class="btn ghost" type="button">처음으로</button>
-      <button id="btn-set3" class="btn ghost" type="button">설정</button>
-    </div>
   </div>
 </section>
 
@@ -109,7 +109,7 @@
       <div class="res-score">
         <p class="tag small"><span id="res-level">쉬움</span> · 하나도 못 읽어요</p>
         <p class="hit"><b id="res-hit">0</b><span id="res-total">/ 0</span></p>
-        <p class="cap">맞힌 수</p>
+        <p class="cap">맞힌 수 <span id="res-perfect80" class="p80" hidden>PERFECT 80%</span></p>
       </div>
     </div>
     <div id="res-medals" class="medals"></div>
@@ -121,15 +121,16 @@
       <div><b class="m">MISS</b><span id="res-MISS">0</span></div>
     </div>
     <div class="minor"><span>최대 콤보 <b id="res-combo">0</b></span><span>타이밍 <b id="res-avg">–</b></span></div>
+    <p id="res-mash" class="mash" hidden>마구 누르면 통과가 안 돼요 · 부를 땐 듣고, 다음 마디에 따라 쳐요</p>
     <button id="btn-res-offset" class="btn ghost thin" type="button" hidden></button>
     <p id="res-read" class="cap left">읽은 글자</p>
     <div id="res-kana" class="kana-grid"></div>
     <div id="res-words" class="words"></div>
-    <div class="row-btns">
+    <p class="credit">VOICEVOX:雨晴はう</p>
+    <div class="row-btns stick">
       <button id="btn-res-sel" class="btn ghost" type="button">난이도 고르기</button>
       <button id="btn-retry" class="btn small tan" type="button">다시 하기</button>
     </div>
-    <p class="credit">VOICEVOX:雨晴はう</p>
   </div>
 </section>
 

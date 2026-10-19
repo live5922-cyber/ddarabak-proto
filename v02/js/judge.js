@@ -87,7 +87,9 @@ export function createJudge(notes, P, opts) {
       }
     }
     // 마구 누르기: 바로 앞 같은 쪽 누름이 300ms 안이고 이번 누름이 노트 −200 ~ −GOOD 띠면 그 노트를 MISS로 써 버림(태고·osu!mania처럼 이른 누름이 노트를 소모)
-    if (!opts.noMash && tp - prev < 0.3) {
+    // v0.3 검토 C1: 바로 앞 누름도 빈 터치였을 때만(따라 친 글자·맞힌 노트 뒤 누름은 소모 안 함)
+    const em0 = J.empty[side];
+    if (!opts.noMash && tp - prev < 0.3 && em0.length && em0[em0.length - 1] === prev) {
       for (const n of notes) {
         if (n.judged || n.side !== side || (n.hold && n.hold.active)) continue;
         if (tp >= n.t - 0.2 && tp < n.t - n.winE) { n.delta = tp - n.t; return finish(n, 'MISS', 'early-mash'); }

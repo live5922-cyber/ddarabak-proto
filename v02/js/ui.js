@@ -39,23 +39,24 @@ export function current() { return document.body.dataset.scr; }
 export function setStatus(text, ready) { $('load-status').textContent = text; $('btn-start').classList.toggle('wait', !ready); }
 function refreshChip() { $('chip-sound').textContent = '가 · A  ' + SOUND_LABEL[settings.sound]; }
 
-// ── 난이도 고르기(명세 1절): 쉬움 · 보통 · 어려움, 모두 열림. 처음이면 '쉬움' 추천. 최고 도장은 난이도마다 ─────────────────────────────
+// ── 난이도 고르기(명세 1절, 검토 V11·S7) = 기차표 3장: 펀치 구멍 1·2·3개 = 난이도, 최고 도장 3칸에 이름(통과·잘함·다 맞힘). 처음이면 '쉬움'에 추천 ─────────────────────────────
+export const MEDALS = [['통과', '절반 넘게'], ['잘함', 'MISS ≤ 10%'], ['다 맞힘', 'MISS 0']];
 export function showSelect(levels) {
   const box = $('level-list'); box.innerHTML = '';
   const fresh = !['easy', 'normal', 'hard'].some(id => records[id]);
-  for (const lv of levels) {
+  levels.forEach((lv, li) => {
     const r = records[lv.id] || { medal: 0 };
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'level-card lv-' + lv.id;
-    const st = [['통과', 1], ['다 맞힘', 2], ['완벽', 3]].map(([nm, i]) => `<i class="${r.medal >= i ? 'on' : ''}" title="${nm}"></i>`).join('');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ticket lv-' + lv.id;
+    const st = MEDALS.map(([nm], i) => `<span class="st${r.medal > i ? ' on' : ''}"><i></i><b>${nm}</b></span>`).join('');
     const len = Math.floor(lv.len / 60) + ':' + String(lv.len % 60).padStart(2, '0');
-    b.innerHTML = `<span class="nm">${lv.name}</span>${fresh && lv.id === 'easy' ? '<span class="rec">추천</span>' : ''}` +
-      `<span class="mv">${lv.move}</span><span class="info">노트 ${lv.notes} · ${len}</span><span class="stamps">${st}</span>`;
-    b.addEventListener('click', () => { H.click && H.click(); H.chooseLevel(lv.id); });
+    b.innerHTML = `<span class="stub">${'<i></i>'.repeat(li + 1)}${'<u></u>'.repeat(2 - li)}</span>` +
+      `<span class="body"><span class="nm">${lv.name}</span>${fresh && lv.id === 'easy' ? '<span class="rec">추천</span>' : ''}` +
+      `<span class="mv">${lv.move}</span><span class="info">노트 ${lv.notes} · ${len}</span></span><span class="stamps">${st}</span>`;
+    b.addEventListener('click', () => { H.click && H.click(); b.classList.add('picked'); setTimeout(() => H.chooseLevel(lv.id), 120); });
     box.appendChild(b);
-  }
+  });
   show('select');
 }
-
 // ── 설정 ─────────────────────────────
 const SEG = [
   { key: 'judge', label: '판정', opts: [['loose', '느슨하게'], ['normal', '보통'], ['strict', '정확하게']] },
@@ -105,27 +106,41 @@ export function calibPulse() { }
 export function calibTapFx() { const p = $('calib-pad'); p.classList.remove('beat'); void p.offsetWidth; p.classList.add('beat'); setTimeout(() => p.classList.remove('beat'), 90); }
 export function calibDone(ms) { $('calib-result').textContent = '보정값 ' + (ms > 0 ? '+' : '') + ms + 'ms'; $('calib-after').hidden = false; $('calib-pad').classList.add('done'); }
 
-// ── 결과 = 수첩 한 쪽(명세 5절): 장면 사진 + 판정 도장 + 읽은 글자 도장 ─────────────────────────────
+// ── 결과 = 수첩 한 쪽(명세 5절): 박(0.49초)에 맞춰 차례로 — 사진 4장 1/2박씩 → 맞힌 수 세어 오름 1박 → 메달 도장 → 판정 수 → 읽은 글자 도장 1/8박씩 → 낱말(검토 V11). 단추는 바닥에 늘 보임(I7)
+const BEAT = 0.49;
+function seq(el, d) { if (!el) return; el.classList.remove('seq'); void el.offsetWidth; el.style.setProperty('--d', d.toFixed(3) + 's'); el.classList.add('seq'); }
 export function showResult(r) {
   $('res-level').textContent = r.levelName;
-  $('res-hit').textContent = r.good; $('res-total').textContent = '/ ' + r.total;
+  $('res-total').textContent = '/ ' + r.total; $('res-hit').textContent = '0';
   $('res-face').src = r.face || ''; $('res-face').hidden = !r.face;
-  const md = [['통과', '절반 넘게'], ['다 맞힘', 'MISS 0'], ['완벽', 'PERFECT 80%']];
-  $('res-medals').innerHTML = md.map((m, i) => `<div class="medal m${i + 1}${r.medal > i ? ' on' : ''}" style="animation-delay:${0.15 + i * 0.25}s"><b>${m[0]}</b><small>${m[1]}</small></div>`).join('');
-  if (H.stamps) H.stamps(md.map((m, i) => r.medal > i ? 0.15 + i * 0.25 + 0.1 : null).filter(x => x != null));
-  for (const k of ['PERFECT', 'GREAT', 'GOOD', 'MISS']) $('res-' + k).textContent = r.counts[k];
-  $('res-combo').textContent = r.maxCombo;
-  // 연주·결과 화면에는 ms 숫자를 안 보임(숫자는 설정·보정 화면에서만, 사용자 10-19)
-  $('res-avg').textContent = r.medMs == null ? '–' : Math.abs(r.medMs) <= 25 ? '딱 맞음' : r.medMs > 0 ? '조금 늦은 편' : '조금 이른 편';
-  const ob = $('btn-res-offset');
-  if (r.suggest) { ob.hidden = false; ob.textContent = r.medMs > 0 ? '조금 늦게 치는 편이에요 · 맞추기' : '조금 일찍 치는 편이에요 · 맞추기'; ob.onclick = () => { H.applyOffset(r.suggest); ob.hidden = true; }; }
-  else ob.hidden = true;
   const ph = $('res-photos'); ph.innerHTML = '';
-  (r.photos || []).forEach((c, i) => { const f = document.createElement('figure'); f.style.setProperty('--r', [-3, 2, -1.5, 3][i % 4] + 'deg'); f.appendChild(c); ph.appendChild(f); });
+  (r.photos || []).forEach((c, i) => { const f = document.createElement('figure'); f.style.setProperty('--r', [-3, 2, -1.5, 3][i % 4] + 'deg'); f.appendChild(c); ph.appendChild(f); seq(f, BEAT * (1 + i * 0.5)); });
+  const tCount = BEAT * 3, tMedal = tCount + BEAT * 1.25;
+  setTimeout(() => {   // 맞힌 수 세어 오름(1박) → 끝에 쾅
+    const t0 = performance.now(), el = $('res-hit');
+    const step = () => { const u = Math.min(1, (performance.now() - t0) / (BEAT * 1000)); el.textContent = Math.round(r.good * u); if (u < 1) requestAnimationFrame(step); else { el.parentElement.classList.remove('slam'); void el.offsetWidth; el.parentElement.classList.add('slam'); } };
+    step();
+  }, tCount * 1000);
+  $('res-medals').innerHTML = MEDALS.map((m, i) => `<div class="medal m${i + 1}${r.medal > i ? ' on' : ''}" style="animation-delay:${(tMedal + i * BEAT / 2).toFixed(2)}s"><b>${m[0]}</b><small>${m[1]}</small></div>`).join('');
+  if (H.stamps) H.stamps(MEDALS.map((m, i) => r.medal > i ? tMedal + i * BEAT / 2 + 0.1 : null).filter(x => x != null));
+  const tAfter = tMedal + BEAT * 1.75;
+  for (const k of ['PERFECT', 'GREAT', 'GOOD', 'MISS']) $('res-' + k).textContent = r.counts[k];
+  seq(document.querySelector('#scr-result .counts'), tAfter); seq(document.querySelector('#scr-result .minor'), tAfter);
+  $('res-combo').textContent = r.maxCombo;
+  $('res-perfect80').hidden = !r.perfect80;
+  // 연주·결과 화면에는 ms 숫자를 안 보임(사용자 10-19). 잰 노트가 5개 안 되면 '–'(S8)
+  $('res-avg').textContent = r.medMs == null ? '–' : Math.abs(r.medMs) <= 25 ? '딱 맞음' : r.medMs > 0 ? '조금 늦은 편' : '조금 이른 편';
+  $('res-mash').hidden = !r.mashed; seq($('res-mash'), tAfter);
+  const ob = $('btn-res-offset');
+  if (r.suggest) { ob.hidden = false; ob.textContent = r.medMs > 0 ? '조금 늦게 치는 편이에요 · 맞추기' : '조금 일찍 치는 편이에요 · 맞추기'; ob.onclick = () => { H.applyOffset(r.suggest); ob.hidden = true; }; seq(ob, tAfter); }
+  else ob.hidden = true;
   const box = $('res-kana'); box.innerHTML = '';
-  for (const k of r.letters) { const c = document.createElement('div'); c.className = 'kc' + (r.stamped.has(k) ? ' st' : ''); c.innerHTML = `<b>${k}</b><span>${r.info(k)}</span>`; box.appendChild(c); }
+  const tKana = tAfter + BEAT;
+  r.letters.forEach((k, i) => { const c = document.createElement('div'); c.className = 'kc' + (r.stamped.has(k) ? ' st' : ''); c.innerHTML = `<b>${k}</b><span>${r.info(k)}</span>`; box.appendChild(c); seq(c, tKana + i * BEAT / 8); });
+  seq($('res-read'), tKana - BEAT / 2);
   $('res-read').textContent = '읽은 글자 ' + r.letters.filter(k => r.stamped.has(k)).length + ' / ' + r.letters.length;
   $('res-words').innerHTML = (r.words || []).map(w => `<span><b>${w.w}</b>${w.m || ''}</span>`).join('');
+  seq($('res-words'), tKana + 15 * BEAT / 8 + BEAT / 2);
   show('result');
   const sc = document.querySelector('#scr-result .page'); if (sc) sc.scrollTop = 0;
 }

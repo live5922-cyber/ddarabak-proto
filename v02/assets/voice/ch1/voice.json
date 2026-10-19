@@ -1,10 +1,11 @@
 {
-    "format":  "ttb-voice/0.1",
+    "format":  "ttb-voice/0.2",
     "chapter":  "ch1",
     "song":  "하나도 못 읽어요",
     "made":  "2026-10-19",
+    "chart":  "prototype/v0.2/data/ch1_chart.json (ttb-chart/0.3, 쉬움·보통·어려움 + 연습)",
     "status":  "시험판 임시(출시판은 원어민 녹음으로 바꿈)",
-    "note":  "맞히면 나는 글자 목소리. 채보 prototype/v0.2/data/ch1_chart.json 노트 id 기준(판 1·2). 음높이 = 그 자리 받는 떼창(곡 스템 Vocals·Backing Vocals)을 재서 맞춤. 21-4는 판 2 길게 → 톡 바뀜(결정 10-19 (2)) 대비 미리 만든 톡.",
+    "note":  "맞히면 나는 글자 목소리. notes[].id = 채보 vid(마디-박, 두 글자 p, 길게 h) = main.js voiceNow(n.vid). 세 난이도·연습의 왼손 글자 노트 전부(오른손 손뼉·글자 없는 both 제외). ghostIn = 그 난이도에선 보기 노트(안 침). 음높이 = 그 자리 받는 떼창(곡 스템 Vocals·Backing Vocals)을 재서 맞춤. 같은 글자·같은 음은 파일 하나를 같이 씀.",
     "engine":  {
                    "name":  "VOICEVOX Engine",
                    "version":  "0.25.2",
@@ -24,9 +25,9 @@
                 "speakerId":  3014,
                 "credit":  "VOICEVOX:冥鳴ひまり"
             },
-    "audio":  "44.1kHz 16bit 모노 wav. 앞 무음 1ms 안팎(-40dBFS 기준), 앞 1.5ms·끝 30ms(길게 40ms) 코사인 페이드. 파일 몸통 RMS(50ms 창 최대) 약 -16.5dBFS, 꼭대기 -1dBFS 아래.",
+    "audio":  "44.1kHz 16bit 모노 wav. 앞 무음 1~2.6ms(-40dBFS 기준), 앞 1.5ms·끝 30ms(430ms 넘는 길게 40ms) 코사인 페이드. 파일 몸통 RMS(50ms 창 최대) 약 -16.5dBFS, 꼭대기 -1dBFS 아래.",
     "mix":  {
-                "rule":  "곡 대비: RMS -12dB(소리 검토 I2), 꼭대기 -6dB 이하, 1~4kHz -10dB 이하 중 가장 엄한 값. 곡 크기·필터는 건드리지 않음(덕킹 금지). 아래 eq를 건 상태로 잰 값.",
+                "rule":  "곡 대비: RMS -12dB(소리 검토 I2), 꼭대기 -6dB 이하, 1~4kHz -10dB 이하 중 가장 엄한 값. 곡 크기·필터는 건드리지 않음(덕킹 금지). 아래 eq를 건 상태로 잰 값(audio.js loadVoice와 같음).",
                 "eq":  [
                            {
                                "type":  "highpass",
@@ -41,10 +42,56 @@
                            }
                        ],
                 "gainDb":  "노트마다 notes[].gainDb. 노트를 모를 때 고정값 fixedGainDb.",
-                "fixedGainDb":  -12,
-                "holdRelease":  "길게 노트를 일찍 떼면 그 자리에서 30ms 페이드로 끊음."
+                "fixedGainDb":  -15,
+                "holdRelease":  "길게 노트를 일찍 떼면 그 자리에서 30ms 페이드로 끊음(audio.js voiceCut)."
             },
     "files":  {
+                  "a_B3.wav":  {
+                                   "kana":  "あ",
+                                   "romaji":  "a",
+                                   "pitch":  [
+                                                 "B3"
+                                             ],
+                                   "targetHz":  [
+                                                    246.9
+                                                ],
+                                   "measuredHz":  [
+                                                      247.3
+                                                  ],
+                                   "centsOff":  [
+                                                    2.7
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  0.98,
+                                   "peakDbfs":  -5.72,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  2,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "89c954ac4973ef47008b765455658a8f0429dd30ff378c1abc522a23d0bd8768"
+                               },
+                  "a_B4.wav":  {
+                                   "kana":  "あ",
+                                   "romaji":  "a",
+                                   "pitch":  [
+                                                 "B4"
+                                             ],
+                                   "targetHz":  [
+                                                    493.9
+                                                ],
+                                   "measuredHz":  [
+                                                      494.7
+                                                  ],
+                                   "centsOff":  [
+                                                    2.7
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1,
+                                   "peakDbfs":  -5.92,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  2,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "80c8e29b3d7e5044ab5707a24c2249d32c978fe3f6d622f772402127e5e918ca"
+                               },
                   "a_C4.wav":  {
                                    "kana":  "あ",
                                    "romaji":  "a",
@@ -64,6 +111,8 @@
                                    "leadSilenceMs":  1,
                                    "peakDbfs":  -6.46,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "18fb686f96f9cdd23c9696175031c76699f2cdb2005561a930a7a2a807d7964c"
                                },
                   "e_14-3h.wav":  {
@@ -85,6 +134,8 @@
                                       "leadSilenceMs":  1.02,
                                       "peakDbfs":  -8.22,
                                       "fadeOutMs":  40,
+                                      "vowelOnMs":  null,
+                                      "made":  "2026-10-19 (첫 판)",
                                       "sha256":  "8bafc07c83918f9bc0af019047671c9cede244a6d470bb96324013a80ef0eed9"
                                   },
                   "e_C4.wav":  {
@@ -106,6 +157,8 @@
                                    "leadSilenceMs":  1,
                                    "peakDbfs":  -8.08,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "80664160b417c23d93204d96f2542308c9af89b01652568eaea1cf55e125b36a"
                                },
                   "e_Eb4.wav":  {
@@ -127,6 +180,8 @@
                                     "leadSilenceMs":  1,
                                     "peakDbfs":  -7.89,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "53b36ee521321a75e7094bcd56024a93b88ab7843f1738abb4ce027754178d9e"
                                 },
                   "e_G4.wav":  {
@@ -148,8 +203,64 @@
                                    "leadSilenceMs":  1,
                                    "peakDbfs":  -7.21,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "e3da31b662152efac5a23828fa9efc1377900c1cf5f52e59071b5513d8f39d28"
                                },
+                  "i_48-1h.wav":  {
+                                      "kana":  "い",
+                                      "romaji":  "i",
+                                      "pitch":  [
+                                                    "C5"
+                                                ],
+                                      "targetHz":  [
+                                                       523.3
+                                                   ],
+                                      "measuredHz":  [
+                                                         523
+                                                     ],
+                                      "centsOff":  [
+                                                       -0.7
+                                                   ],
+                                      "lenMs":  1957,
+                                      "leadSilenceMs":  1.02,
+                                      "peakDbfs":  -7.96,
+                                      "fadeOutMs":  40,
+                                      "vowelOnMs":  6,
+                                      "made":  "2026-10-19 (v0.3 채보)",
+                                      "sha256":  "e7668c17b9fcb0037e70b57c0c5ea9014f7557940da67fbd0368c71dd7773126"
+                                  },
+                  "i_58-1h.wav":  {
+                                      "kana":  "い",
+                                      "romaji":  "i",
+                                      "pitch":  [
+                                                    "C5",
+                                                    "D5",
+                                                    "C5"
+                                                ],
+                                      "targetHz":  [
+                                                       523.3,
+                                                       587.3,
+                                                       523.3
+                                                   ],
+                                      "measuredHz":  [
+                                                         524.3,
+                                                         587.6,
+                                                         522.5
+                                                     ],
+                                      "centsOff":  [
+                                                       3.4,
+                                                       0.7,
+                                                       -2.5
+                                                   ],
+                                      "lenMs":  1970,
+                                      "leadSilenceMs":  1.02,
+                                      "peakDbfs":  -7.8,
+                                      "fadeOutMs":  40,
+                                      "vowelOnMs":  6,
+                                      "made":  "2026-10-19 (v0.3 채보)",
+                                      "sha256":  "52bb4b1fea942a44599293c4866cde02c31f3891a7bacc84ba5ff65b87204ba2"
+                                  },
                   "i_A4.wav":  {
                                    "kana":  "い",
                                    "romaji":  "i",
@@ -169,7 +280,32 @@
                                    "leadSilenceMs":  1.29,
                                    "peakDbfs":  -8.36,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "5d626eb1bfae334afc3d86f06f518e64fe81773443297f670b28f586e0d93028"
+                               },
+                  "i_B3.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "B3"
+                                             ],
+                                   "targetHz":  [
+                                                    246.9
+                                                ],
+                                   "measuredHz":  [
+                                                      247.3
+                                                  ],
+                                   "centsOff":  [
+                                                    2.2
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1,
+                                   "peakDbfs":  -8.09,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  5,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "4b5577f80dc714eb95cd6f7d7fdbece3f9f23414288645ef894e1065e2752f33"
                                },
                   "i_B4.wav":  {
                                    "kana":  "い",
@@ -190,7 +326,55 @@
                                    "leadSilenceMs":  1.29,
                                    "peakDbfs":  -9.44,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "aabc628955b47aaa008d93be545b2ce8c724fb600a15c407548e19833509bfa0"
+                               },
+                  "i_C4.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "C4"
+                                             ],
+                                   "targetHz":  [
+                                                    261.6
+                                                ],
+                                   "measuredHz":  [
+                                                      261.5
+                                                  ],
+                                   "centsOff":  [
+                                                    -0.5
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.02,
+                                   "peakDbfs":  -8.07,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  1,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "751089ca29461f1c879fa1b4f647f512212d6183cfcdb97e4f050e164c107eff"
+                               },
+                  "i_C5.wav":  {
+                                   "kana":  "い",
+                                   "romaji":  "i",
+                                   "pitch":  [
+                                                 "C5"
+                                             ],
+                                   "targetHz":  [
+                                                    523.3
+                                                ],
+                                   "measuredHz":  [
+                                                      523.5
+                                                  ],
+                                   "centsOff":  [
+                                                    0.9
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.29,
+                                   "peakDbfs":  -9.65,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  4,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "1212d5b7a4fab333d99e1377f313da8598c4d9606aeb3ef31360e7ca8916ab5e"
                                },
                   "i_G4.wav":  {
                                    "kana":  "い",
@@ -211,6 +395,8 @@
                                    "leadSilenceMs":  0.98,
                                    "peakDbfs":  -6.5,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "65e534b9b1af9fc3e3f829ace9a985cc89b408d30c708877c158c6d3d5eb999b"
                                },
                   "ii_G4A4.wav":  {
@@ -236,8 +422,33 @@
                                       "leadSilenceMs":  1,
                                       "peakDbfs":  -5.68,
                                       "fadeOutMs":  30,
+                                      "vowelOnMs":  null,
+                                      "made":  "2026-10-19 (첫 판)",
                                       "sha256":  "c5e2b0d756c00ecc92bf31012476fc05a9fa3e398605414b31824c287376dd39"
                                   },
+                  "ka_34-3h.wav":  {
+                                       "kana":  "か",
+                                       "romaji":  "ka",
+                                       "pitch":  [
+                                                     "G4"
+                                                 ],
+                                       "targetHz":  [
+                                                        392
+                                                    ],
+                                       "measuredHz":  [
+                                                          392.3
+                                                      ],
+                                       "centsOff":  [
+                                                        1.2
+                                                    ],
+                                       "lenMs":  981,
+                                       "leadSilenceMs":  0.95,
+                                       "peakDbfs":  -4.54,
+                                       "fadeOutMs":  40,
+                                       "vowelOnMs":  26,
+                                       "made":  "2026-10-19 (v0.3 채보)",
+                                       "sha256":  "1cfef569e8eccee23c288931491858e2939054a90aa9740056de173f8801939d"
+                                   },
                   "ka_A4.wav":  {
                                     "kana":  "か",
                                     "romaji":  "ka",
@@ -257,6 +468,8 @@
                                     "leadSilenceMs":  0.98,
                                     "peakDbfs":  -5.73,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "01c969df3534179427a0d6feafe207c180d6c9516f7fab4416806a42b11211a3"
                                 },
                   "ka_C4.wav":  {
@@ -278,7 +491,32 @@
                                     "leadSilenceMs":  0.98,
                                     "peakDbfs":  -6.49,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "1b02adc28b76aa2d424a351c61c5a46cc3661e61c51700332e3396865e76eadf"
+                                },
+                  "ka_G4.wav":  {
+                                    "kana":  "か",
+                                    "romaji":  "ka",
+                                    "pitch":  [
+                                                  "G4"
+                                              ],
+                                    "targetHz":  [
+                                                     392
+                                                 ],
+                                    "measuredHz":  [
+                                                       392.4
+                                                   ],
+                                    "centsOff":  [
+                                                     1.9
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -5.76,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "d89bd663dfe3c3d53d7cb1e5d26964bb821de29a0fd4f1c4dc42d418b42f6b61"
                                 },
                   "ke_C4.wav":  {
                                     "kana":  "け",
@@ -299,7 +537,78 @@
                                     "leadSilenceMs":  1,
                                     "peakDbfs":  -7.05,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "3154eeff8be45733e03b702329171d9bedb3c54dbb236c6b01e0fc6c848d727f"
+                                },
+                  "ke_D4.wav":  {
+                                    "kana":  "け",
+                                    "romaji":  "ke",
+                                    "pitch":  [
+                                                  "D4"
+                                              ],
+                                    "targetHz":  [
+                                                     293.7
+                                                 ],
+                                    "measuredHz":  [
+                                                       293
+                                                   ],
+                                    "centsOff":  [
+                                                     -3.8
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  0.98,
+                                    "peakDbfs":  -6.28,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  26,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "46c329d488a476eeeda4b06c42bf0b6d94de8e8cca5fc06b0f5539e7d0ebd919"
+                                },
+                  "ki_C4.wav":  {
+                                    "kana":  "き",
+                                    "romaji":  "ki",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.1
+                                                   ],
+                                    "centsOff":  [
+                                                     -3.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -8.37,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  28,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "6b35e2a10da92c7a1f7d35070c2ca40191d8fd51054957e9b55d95a14925bc5c"
+                                },
+                  "ki_E4.wav":  {
+                                    "kana":  "き",
+                                    "romaji":  "ki",
+                                    "pitch":  [
+                                                  "E4"
+                                              ],
+                                    "targetHz":  [
+                                                     329.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       330.6
+                                                   ],
+                                    "centsOff":  [
+                                                     5
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -7.96,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  27,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "7876b2411afa46405c3a6327c693ebc309f9b02fc26f1060302fb49fab71748b"
                                 },
                   "ki_Eb4.wav":  {
                                      "kana":  "き",
@@ -320,6 +629,8 @@
                                      "leadSilenceMs":  1.04,
                                      "peakDbfs":  -8.22,
                                      "fadeOutMs":  30,
+                                     "vowelOnMs":  null,
+                                     "made":  "2026-10-19 (첫 판)",
                                      "sha256":  "72885f4839a4507e707700ad8a30096bf2ff46b3f5b322e36458d8fac70d34f1"
                                  },
                   "ki_G4.wav":  {
@@ -341,28 +652,36 @@
                                     "leadSilenceMs":  1.02,
                                     "peakDbfs":  -7.98,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "748dface019e2d106ceb22c379776c640c838b2e158d4ee9d948246809ef1508"
                                 },
-                  "ko_21-4h.wav":  {
+                  "ko_40-3h.wav":  {
                                        "kana":  "こ",
                                        "romaji":  "ko",
                                        "pitch":  [
-                                                     "Eb4"
+                                                     "G4",
+                                                     "C4"
                                                  ],
                                        "targetHz":  [
-                                                        311.1
+                                                        392,
+                                                        261.6
                                                     ],
                                        "measuredHz":  [
-                                                          311.2
+                                                          392.5,
+                                                          261.7
                                                       ],
                                        "centsOff":  [
-                                                        0.5
+                                                        2.1,
+                                                        0.8
                                                     ],
-                                       "lenMs":  488,
-                                       "leadSilenceMs":  0.98,
-                                       "peakDbfs":  -6.4,
+                                       "lenMs":  980,
+                                       "leadSilenceMs":  1,
+                                       "peakDbfs":  -7.63,
                                        "fadeOutMs":  40,
-                                       "sha256":  "79b598f07bf5fc76495baa3507bee22e3aa8c27bd37a161ca232733683f837ec"
+                                       "vowelOnMs":  26,
+                                       "made":  "2026-10-19 (v0.3 채보)",
+                                       "sha256":  "b7c9d781d44f41670d2bea4a6c3ad749c0e75517157bf69efa4e84f32ae45709"
                                    },
                   "ko_A3.wav":  {
                                     "kana":  "こ",
@@ -383,6 +702,8 @@
                                     "leadSilenceMs":  1.02,
                                     "peakDbfs":  -8.34,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "2ddef6a40d3b9e4e4e45b24fafcd8b8b0961dc198126ebbb5781c79f15a403fa"
                                 },
                   "ko_C4.wav":  {
@@ -404,7 +725,32 @@
                                     "leadSilenceMs":  1.02,
                                     "peakDbfs":  -8.94,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "7c1fb489e15ba5a6970265f59f4c7742f48da8fdf27dd2a64ce61290626a0d93"
+                                },
+                  "ko_D4.wav":  {
+                                    "kana":  "こ",
+                                    "romaji":  "ko",
+                                    "pitch":  [
+                                                  "D4"
+                                              ],
+                                    "targetHz":  [
+                                                     293.7
+                                                 ],
+                                    "measuredHz":  [
+                                                       293.7
+                                                   ],
+                                    "centsOff":  [
+                                                     0.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.02,
+                                    "peakDbfs":  -9.03,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "eba18640d579b1d48b5781c6054eea79eeea7396a2a2a41bbebecfde70d447c4"
                                 },
                   "ko_Eb4.wav":  {
                                      "kana":  "こ",
@@ -425,8 +771,33 @@
                                      "leadSilenceMs":  1.02,
                                      "peakDbfs":  -9,
                                      "fadeOutMs":  30,
+                                     "vowelOnMs":  null,
+                                     "made":  "2026-10-19 (첫 판)",
                                      "sha256":  "561d94158d664f9b2d52202ff0e23448be001041617f6e5b447889a42ab70208"
                                  },
+                  "ko_G4.wav":  {
+                                    "kana":  "こ",
+                                    "romaji":  "ko",
+                                    "pitch":  [
+                                                  "G4"
+                                              ],
+                                    "targetHz":  [
+                                                     392
+                                                 ],
+                                    "measuredHz":  [
+                                                       392.4
+                                                   ],
+                                    "centsOff":  [
+                                                     2
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1,
+                                    "peakDbfs":  -7.83,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "8a7914aeae2d903659c0e5a75b524b6c2110941515a8c5c78c0fb9ce0bd9a137"
+                                },
                   "ku_C4.wav":  {
                                     "kana":  "く",
                                     "romaji":  "ku",
@@ -446,6 +817,8 @@
                                     "leadSilenceMs":  1.41,
                                     "peakDbfs":  -8.64,
                                     "fadeOutMs":  30,
+                                    "vowelOnMs":  null,
+                                    "made":  "2026-10-19 (첫 판)",
                                     "sha256":  "85146d1a5928c7b5822e2d0b2104ef9acf4e335a80a1613263ed0f01daf3636c"
                                 },
                   "o_24-3h.wav":  {
@@ -467,6 +840,8 @@
                                       "leadSilenceMs":  1.02,
                                       "peakDbfs":  -8.65,
                                       "fadeOutMs":  40,
+                                      "vowelOnMs":  null,
+                                      "made":  "2026-10-19 (첫 판)",
                                       "sha256":  "800060e234d8ba235f71886e656bdc2a7b01e872b88b468dcb65b390f4d8d858"
                                   },
                   "o_A3.wav":  {
@@ -488,7 +863,32 @@
                                    "leadSilenceMs":  1.04,
                                    "peakDbfs":  -10.11,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "eb0c948298878ff4251813345b4e765cc25f9602d11331fb82cd0bfbed7c8ae7"
+                               },
+                  "o_A4.wav":  {
+                                   "kana":  "お",
+                                   "romaji":  "o",
+                                   "pitch":  [
+                                                 "A4"
+                                             ],
+                                   "targetHz":  [
+                                                    440
+                                                ],
+                                   "measuredHz":  [
+                                                      439.7
+                                                  ],
+                                   "centsOff":  [
+                                                    -1.2
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.02,
+                                   "peakDbfs":  -10.08,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  5,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "c195a5ba1157f37aff707ca1565a59774e83174ab3a7e56b857140901c96f6fe"
                                },
                   "o_C4.wav":  {
                                    "kana":  "お",
@@ -509,8 +909,286 @@
                                    "leadSilenceMs":  2.97,
                                    "peakDbfs":  -11.99,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "0e161141959c07e87ec1bb433830e2e70c97aa75934450486a08d346538ebca7"
                                },
+                  "o_G4.wav":  {
+                                   "kana":  "お",
+                                   "romaji":  "o",
+                                   "pitch":  [
+                                                 "G4"
+                                             ],
+                                   "targetHz":  [
+                                                    392
+                                                ],
+                                   "measuredHz":  [
+                                                      392
+                                                  ],
+                                   "centsOff":  [
+                                                    0.2
+                                                ],
+                                   "lenMs":  220,
+                                   "leadSilenceMs":  1.04,
+                                   "peakDbfs":  -9.88,
+                                   "fadeOutMs":  30,
+                                   "vowelOnMs":  7,
+                                   "made":  "2026-10-19 (v0.3 채보)",
+                                   "sha256":  "5d06d74eab806867696c0c514cff04a16c3bef00592dc7ed8bc359fbec7e3f5c"
+                               },
+                  "sa_C4.wav":  {
+                                    "kana":  "さ",
+                                    "romaji":  "sa",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       259.6
+                                                   ],
+                                    "centsOff":  [
+                                                     -13.5
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.54,
+                                    "peakDbfs":  -5.57,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  40,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "4e85bdd9e8f4ce85194ba58d38ec7dffd7e841dfa4640fc09bca583d8cfcd5b3"
+                                },
+                  "sa_D4.wav":  {
+                                    "kana":  "さ",
+                                    "romaji":  "sa",
+                                    "pitch":  [
+                                                  "D4"
+                                              ],
+                                    "targetHz":  [
+                                                     293.7
+                                                 ],
+                                    "measuredHz":  [
+                                                       294.7
+                                                   ],
+                                    "centsOff":  [
+                                                     6.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.59,
+                                    "peakDbfs":  -7.03,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  40,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "b9f94321dfe935e7fe0fe42e4ef8a31185ae350d7fbc52a1ba1d06ed40ecc690"
+                                },
+                  "se_C4.wav":  {
+                                    "kana":  "せ",
+                                    "romaji":  "se",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       261.8
+                                                   ],
+                                    "centsOff":  [
+                                                     1
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.41,
+                                    "peakDbfs":  -7.91,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "c97983ab95d82ae3c9eb1dc2a3dfd99d94d26b35f36d52a00e88dfa9730a4e27"
+                                },
+                  "se_D4.wav":  {
+                                    "kana":  "せ",
+                                    "romaji":  "se",
+                                    "pitch":  [
+                                                  "D4"
+                                              ],
+                                    "targetHz":  [
+                                                     293.7
+                                                 ],
+                                    "measuredHz":  [
+                                                       294.2
+                                                   ],
+                                    "centsOff":  [
+                                                     3
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.86,
+                                    "peakDbfs":  -7.78,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  55,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "12b0ef4dd9a48969bbd69815449338d808b68c997aa7c974fac07e6eb3e82ded"
+                                },
+                  "shi_Bb4.wav":  {
+                                      "kana":  "し",
+                                      "romaji":  "shi",
+                                      "pitch":  [
+                                                    "Bb4"
+                                                ],
+                                      "targetHz":  [
+                                                       466.2
+                                                   ],
+                                      "measuredHz":  [
+                                                         465.7
+                                                     ],
+                                      "centsOff":  [
+                                                       -1.6
+                                                   ],
+                                      "lenMs":  220,
+                                      "leadSilenceMs":  1.54,
+                                      "peakDbfs":  -9.05,
+                                      "fadeOutMs":  30,
+                                      "vowelOnMs":  49,
+                                      "made":  "2026-10-19 (v0.3 채보)",
+                                      "sha256":  "3c7eb3a7efd958fc382baa6f3e2cbf2e871c59e142e042e854e14b401659e62b"
+                                  },
+                  "shi_C4.wav":  {
+                                     "kana":  "し",
+                                     "romaji":  "shi",
+                                     "pitch":  [
+                                                   "C4"
+                                               ],
+                                     "targetHz":  [
+                                                      261.6
+                                                  ],
+                                     "measuredHz":  [
+                                                        261.4
+                                                    ],
+                                     "centsOff":  [
+                                                      -1.5
+                                                  ],
+                                     "lenMs":  220,
+                                     "leadSilenceMs":  1.54,
+                                     "peakDbfs":  -8.92,
+                                     "fadeOutMs":  30,
+                                     "vowelOnMs":  9,
+                                     "made":  "2026-10-19 (v0.3 채보)",
+                                     "sha256":  "8898c2941bda076e45eb7048dd69d28e42fdb59c716c6de33052260992db4630"
+                                 },
+                  "shi_G4.wav":  {
+                                     "kana":  "し",
+                                     "romaji":  "shi",
+                                     "pitch":  [
+                                                   "G4"
+                                               ],
+                                     "targetHz":  [
+                                                      392
+                                                  ],
+                                     "measuredHz":  [
+                                                        392.7
+                                                    ],
+                                     "centsOff":  [
+                                                      3.3
+                                                  ],
+                                     "lenMs":  220,
+                                     "leadSilenceMs":  1.5,
+                                     "peakDbfs":  -5.5,
+                                     "fadeOutMs":  30,
+                                     "vowelOnMs":  9,
+                                     "made":  "2026-10-19 (v0.3 채보)",
+                                     "sha256":  "062ed0fef098df67fa2086a62e7600359e83d070ca1fc773c12a8fc4b377745f"
+                                 },
+                  "so_A3.wav":  {
+                                    "kana":  "そ",
+                                    "romaji":  "so",
+                                    "pitch":  [
+                                                  "A3"
+                                              ],
+                                    "targetHz":  [
+                                                     220
+                                                 ],
+                                    "measuredHz":  [
+                                                       220.1
+                                                   ],
+                                    "centsOff":  [
+                                                     0.5
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  2.13,
+                                    "peakDbfs":  -7.72,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "655dcc640072d4086bc67826c3427ccaf4fe38afa936e14a26b9de061dd3f007"
+                                },
+                  "so_A4.wav":  {
+                                    "kana":  "そ",
+                                    "romaji":  "so",
+                                    "pitch":  [
+                                                  "A4"
+                                              ],
+                                    "targetHz":  [
+                                                     440
+                                                 ],
+                                    "measuredHz":  [
+                                                       439.6
+                                                   ],
+                                    "centsOff":  [
+                                                     -1.4
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.07,
+                                    "peakDbfs":  -5.91,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "0f554fd6efb5d790bf8ff015c7d4536975696e593c0f5dcd32dd074a7ae97008"
+                                },
+                  "so_C4.wav":  {
+                                    "kana":  "そ",
+                                    "romaji":  "so",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       262.6
+                                                   ],
+                                    "centsOff":  [
+                                                     6.1
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  2.63,
+                                    "peakDbfs":  -8.53,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  9,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "57b61b86a934369413329c7609b936df270040b1f6e928a536703600a48e4ee1"
+                                },
+                  "su_C4.wav":  {
+                                    "kana":  "す",
+                                    "romaji":  "su",
+                                    "pitch":  [
+                                                  "C4"
+                                              ],
+                                    "targetHz":  [
+                                                     261.6
+                                                 ],
+                                    "measuredHz":  [
+                                                       262.4
+                                                   ],
+                                    "centsOff":  [
+                                                     4.8
+                                                 ],
+                                    "lenMs":  220,
+                                    "leadSilenceMs":  1.32,
+                                    "peakDbfs":  -4.53,
+                                    "fadeOutMs":  30,
+                                    "vowelOnMs":  32,
+                                    "made":  "2026-10-19 (v0.3 채보)",
+                                    "sha256":  "ee761f8af48a367dc6210322c4715470cdb3453fe1ddd4fc73677f6f4a6bf403"
+                                },
                   "u_C4.wav":  {
                                    "kana":  "う",
                                    "romaji":  "u",
@@ -530,20 +1208,28 @@
                                    "leadSilenceMs":  1.07,
                                    "peakDbfs":  -8.95,
                                    "fadeOutMs":  30,
+                                   "vowelOnMs":  null,
+                                   "made":  "2026-10-19 (첫 판)",
                                    "sha256":  "3a3850650ebfc84a649734ef809a52bb71bd94a29075ebff3f167661a7bbb257"
                                }
               },
     "notes":  [
                   {
                       "id":  "10-1",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "あ",
                       "type":  "tap",
                       "slotMs":  19007,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-tap"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "a_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -561,14 +1247,20 @@
                   },
                   {
                       "id":  "10-2",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "い",
                       "type":  "tap",
                       "slotMs":  19499,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-tap"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "i_A4.wav",
                       "pitch":  [
                                     "A4"
@@ -586,14 +1278,20 @@
                   },
                   {
                       "id":  "10-3",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "う",
                       "type":  "tap",
                       "slotMs":  19992,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-tap"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "u_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -611,13 +1309,19 @@
                   },
                   {
                       "id":  "10-3.5",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "え",
                       "type":  "tap",
                       "slotMs":  20239,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy",
+                                      "practice-tap"
+                                  ],
                       "file":  "e_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -635,14 +1339,20 @@
                   },
                   {
                       "id":  "10-4",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "お",
                       "type":  "tap",
                       "slotMs":  20486,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-tap"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "o_A3.wav",
                       "pitch":  [
                                     "A3"
@@ -660,14 +1370,19 @@
                   },
                   {
                       "id":  "11-3",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "あ",
                       "type":  "tap",
                       "slotMs":  21969,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "a_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -685,13 +1400,18 @@
                   },
                   {
                       "id":  "11-3.5",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "お",
                       "type":  "tap",
                       "slotMs":  22216,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
                       "file":  "o_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -709,14 +1429,19 @@
                   },
                   {
                       "id":  "11-4",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "い",
                       "type":  "tap",
                       "slotMs":  22463,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "i_G4.wav",
                       "pitch":  [
                                     "G4"
@@ -734,14 +1459,19 @@
                   },
                   {
                       "id":  "12-3",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "う",
                       "type":  "tap",
                       "slotMs":  23911,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "u_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -759,14 +1489,19 @@
                   },
                   {
                       "id":  "12-4",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "え",
                       "type":  "tap",
                       "slotMs":  24434,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "e_Eb4.wav",
                       "pitch":  [
                                     "Eb4"
@@ -784,14 +1519,19 @@
                   },
                   {
                       "id":  "13-4p",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "いい",
                       "type":  "pill",
                       "slotMs":  26393,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ii_G4A4.wav",
                       "pitch":  [
                                     "G4",
@@ -811,14 +1551,19 @@
                   },
                   {
                       "id":  "14-1",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "え",
                       "type":  "tap",
                       "slotMs":  26883,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "e_G4.wav",
                       "pitch":  [
                                     "G4"
@@ -836,14 +1581,19 @@
                   },
                   {
                       "id":  "14-2p",
-                      "pans":  [
-                                   1,
-                                   2
-                               ],
                       "kana":  "いい",
                       "type":  "pill",
                       "slotMs":  27400,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ii_G4A4.wav",
                       "pitch":  [
                                     "G4",
@@ -863,13 +1613,17 @@
                   },
                   {
                       "id":  "14-3",
-                      "pans":  [
-                                   1
-                               ],
                       "kana":  "え",
                       "type":  "tap",
                       "slotMs":  27862,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "e_G4.wav",
                       "pitch":  [
                                     "G4"
@@ -886,38 +1640,20 @@
                       "pitchSource":  "잼"
                   },
                   {
-                      "id":  "14-3h",
-                      "pans":  [
-                                   2
-                               ],
-                      "kana":  "え",
-                      "type":  "hold",
-                      "slotMs":  27862,
-                      "holdMs":  490,
-                      "file":  "e_14-3h.wav",
-                      "pitch":  [
-                                    "G4"
-                                ],
-                      "hz":  [
-                                 392
-                             ],
-                      "lenMs":  490,
-                      "gainDb":  -12,
-                      "limitBy":  "RMS",
-                      "relSongRmsDb":  -12,
-                      "relSongPeakDb":  -13.8,
-                      "relSongVocalBandDb":  -16,
-                      "pitchSource":  "잼"
-                  },
-                  {
                       "id":  "20-1",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "か",
                       "type":  "tap",
                       "slotMs":  38655,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ka_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -935,13 +1671,19 @@
                   },
                   {
                       "id":  "20-2",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "き",
                       "type":  "tap",
                       "slotMs":  39144,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ki_G4.wav",
                       "pitch":  [
                                     "G4"
@@ -959,13 +1701,19 @@
                   },
                   {
                       "id":  "20-3",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "く",
                       "type":  "tap",
                       "slotMs":  39634,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ku_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -983,13 +1731,18 @@
                   },
                   {
                       "id":  "20-3.5",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "け",
                       "type":  "tap",
                       "slotMs":  39878,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
                       "file":  "ke_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -1007,13 +1760,19 @@
                   },
                   {
                       "id":  "20-4",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "こ",
                       "type":  "tap",
                       "slotMs":  40122,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ko_A3.wav",
                       "pitch":  [
                                     "A3"
@@ -1031,13 +1790,19 @@
                   },
                   {
                       "id":  "21-3",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "こ",
                       "type":  "tap",
                       "slotMs":  41589,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ko_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -1055,13 +1820,18 @@
                   },
                   {
                       "id":  "21-3.5",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "こ",
                       "type":  "tap",
                       "slotMs":  41834,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
                       "file":  "ko_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -1078,38 +1848,50 @@
                       "pitchSource":  "잼"
                   },
                   {
-                      "id":  "21-4h",
-                      "pans":  [
-                                   2
-                               ],
+                      "id":  "21-4",
                       "kana":  "こ",
-                      "type":  "hold",
+                      "type":  "tap",
                       "slotMs":  42078,
-                      "holdMs":  488,
-                      "file":  "ko_21-4h.wav",
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_Eb4.wav",
                       "pitch":  [
                                     "Eb4"
                                 ],
                       "hz":  [
                                  311.1
                              ],
-                      "lenMs":  488,
+                      "lenMs":  220,
                       "gainDb":  -12,
                       "limitBy":  "RMS",
-                      "relSongRmsDb":  -12.1,
-                      "relSongPeakDb":  -13.2,
-                      "relSongVocalBandDb":  -17.4,
-                      "pitchSource":  "잼(누르는 동안 D4+80센트, 뗀 뒤 C4로 내림)"
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -15.4,
+                      "relSongVocalBandDb":  -20.7,
+                      "pitchSource":  "잼(떼창 D4+80센트, 뒤에 C4로 내림)"
                   },
                   {
                       "id":  "22-3",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "く",
                       "type":  "tap",
                       "slotMs":  43545,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ku_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -1127,13 +1909,18 @@
                   },
                   {
                       "id":  "22-3.5",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "く",
                       "type":  "tap",
                       "slotMs":  43790,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
                       "file":  "ku_C4.wav",
                       "pitch":  [
                                     "C4"
@@ -1151,13 +1938,19 @@
                   },
                   {
                       "id":  "22-4",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "き",
                       "type":  "tap",
                       "slotMs":  44034,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ki_Eb4.wav",
                       "pitch":  [
                                     "Eb4"
@@ -1175,13 +1968,20 @@
                   },
                   {
                       "id":  "24-1",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "い",
                       "type":  "tap",
                       "slotMs":  46488,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-hold"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "i_B4.wav",
                       "pitch":  [
                                     "B4"
@@ -1199,13 +1999,20 @@
                   },
                   {
                       "id":  "24-2",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "か",
                       "type":  "tap",
                       "slotMs":  46979,
                       "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal",
+                                     "practice-hold"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "ka_A4.wav",
                       "pitch":  [
                                     "A4"
@@ -1222,14 +2029,963 @@
                       "pitchSource":  "잼"
                   },
                   {
+                      "id":  "24-3",
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  47471,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "o_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -9.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -13.5,
+                      "relSongVocalBandDb":  -16.7,
+                      "pitchSource":  "잼(24-3h와 같은 G4)"
+                  },
+                  {
+                      "id":  "30-1",
+                      "kana":  "さ",
+                      "type":  "tap",
+                      "slotMs":  58265,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "sa_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -16.5,
+                      "limitBy":  "1-4kHz",
+                      "relSongRmsDb":  -17.9,
+                      "relSongPeakDb":  -18.1,
+                      "relSongVocalBandDb":  -10.5,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "30-2",
+                      "kana":  "し",
+                      "type":  "tap",
+                      "slotMs":  58755,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "shi_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -19,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -11.5,
+                      "relSongVocalBandDb":  -23.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "30-3",
+                      "kana":  "す",
+                      "type":  "tap",
+                      "slotMs":  59245,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "su_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -10,
+                      "relSongVocalBandDb":  -19.1,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "30-3.5",
+                      "kana":  "せ",
+                      "type":  "tap",
+                      "slotMs":  59490,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
+                      "file":  "se_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -20.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -12.4,
+                      "relSongVocalBandDb":  -19.5,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "30-4",
+                      "kana":  "そ",
+                      "type":  "tap",
+                      "slotMs":  59736,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "so_A3.wav",
+                      "pitch":  [
+                                    "A3"
+                                ],
+                      "hz":  [
+                                 220
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -21,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -15.8,
+                      "relSongVocalBandDb":  -13.4,
+                      "pitchSource":  "잼(C4→A3 내림, 끝음)"
+                  },
+                  {
+                      "id":  "31-3",
+                      "kana":  "さ",
+                      "type":  "tap",
+                      "slotMs":  61204,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "sa_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "1-4kHz",
+                      "relSongRmsDb":  -12.9,
+                      "relSongPeakDb":  -13.8,
+                      "relSongVocalBandDb":  -10.2,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "31-3.5",
+                      "kana":  "さ",
+                      "type":  "tap",
+                      "slotMs":  61448,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
+                      "file":  "sa_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -13.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -17.1,
+                      "relSongVocalBandDb":  -13.8,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "31-4",
+                      "kana":  "け",
+                      "type":  "tap",
+                      "slotMs":  61693,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ke_D4.wav",
+                      "pitch":  [
+                                    "D4"
+                                ],
+                      "hz":  [
+                                 293.7
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -12,
+                      "relSongVocalBandDb":  -17.1,
+                      "pitchSource":  "추정(떼창 C#4~D4 사이 61.5, 화음 음 D4)"
+                  },
+                  {
+                      "id":  "32-3",
+                      "kana":  "す",
+                      "type":  "tap",
+                      "slotMs":  63159,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "su_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -10.9,
+                      "relSongVocalBandDb":  -20.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "32-3.5",
+                      "kana":  "す",
+                      "type":  "tap",
+                      "slotMs":  63404,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+                                      "easy"
+                                  ],
+                      "file":  "su_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -18,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -16.6,
+                      "relSongVocalBandDb":  -25.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "32-4",
+                      "kana":  "し",
+                      "type":  "tap",
+                      "slotMs":  63648,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "shi_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -15.7,
+                      "relSongVocalBandDb":  -23.4,
+                      "pitchSource":  "잼(유성 적음, 배음 합 C4)"
+                  },
+                  {
+                      "id":  "34-1",
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  66090,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "a_B4.wav",
+                      "pitch":  [
+                                    "B4"
+                                ],
+                      "hz":  [
+                                 493.9
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -10.8,
+                      "relSongVocalBandDb":  -11.8,
+                      "pitchSource":  "잼(A#4→B4 올림, 끝음)"
+                  },
+                  {
+                      "id":  "34-2",
+                      "kana":  "そ",
+                      "type":  "tap",
+                      "slotMs":  66579,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "so_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -9.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -10.8,
+                      "relSongVocalBandDb":  -12.7,
+                      "pitchSource":  "잼(G4로 살짝 내렸다 A4)"
+                  },
+                  {
+                      "id":  "34-3",
+                      "kana":  "か",
+                      "type":  "tap",
+                      "slotMs":  67069,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ka_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -10.5,
+                      "relSongVocalBandDb":  -15.1,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "40-1",
+                      "kana":  "さ",
+                      "type":  "tap",
+                      "slotMs":  77854,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "sa_D4.wav",
+                      "pitch":  [
+                                    "D4"
+                                ],
+                      "hz":  [
+                                 293.7
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "1-4kHz",
+                      "relSongRmsDb":  -12.7,
+                      "relSongPeakDb":  -12,
+                      "relSongVocalBandDb":  -10.1,
+                      "pitchSource":  "잼(C4→D4 올림, 끝음)"
+                  },
+                  {
+                      "id":  "40-3",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  78834,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -11.6,
+                      "relSongVocalBandDb":  -14,
+                      "pitchSource":  "잼(첫 170ms G4, 뒤로 내림)"
+                  },
+                  {
+                      "id":  "41-3",
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  80792,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "a_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -11.1,
+                      "relSongVocalBandDb":  -10.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "41-4",
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  81282,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "a_B3.wav",
+                      "pitch":  [
+                                    "B3"
+                                ],
+                      "hz":  [
+                                 246.9
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -11.7,
+                      "relSongVocalBandDb":  -10.7,
+                      "pitchSource":  "잼(B3)"
+                  },
+                  {
+                      "id":  "42-3",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  82752,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -12.7,
+                      "relSongVocalBandDb":  -19.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "42-4",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  83242,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_B3.wav",
+                      "pitch":  [
+                                    "B3"
+                                ],
+                      "hz":  [
+                                 246.9
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -14.7,
+                      "relSongVocalBandDb":  -21.9,
+                      "pitchSource":  "잼(B3)"
+                  },
+                  {
+                      "id":  "43-3",
+                      "kana":  "き",
+                      "type":  "tap",
+                      "slotMs":  84713,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ki_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -14.2,
+                      "relSongVocalBandDb":  -17.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "43-4",
+                      "kana":  "き",
+                      "type":  "tap",
+                      "slotMs":  85203,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ki_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -14.1,
+                      "relSongVocalBandDb":  -17.7,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "44-3",
+                      "kana":  "け",
+                      "type":  "tap",
+                      "slotMs":  86669,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ke_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -11.8,
+                      "relSongVocalBandDb":  -15.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "44-4",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  87158,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.5,
+                      "relSongPeakDb":  -13.3,
+                      "relSongVocalBandDb":  -16.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "45-3",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  88623,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -12.1,
+                      "relSongVocalBandDb":  -18,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "45-4",
+                      "kana":  "す",
+                      "type":  "tap",
+                      "slotMs":  89112,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "su_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -10.8,
+                      "relSongVocalBandDb":  -20.5,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "47-3",
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  92544,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "o_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -16.8,
+                      "relSongVocalBandDb":  -19.1,
+                      "pitchSource":  "추정(외침, A4~A#4 사이 69.5)"
+                  },
+                  {
+                      "id":  "48-1",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  93525,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_C5.wav",
+                      "pitch":  [
+                                    "C5"
+                                ],
+                      "hz":  [
+                                 523.3
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -15.7,
+                      "relSongVocalBandDb":  -22.8,
+                      "pitchSource":  "잼(외침 C5)"
+                  },
+                  {
+                      "id":  "57-4",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  112606,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy",
+                                     "hard"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -10,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -13.7,
+                      "relSongVocalBandDb":  -20.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "58-1",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  113095,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "easy"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_C5.wav",
+                      "pitch":  [
+                                    "C5"
+                                ],
+                      "hz":  [
+                                 523.3
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -9.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -14.3,
+                      "relSongVocalBandDb":  -24.3,
+                      "pitchSource":  "잼(C5)"
+                  },
+                  {
+                      "id":  "14-3h",
+                      "kana":  "え",
+                      "type":  "hold",
+                      "slotMs":  27862,
+                      "holdMs":  490,
+                      "release":  "free",
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "e_14-3h.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  490,
+                      "gainDb":  -12,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -13.8,
+                      "relSongVocalBandDb":  -16,
+                      "pitchSource":  "잼"
+                  },
+                  {
                       "id":  "24-3h",
-                      "pans":  [
-                                   2
-                               ],
                       "kana":  "お",
                       "type":  "hold",
                       "slotMs":  47471,
                       "holdMs":  983,
+                      "release":  "shutter",
+                      "levels":  [
+                                     "hard",
+                                     "normal",
+                                     "practice-hold"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
                       "file":  "o_24-3h.wav",
                       "pitch":  [
                                     "G4"
@@ -1246,28 +3002,528 @@
                       "pitchSource":  "잼"
                   },
                   {
-                      "id":  "21-4",
-                      "pans":  [
-                                   2
-                               ],
-                      "kana":  "こ",
-                      "type":  "tap",
-                      "slotMs":  42078,
-                      "holdMs":  0,
-                      "file":  "ko_Eb4.wav",
+                      "id":  "34-3h",
+                      "kana":  "か",
+                      "type":  "hold",
+                      "slotMs":  67069,
+                      "holdMs":  981,
+                      "release":  "free",
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ka_34-3h.wav",
                       "pitch":  [
-                                    "Eb4"
+                                    "G4"
                                 ],
                       "hz":  [
-                                 311.1
+                                 392
+                             ],
+                      "lenMs":  981,
+                      "gainDb":  -9.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -9.8,
+                      "relSongVocalBandDb":  -14.9,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "40-1.5",
+                      "kana":  "あ",
+                      "type":  "tap",
+                      "slotMs":  78099,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "a_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
                              ],
                       "lenMs":  220,
-                      "gainDb":  -12,
+                      "gainDb":  -13,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -11.5,
+                      "relSongVocalBandDb":  -12.2,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "40-2.5",
+                      "kana":  "い",
+                      "type":  "tap",
+                      "slotMs":  78589,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_A4.wav",
+                      "pitch":  [
+                                    "A4"
+                                ],
+                      "hz":  [
+                                 440
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -12.5,
                       "limitBy":  "RMS",
                       "relSongRmsDb":  -12.3,
-                      "relSongPeakDb":  -15.4,
-                      "relSongVocalBandDb":  -20.7,
-                      "pitchSource":  "잼(21-4h와 같은 자리, 판 2 길게 → 톡 바뀜 대비, 결정 10-19 (2))"
+                      "relSongPeakDb":  -14.7,
+                      "relSongVocalBandDb":  -21.8,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "40-3h",
+                      "kana":  "こ",
+                      "type":  "hold",
+                      "slotMs":  78834,
+                      "holdMs":  980,
+                      "release":  "free",
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_40-3h.wav",
+                      "pitch":  [
+                                    "G4",
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 392,
+                                 261.6
+                             ],
+                      "lenMs":  980,
+                      "gainDb":  -9,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -10.2,
+                      "relSongVocalBandDb":  -12.5,
+                      "pitchSource":  "잼(떼창 곡선 따라 G4→E♭4→C4)"
+                  },
+                  {
+                      "id":  "41-3.5",
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  81037,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "o_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -13.9,
+                      "relSongVocalBandDb":  -23.5,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "42-3.5",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  82997,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -15.7,
+                      "relSongVocalBandDb":  -17.8,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "43-3.5",
+                      "kana":  "さ",
+                      "type":  "tap",
+                      "slotMs":  84958,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "sa_D4.wav",
+                      "pitch":  [
+                                    "D4"
+                                ],
+                      "hz":  [
+                                 293.7
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -17.1,
+                      "relSongVocalBandDb":  -14.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "44-3.5",
+                      "kana":  "せ",
+                      "type":  "tap",
+                      "slotMs":  86914,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "se_D4.wav",
+                      "pitch":  [
+                                    "D4"
+                                ],
+                      "hz":  [
+                                 293.7
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -15,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12,
+                      "relSongPeakDb":  -16.6,
+                      "relSongVocalBandDb":  -20,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "45-3.5",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  88868,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_D4.wav",
+                      "pitch":  [
+                                    "D4"
+                                ],
+                      "hz":  [
+                                 293.7
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -12.9,
+                      "relSongVocalBandDb":  -19.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "47-4",
+                      "kana":  "し",
+                      "type":  "tap",
+                      "slotMs":  93035,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "shi_Bb4.wav",
+                      "pitch":  [
+                                    "Bb4"
+                                ],
+                      "hz":  [
+                                 466.2
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -16,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -21.3,
+                      "relSongVocalBandDb":  -27.6,
+                      "pitchSource":  "잼(앞 160ms B♭4, 뒤 C5로 올림)"
+                  },
+                  {
+                      "id":  "48-1h",
+                      "kana":  "い",
+                      "type":  "hold",
+                      "slotMs":  93525,
+                      "holdMs":  1957,
+                      "release":  "flick",
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_48-1h.wav",
+                      "pitch":  [
+                                    "C5"
+                                ],
+                      "hz":  [
+                                 523.3
+                             ],
+                      "lenMs":  1957,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -14.4,
+                      "relSongVocalBandDb":  -19.5,
+                      "pitchSource":  "잼(외침 C5)"
+                  },
+                  {
+                      "id":  "57-3.5",
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  112362,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "o_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -9,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -12.3,
+                      "relSongVocalBandDb":  -18.1,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "57-4.5",
+                      "kana":  "し",
+                      "type":  "tap",
+                      "slotMs":  112850,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "shi_G4.wav",
+                      "pitch":  [
+                                    "G4"
+                                ],
+                      "hz":  [
+                                 392
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -11.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.3,
+                      "relSongPeakDb":  -11.8,
+                      "relSongVocalBandDb":  -25.6,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "58-1h",
+                      "kana":  "い",
+                      "type":  "hold",
+                      "slotMs":  113095,
+                      "holdMs":  1970,
+                      "release":  "flick",
+                      "levels":  [
+                                     "hard",
+                                     "normal"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "i_58-1h.wav",
+                      "pitch":  [
+                                    "C5",
+                                    "D5",
+                                    "C5"
+                                ],
+                      "hz":  [
+                                 523.3,
+                                 587.3,
+                                 523.3
+                             ],
+                      "lenMs":  1970,
+                      "gainDb":  -10.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -14.8,
+                      "relSongVocalBandDb":  -21.3,
+                      "pitchSource":  "잼(C5, 앞 170~250ms D5 꾸밈)"
+                  },
+                  {
+                      "id":  "41-4.5",
+                      "kana":  "お",
+                      "type":  "tap",
+                      "slotMs":  81527,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "o_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -15.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -19.7,
+                      "relSongVocalBandDb":  -24.4,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "42-4.5",
+                      "kana":  "こ",
+                      "type":  "tap",
+                      "slotMs":  83488,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ko_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -14.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.1,
+                      "relSongPeakDb":  -17.4,
+                      "relSongVocalBandDb":  -20.3,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "44-4.5",
+                      "kana":  "そ",
+                      "type":  "tap",
+                      "slotMs":  87402,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "so_C4.wav",
+                      "pitch":  [
+                                    "C4"
+                                ],
+                      "hz":  [
+                                 261.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -15.5,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.2,
+                      "relSongPeakDb":  -17.9,
+                      "relSongVocalBandDb":  -16.7,
+                      "pitchSource":  "잼"
+                  },
+                  {
+                      "id":  "45-4.5",
+                      "kana":  "き",
+                      "type":  "tap",
+                      "slotMs":  89356,
+                      "holdMs":  0,
+                      "release":  null,
+                      "levels":  [
+                                     "hard"
+                                 ],
+                      "ghostIn":  [
+
+                                  ],
+                      "file":  "ki_E4.wav",
+                      "pitch":  [
+                                    "E4"
+                                ],
+                      "hz":  [
+                                 329.6
+                             ],
+                      "lenMs":  220,
+                      "gainDb":  -13,
+                      "limitBy":  "RMS",
+                      "relSongRmsDb":  -12.4,
+                      "relSongPeakDb":  -16.9,
+                      "relSongVocalBandDb":  -25.4,
+                      "pitchSource":  "추정(D4→F4로 올림, 가운데값 E4)"
                   }
               ]
 }
