@@ -1,6 +1,6 @@
 // settings.js · 설정·기록 (브라우저 저장소. 못 쓰면 기본값으로 그냥 돎)
 const KEY = 'ttb.v02.settings';
-const REC_KEY = 'ttb.v02.records';
+const REC_KEY = 'ttb.v03.records';   // v0.3: 난이도마다(easy · normal · hard)
 const FADE_KEY = 'ttb.v02.fade';
 
 export const DEFAULTS = {
@@ -15,18 +15,20 @@ export const DEFAULTS = {
   offsetMs: 0,        // 소리 지연 보정(ms). +면 늦게 치는 만큼 판정을 늦춤
   visualMs: 0,        // 화면 지연 보정(ms). +면 노트를 그만큼 앞서 그림(폰 화면 표시 지연, 리듬 검토 I5)
   calibrated: false,
+  practiced: {},     // 첫 실행 연습을 마친 것 { tap, hold, right } (명세 4절)
 };
 function readJSON(k) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 function writeJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 저장 못 해도 게임은 계속 */ } }
 
 export const settings = Object.assign({}, DEFAULTS, readJSON(KEY) || {});
+if (!settings.practiced || typeof settings.practiced !== 'object') settings.practiced = {};
 export function saveSettings() { writeJSON(KEY, settings); }
 
 export const SOUND_CYCLE = ['ko', 'ko+ro', 'ro', 'off'];
 export const SOUND_LABEL = { 'ko': '한글', 'ko+ro': '한글 + 로마자', 'ro': '로마자', 'off': '끔' };
 export function cycleSound() { settings.sound = SOUND_CYCLE[(SOUND_CYCLE.indexOf(settings.sound) + 1) % SOUND_CYCLE.length]; saveSettings(); return settings.sound; }
 
-// 판별 최고 기록 { '1': { medal: 0~3, good, total, perfect } }
+// 난이도별 최고 기록 { easy: { medal: 0~3, good, total, perfect } }
 export const records = readJSON(REC_KEY) || {};
 export function saveRecord(pan, r) {
   const o = records[pan];

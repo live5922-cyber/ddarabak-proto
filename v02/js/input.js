@@ -1,12 +1,12 @@
 // input.js · 터치·키 입력. pointerdown 즉시 처리(원칙 3). 화면 좌표 → 무대 좌표(폭 390 기준)
-// 누르는 자리(A2 v2 4-1절): 노트 길 아래부터 화면 끝까지, 왼쪽 반·오른쪽 반. 일시정지 48×48.
+// 누르는 자리(v0.3): 필름 띠 아래(수첩 바닥)부터 화면 끝까지, 왼쪽 반·오른쪽 반. 일시정지 = 왼쪽 위 책갈피 리본.
 export function attachInput(el, getLayout, h) {
   const down = new Map();   // pointerId → side (처음 누른 쪽 유지: 길게 누르는 중 엄지가 옆 칸으로 미끄러져도 그대로)
   function toStage(e) { const L = getLayout(); return { x: (e.clientX - L.ox) / L.s, y: (e.clientY - L.oy) / L.s, L }; }
   el.addEventListener('pointerdown', e => {
     if (e.cancelable) e.preventDefault();
     const p = toStage(e), L = p.L;
-    if (h.onPausePress && p.x >= 12 && p.x <= 68 && p.y >= L.T + 4 && p.y <= L.T + 62) { h.onPausePress(e); return; }
+    if (h.onPausePress && p.x >= 4 && p.x <= 60 && p.y >= 0 && p.y <= L.T + 64) { h.onPausePress(e); return; }   // 진홍 책갈피 리본(x 16~48, 화면 위 끝 ~ T+57) + 둘레 12px
     if (p.y < L.pressTop) return;
     const side = p.x < 195 ? 'L' : 'R';
     down.set(e.pointerId, side);

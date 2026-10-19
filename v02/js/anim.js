@@ -43,11 +43,12 @@ export function createAnimator(lib, M, who) {
     return key ? { motion: best.motion, key, kind: best.kind, arc: best.arc || null } : null;
   };
   // 칸 바뀜 기록(시험: 몸 옆 튐·같은 그림 멈춤)
-  A.note = function (t, sel, x, beatLen) {
+  // noStat = 메뉴 뒤 화면(시계가 곡 시계가 아님) → 칸만 바꾸고 셈은 안 함
+  A.note = function (t, sel, x, beatLen, noStat) {
     const id = sel ? sel.motion + ':' + sel.key : 'none';
     if (id !== A.lastKey) {
-      if (A.lastChangeT != null && t > A.lastChangeT) { A.maxStill = Math.max(A.maxStill, (t - A.lastChangeT) / beatLen); if (A.cur && A.durs.length < 4000) A.durs.push({ kind: A.cur.kind, key: A.cur.key, ms: (t - A.lastChangeT) * 1000 }); }
-      if (A.cur && sel) {
+      if (!noStat && A.lastChangeT != null && t > A.lastChangeT) { A.maxStill = Math.max(A.maxStill, (t - A.lastChangeT) / beatLen); if (A.cur && A.durs.length < 4000) A.durs.push({ kind: A.cur.kind, key: A.cur.key, motion: A.cur.motion, ms: (t - A.lastChangeT) * 1000, t: +A.lastChangeT.toFixed(2) }); }
+      if (!noStat && A.cur && sel) {
         const f0 = A.frame(A.cur.motion, A.cur.key), f1 = A.frame(sel.motion, sel.key);
         if (f0 && f1 && A.changes.length < 4000) A.changes.push({ t, foot: 0, body: Math.abs((f1.bodyX - f1.footX) - (f0.bodyX - f0.footX)) * lib.cssPerPx * (A.scale || 1) });
       }
@@ -60,7 +61,14 @@ export function createAnimator(lib, M, who) {
 }
 
 // 박 위상으로 들을 때 칸 고르기: per = 칸 하나 길이(박), order 순서. A1·A2 = 16분마다(박 위가 첫 칸), A3 = 8분마다(2박 한 바퀴)
+// durs = 칸마다 길이(박) — 포즈에서 포즈로(명세 6절): 박 위 핵심 포즈는 길게(0.375), 사이 칸은 짧게(0.125). 한 바퀴는 박 위에서 시작
 export function idleFrame(spec, beatPos) {
+  if (spec.durs) {
+    const cyc = spec.durs.reduce((a, b) => a + b, 0);
+    let x = ((beatPos % cyc) + cyc) % cyc + 1e-6;
+    for (let i = 0; i < spec.durs.length; i++) { if (x < spec.durs[i]) return spec.order[i]; x -= spec.durs[i]; }
+    return spec.order[spec.order.length - 1];
+  }
   const per = spec.per, n = spec.order.length;
   const k = Math.floor(beatPos / per + 1e-6);
   return spec.order[((k % n) + n) % n];

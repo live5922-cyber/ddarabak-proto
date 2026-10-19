@@ -1,4 +1,4 @@
-// ui.js · 메뉴 화면(DOM). 연주 중에는 설명 글을 띄우지 않음.
+// ui.js · 메뉴 화면(DOM) v0.3 — 여행 수첩 결(크림 종이 + 흰 칼선 + 그림자 1단 + 기울기). 연주 중에는 설명 글을 띄우지 않음(연습만 한 줄).
 import { settings, saveSettings, SOUND_LABEL, SOUND_CYCLE, cycleSound, fadeReset, records } from './settings.js';
 import { canVibrate } from './haptics.js';
 
@@ -16,6 +16,8 @@ export function init(handlers) {
   on('btn-resume', () => H.resume());
   on('btn-restart', () => H.restart());
   on('btn-quit', () => H.quit());
+  on('btn-prac-skip2', () => H.skipPractice());
+  on('btn-prac-skip', () => H.skipPractice());
   on('chip-sound', () => { cycleSound(); refreshChip(); H.optionsChanged(); });
   on('btn-retry', () => H.retry());
   on('btn-res-sel', () => H.toSelect());
@@ -24,24 +26,31 @@ export function init(handlers) {
   on('btn-calib-go', () => H.calibGo());
   on('btn-set-close', () => { show(backFromSettings); H.optionsChanged(); });
   on('btn-recalib', () => H.recalib());
+  on('btn-prac-again', () => { H.practiceAgain(); $('btn-prac-again').textContent = '다음 판에 연습이 다시 나와요'; });
   $('calib-pad').addEventListener('pointerdown', e => { e.preventDefault(); H.calibTap(e); });
   buildSettings(); refreshChip();
 }
-export function show(name) { document.body.dataset.scr = name || 'play'; }
+// mode = 'practice' 이면 일시정지 판에 '연습 건너뛰기'
+export function show(name, mode) {
+  document.body.dataset.scr = name || 'play';
+  if (name === 'pause') $('btn-prac-skip2').hidden = mode !== 'practice';
+}
 export function current() { return document.body.dataset.scr; }
 export function setStatus(text, ready) { $('load-status').textContent = text; $('btn-start').classList.toggle('wait', !ready); }
 function refreshChip() { $('chip-sound').textContent = '가 · A  ' + SOUND_LABEL[settings.sound]; }
 
-// ── 판 고르기 ─────────────────────────────
-export function showSelect(pans) {
-  const box = $('pan-list'); box.innerHTML = '';
-  for (const p of pans) {
-    const r = records[p.id] || { medal: 0 };
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'pan-card';
-    const mm = '<span class="mini-medals">' + [1, 2, 3].map(i => '<i class="' + (r.medal >= i ? 'on' : '') + '"></i>').join('') + '</span>';
-    b.innerHTML = `<span class="t">${p.name} · ${p.row}${mm}</span><span class="k">${p.letters.join(' ')}</span>` +
-      `<span class="i">새 동작 · ${p.newMove} · ${p.len}</span><span class="go">시작</span>`;
-    b.addEventListener('click', () => { H.click && H.click(); H.choosePan(p.id); });
+// ── 난이도 고르기(명세 1절): 쉬움 · 보통 · 어려움, 모두 열림. 처음이면 '쉬움' 추천. 최고 도장은 난이도마다 ─────────────────────────────
+export function showSelect(levels) {
+  const box = $('level-list'); box.innerHTML = '';
+  const fresh = !['easy', 'normal', 'hard'].some(id => records[id]);
+  for (const lv of levels) {
+    const r = records[lv.id] || { medal: 0 };
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'level-card lv-' + lv.id;
+    const st = [['통과', 1], ['다 맞힘', 2], ['완벽', 3]].map(([nm, i]) => `<i class="${r.medal >= i ? 'on' : ''}" title="${nm}"></i>`).join('');
+    const len = Math.floor(lv.len / 60) + ':' + String(lv.len % 60).padStart(2, '0');
+    b.innerHTML = `<span class="nm">${lv.name}</span>${fresh && lv.id === 'easy' ? '<span class="rec">추천</span>' : ''}` +
+      `<span class="mv">${lv.move}</span><span class="info">노트 ${lv.notes} · ${len}</span><span class="stamps">${st}</span>`;
+    b.addEventListener('click', () => { H.click && H.click(); H.chooseLevel(lv.id); });
     box.appendChild(b);
   }
   show('select');
@@ -87,23 +96,22 @@ function buildSettings() {
   $('btn-fade-reset').onclick = () => { fadeReset(); H.optionsChanged(); $('btn-fade-reset').textContent = '흐려짐 기록 지움'; };
 }
 export function refreshOffset() { const o = $('offset-val'); if (o) o.textContent = (settings.offsetMs > 0 ? '+' : '') + settings.offsetMs + 'ms'; const v = $('visual-val'); if (v) v.textContent = ((settings.visualMs || 0) > 0 ? '+' : '') + (settings.visualMs || 0) + 'ms'; }
-function openSettings(from) { backFromSettings = from; buildSettings(); show('settings'); }
+function openSettings(from) { backFromSettings = from; buildSettings(); $('btn-prac-again').textContent = '연습 다시 하기'; show('settings'); }
 
 // ── 지연 보정 ─────────────────────────────
 export function calibReset() { $('calib-dots').innerHTML = '<i></i>'.repeat(6); $('calib-result').textContent = ''; $('calib-after').hidden = true; $('calib-pad').classList.remove('done'); }
 export function calibProgress(n) { const d = $('calib-dots').children; for (let i = 0; i < d.length; i++) d[i].classList.toggle('on', i < n); }
-// 보정 중 박 깜빡임은 없앰(눈으로 맞추면 화면 지연이 섞임, 리듬 검토 S3). 누른 뒤 반응만
 export function calibPulse() { }
 export function calibTapFx() { const p = $('calib-pad'); p.classList.remove('beat'); void p.offsetWidth; p.classList.add('beat'); setTimeout(() => p.classList.remove('beat'), 90); }
 export function calibDone(ms) { $('calib-result').textContent = '보정값 ' + (ms > 0 ? '+' : '') + ms + 'ms'; $('calib-after').hidden = false; $('calib-pad').classList.add('done'); }
 
-// ── 결과 ─────────────────────────────
+// ── 결과 = 수첩 한 쪽(명세 5절): 장면 사진 + 판정 도장 + 읽은 글자 도장 ─────────────────────────────
 export function showResult(r) {
-  $('res-pan').textContent = r.panName;
+  $('res-level').textContent = r.levelName;
   $('res-hit').textContent = r.good; $('res-total').textContent = '/ ' + r.total;
   $('res-face').src = r.face || ''; $('res-face').hidden = !r.face;
-  const md = [['통과', '절반 넘게 맞힘'], ['다 맞힘', 'MISS 0'], ['완벽', 'PERFECT 80%']];
-  $('res-medals').innerHTML = md.map((m, i) => `<div class="medal${r.medal > i ? ' on' : ''}" style="animation-delay:${0.15 + i * 0.25}s">${m[0]}<small>${m[1]}</small></div>`).join('');
+  const md = [['통과', '절반 넘게'], ['다 맞힘', 'MISS 0'], ['완벽', 'PERFECT 80%']];
+  $('res-medals').innerHTML = md.map((m, i) => `<div class="medal m${i + 1}${r.medal > i ? ' on' : ''}" style="animation-delay:${0.15 + i * 0.25}s"><b>${m[0]}</b><small>${m[1]}</small></div>`).join('');
   if (H.stamps) H.stamps(md.map((m, i) => r.medal > i ? 0.15 + i * 0.25 + 0.1 : null).filter(x => x != null));
   for (const k of ['PERFECT', 'GREAT', 'GOOD', 'MISS']) $('res-' + k).textContent = r.counts[k];
   $('res-combo').textContent = r.maxCombo;
@@ -112,9 +120,12 @@ export function showResult(r) {
   const ob = $('btn-res-offset');
   if (r.suggest) { ob.hidden = false; ob.textContent = r.medMs > 0 ? '조금 늦게 치는 편이에요 · 맞추기' : '조금 일찍 치는 편이에요 · 맞추기'; ob.onclick = () => { H.applyOffset(r.suggest); ob.hidden = true; }; }
   else ob.hidden = true;
-  const ph = $('res-photos'); ph.innerHTML = ''; for (const c of r.photos || []) ph.appendChild(c);
+  const ph = $('res-photos'); ph.innerHTML = '';
+  (r.photos || []).forEach((c, i) => { const f = document.createElement('figure'); f.style.setProperty('--r', [-3, 2, -1.5, 3][i % 4] + 'deg'); f.appendChild(c); ph.appendChild(f); });
   const box = $('res-kana'); box.innerHTML = '';
   for (const k of r.letters) { const c = document.createElement('div'); c.className = 'kc' + (r.stamped.has(k) ? ' st' : ''); c.innerHTML = `<b>${k}</b><span>${r.info(k)}</span>`; box.appendChild(c); }
+  $('res-read').textContent = '읽은 글자 ' + r.letters.filter(k => r.stamped.has(k)).length + ' / ' + r.letters.length;
   $('res-words').innerHTML = (r.words || []).map(w => `<span><b>${w.w}</b>${w.m || ''}</span>`).join('');
   show('result');
+  const sc = document.querySelector('#scr-result .page'); if (sc) sc.scrollTop = 0;
 }

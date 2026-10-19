@@ -1,10 +1,10 @@
-// main.js · 흐름: 시작 → (처음만) 지연 보정 → 판 고르기 → 연주 → 결과 → 다시 하기. 일시정지(세 박 세고 이어짐)·설정.
-// 주소 옵션: ?autoplay=1 (정확한 시각에 진짜 pointer 이벤트로 자동 연주) &lag=ms · &mash=Hz (박 무시하고 왼쪽을 초당 Hz번 두드림, 마구 누르기 시험)
-//            ?mute=1 (소리 끔, 시험 때 반드시) · ?pan=1|2 · ?go=1 (시작 단추 없이) · ?freezeAt=초 (그 곡 시각에서 멈춘 화면)
-//            ?pose=동작:칸 (그 칸만 보이는 시험 화면, 예: D2_both:hit) · ?debug=1
+// main.js · 흐름 v0.3: 시작 → (처음만) 지연 보정 → 난이도 고르기 → (처음만) 30초 연습 → 곡 전체 한 판 → 결과(수첩 한 쪽) → 다시 하기. 일시정지(세 박 세고 이어짐)·설정.
+// 주소 옵션: ?autoplay=1 (정확한 시각에 진짜 pointer 이벤트로 자동 연주) &lag=ms · &mash=Hz (박 무시하고 왼쪽을 초당 Hz번, 마구 누르기 시험)
+//            ?mute=1 (소리 끔, 시험 때 반드시) · ?level=easy|normal|hard · ?practice=tap|hold|right (그 연습만) · ?go=1 (시작 단추 없이, 연습 건너뜀)
+//            ?freezeAt=초 (그 곡 시각에서 멈춘 화면) · ?from=마디:박 (그 자리부터) · ?pose=동작:칸 · ?debug=1 · ?freeTap=1
 import * as Clock from './clock.js';
 import * as AUm from './audio.js';
-import { loadJSON, buildPan, makeChordAt, makeTime } from './chart.js';
+import { loadJSON, buildRun, buildPractice, makeChordAt, makeTime } from './chart.js';
 import { createJudge } from './judge.js';
 import * as R from './render.js';
 import { attachInput } from './input.js';
@@ -17,18 +17,19 @@ import * as UI from './ui.js';
 const Q = new URLSearchParams(location.search);
 const AUTOPLAY = Q.get('autoplay') === '1', LAG = (parseFloat(Q.get('lag') || '0') || 0) / 1000, MASH = parseFloat(Q.get('mash') || '0') || 0;
 const MUTE = Q.get('mute') === '1', DEBUG = Q.get('debug') === '1', GO = Q.get('go') === '1';
-const PANQ = ['1', '2'].includes(Q.get('pan')) ? Q.get('pan') : null;
-const FREEZE = Q.get('freezeAt') != null ? parseFloat(Q.get('freezeAt')) : null;
-const POSE = Q.get('pose'), LAYOUT_B = Q.get('layout') === 'b', FREE_TAP = Q.get('freeTap') === '1';
+const LEVELQ = ['easy', 'normal', 'hard'].includes(Q.get('level')) ? Q.get('level') : null;
+const PRACQ = ['tap', 'hold', 'right'].includes(Q.get('practice')) ? Q.get('practice') : null;
+const FREEZE = Q.get('freezeAt') != null ? parseFloat(Q.get('freezeAt')) : null, FROMQ = Q.get('from');
+const POSE = Q.get('pose'), FREE_TAP = Q.get('freeTap') === '1';
 const AU = AUm.AU;
 const canvas = document.getElementById('stage');
 const S = {
-  state: 'boot', ready: false, startWanted: false, D: null, pan: null, panId: null, judge: null, chordAt: null, Tsong: null,
+  state: 'boot', ready: false, startWanted: false, D: null, pan: null, level: null, mode: 'run', judge: null, chordAt: null, Tsong: null,
   pausedT: 0, out: [], frames: 0, fps: 0, fpsT: 0, gaps: [], drawMs: [], lastNow: 0, rafNow: 0, auto: [], autoLate: 0, autoFired: 0,
-  knockI: 0, clapPos: null, comboOpen: false, rounds: [], photos: [], photoQ: [], endDone: false, lastHoldPos: null, gagPh: new Set(),
-  frozenT: null, calib: null, err: null, relSched: null,
+  knockI: 0, pageI: 0, clapPos: null, comboOpen: false, rounds: [], photos: [], photoQ: [], endDone: false, lastHoldPos: null, gagPh: new Set(),
+  frozenT: null, calib: null, err: null, relSched: null, prac: null, pracQueue: [],
 };
-window.__ttb = { S, AU, R, settings, report: () => report(), align: () => alignCheck(), loud: () => AUm.loudCheck(S.pan.notes), tune: H => AUm.tuneHits(H), pause: () => pause(), resume: () => resume(), songTime: () => Clock.songTime(), sim: (pan, o) => simPan(pan, o), voice: () => AUm.voiceCheck(S.pan.notes) };
+window.__ttb = { S, AU, R, settings, report: () => report(), align: () => alignCheck(), loud: () => AUm.loudCheck(S.pan.notes), tune: H => AUm.tuneHits(H), pause: () => pause(), resume: () => resume(), songTime: () => Clock.songTime(), sim: (lv, o) => simRun(lv, o), voice: () => AUm.voiceCheck(S.pan.notes), counts: () => levelCounts() };
 const off = () => settings.offsetMs / 1000;
 const preset = () => S.D.judge.presets[settings.judge] || S.D.judge.presets.normal;
 
@@ -39,21 +40,22 @@ function loadImg(src) {
 }
 function fontsReady() {
   if (!document.fonts || !document.fonts.load) return Promise.resolve();
-  const p = Promise.all([document.fonts.load('800 30px "M PLUS Rounded 1c"', 'あいうえおかきくけこ'), document.fonts.load('600 40px "Klee One"', 'あいうえおかきくけこ'),
-    document.fonts.load('800 20px "Pretendard Variable"', '따라박한글콤보빠름늦음타이밍')]).catch(() => {});
+  const p = Promise.all([document.fonts.load('600 40px "Klee One"', 'あいうえおかきくけこさしすせそ・'), document.fonts.load('400 20px "Dela Gothic One"', 'PERFECTGRADMISCOB0123456789'),
+    document.fonts.load('400 16px "Gowun Dodum"', '아이우에오카키쿠케코사시스세소뜻파랗다위니요빠름늦음좋아요부르면왼쪽으로따라불러길게눌손뼉자리는오른쪽이에'),
+    document.fonts.load('800 20px "Pretendard Variable"', '따라박한글')]).catch(() => {});
   return Promise.race([p, new Promise(r => setTimeout(r, 2500))]);
 }
 async function boot() {
   try {
     Clock.createContext(); AUm.setup(MUTE); setHapticsMuted(MUTE);
-    Clock.onState(st => { if (st !== 'running' && S.state === 'play' && S.frozenT == null) pause(); });   // 전화·알람·블루투스 끊김 → 일시정지(소리 검토 I5)
+    Clock.onState(st => { if (st !== 'running' && S.state === 'play' && S.frozenT == null) pause(); });   // 전화·알람·블루투스 끊김 → 일시정지(I5)
     const [chart, song, judge, kana, motion, stage, poses, anim] = await Promise.all(['data/ch1_chart.json', 'data/song_ch1.json', 'data/judge.json', 'data/kana.json', 'data/motion.json', 'assets/stage.json', 'assets/poses.json', 'assets/anim.json'].map(loadJSON));
     S.D = { chart, song, judge, kana: kana.kana, motion, stage, poses, anim };
     const images = {}, atlases = [];
     await Promise.all([
-      ...Object.keys(stage.bg).map(id => loadImg(stage.bg[id].src).then(im => { images['bg_' + id] = im; })),
+      // 배경·아틀라스: WebP 먼저(사파리 14+ · 크롬), 못 읽으면 JPG·PNG
+      ...Object.keys(stage.bg).map(id => { const b = stage.bg[id]; return (b.webp ? loadImg(b.webp).catch(() => loadImg(b.src)) : loadImg(b.src)).then(im => { images['bg_' + id] = im; }); }),
       ...poses.poses.map(p => loadImg(p.src).then(im => { images[p.id] = im; })),
-      // 아틀라스: WebP 먼저(사파리 14+ · 크롬), 못 읽으면 PNG
       ...anim.atlases.map((src, i) => { const w = anim.atlasesWebp && anim.atlasesWebp[i]; const t0 = performance.now(); return (w ? loadImg(w).catch(() => loadImg(src)) : loadImg(src)).then(im => { atlases[i] = im; S.atlasMs = Math.max(S.atlasMs || 0, Math.round(performance.now() - t0)); S.atlasFmt = (im.src || '').endsWith('.webp') ? 'webp' : 'png'; }); }),
       fontsReady(),
     ]);
@@ -63,12 +65,11 @@ async function boot() {
     R.init(canvas, { images, stage, motion, lib: S.lib, anim: S.animLib });
     R.setTitleBg('p1');
     if (POSE) { const [m, k] = POSE.split(':'); R.setDemo({ motion: m, key: k }); }
-    if (LAYOUT_B) R.setLayoutB(true);
     attachInput(canvas, R.getLayout, { onPress, onRelease, onPausePress, keysEnabled: () => S.state === 'play' });
     window.addEventListener('resize', () => R.resize());
     if (window.visualViewport) window.visualViewport.addEventListener('resize', () => R.resize());
     document.addEventListener('visibilitychange', () => { if (document.hidden && S.state === 'play' && !AUTOPLAY && !MASH) pause(); });
-    UI.init({ start, resume, restart, quit, retry, home, toSelect, choosePan, optionsChanged, calibTap, calibSkip, calibAgain, calibGo, recalib, applyOffset,
+    UI.init({ start, resume, restart, quit, retry, home, toSelect, chooseLevel, optionsChanged, calibTap, calibSkip, calibAgain, calibGo, recalib, applyOffset, skipPractice, practiceAgain,
       click: () => AUm.ui('click'), stamps: list => { for (const s of list) AUm.stampAt(s); } });
     S.state = 'title'; UI.show('title'); UI.setStatus('곡 준비 중', false);
     requestAnimationFrame(frame);
@@ -76,7 +77,7 @@ async function boot() {
     await AUm.loadSong(song.file, song.beatsMs);
     await AUm.loadSfx();
     await AUm.loadVoice('assets/voice/ch1/').catch(e => console.warn('목소리 없음', e));
-    for (const id of Object.keys(chart.pans)) R.preloadBg(chart.pans[id].bg);
+    const tb = performance.now(); for (const sc of chart.scenes) R.preloadBg(sc.bg); S.bakeMs = Math.round(performance.now() - tb);
     S.prepMs = Math.round(performance.now() - t0);
     S.ready = true; UI.setStatus('', true);
     if (GO) start();
@@ -92,30 +93,71 @@ function start() {
 }
 function afterUnlock() {
   S.startWanted = false;
-  if (!settings.calibrated && !AUTOPLAY && !GO && !MASH) startCalib();
-  else if (PANQ) choosePan(PANQ);
+  if (!settings.calibrated && !AUTOPLAY && !GO && !MASH && !PRACQ) startCalib();
+  else if (PRACQ) startPractice([PRACQ], LEVELQ || 'easy');
+  else if (LEVELQ) chooseLevel(LEVELQ);
   else toSelect();
 }
-function panList() {
-  return Object.keys(S.D.chart.pans).map(id => {
-    const P = S.D.chart.pans[id], T = S.Tsong;
-    const len = T.t(P.hitAt) + (S.D.chart.endHit.until - S.D.chart.endHit.attack) - T.t(P.from);
-    return { id, name: P.name, row: P.row, letters: P.letters, newMove: P.newMove, len: '0:' + String(Math.round(len)).padStart(2, '0') };
+function levelList() {
+  const C = S.D.chart, T = S.Tsong;
+  return ['easy', 'normal', 'hard'].map(id => {
+    const run = buildRun(C, S.D.song, S.D.kana, id);
+    return { id, name: C.levels[id].name, move: C.levels[id].move, notes: run.notes.length, len: Math.round(run.hitAt - run.from) };
   });
 }
+function levelCounts() { const o = {}; for (const id of ['easy', 'normal', 'hard']) { const r = buildRun(S.D.chart, S.D.song, S.D.kana, id); o[id] = { notes: r.notes.length, L: r.notes.filter(n => n.side === 'L').length, R: r.notes.filter(n => n.side === 'R').length, hold: r.notes.filter(n => n.type === 'hold').length, ghosts: r.ghosts.length, both: r.notes.filter(n => n.both && n.side === 'L').length }; } return o; }
 function toSelect() {
-  stopAll(); S.state = 'select'; R.setTitleBg(S.panId ? S.D.chart.pans[S.panId].bg : 'p1'); UI.showSelect(panList());
-  const T = S.Tsong; AUm.loopStart(T.t('9:1'), T.t('11:1'), -6, 0.1);   // 판 고르기 미리듣기: 첫 부르고 받기 두 마디
+  stopAll(); S.state = 'select'; R.setTitleBg('p1'); UI.showSelect(levelList());
+  const T = S.Tsong; AUm.loopStart(T.t('9:1'), T.t('11:1'), -6, 0.1);   // 고르기 미리듣기: 첫 부르고 받기 두 마디
 }
-function home() { stopAll(); S.state = 'title'; UI.show('title'); }
-function choosePan(id) { Clock.unlock(); startPan(id, false); }
+function home() { stopAll(); S.state = 'title'; R.setTitleBg('p1'); UI.show('title'); }
 function stopAll() { Clock.stopSong(); AUm.stopPending(); AUm.loopStop(); vibrateHold('stop'); }
-
-function startPan(id, retry) {
-  stopAll();
-  const pan = buildPan(S.D.chart, S.D.song, S.D.kana, id);
-  S.pan = pan; S.panId = id;
+// 연습이 필요한 것(명세 4절): 처음이면 '따라 부르기', 보통·어려움 처음이면 '길게', 어려움 처음이면 '손뼉'
+function practiceNeeds(lv) {
+  const p = settings.practiced || {}, q = [];
+  if (!p.tap) q.push('tap');
+  if (lv !== 'easy' && !p.hold) q.push('hold');
+  if (lv === 'hard' && !p.right) q.push('right');
+  return q;
+}
+function chooseLevel(lv) {
+  Clock.unlock(); S.level = lv;
+  const q = practiceNeeds(lv);
+  if (q.length && !AUTOPLAY && !MASH && !GO) startPractice(q, lv); else startRun(lv, false);
+}
+function startPractice(queue, lv) { S.pracQueue = queue.slice(); S.level = lv; nextPractice(); }
+function nextPractice() {
+  const key = S.pracQueue.shift();
+  if (!key) { if (PRACQ) { toSelect(); return; } startRun(S.level, false); return; }
+  const pan = buildPractice(S.D.chart, S.D.song, S.D.kana, key);
+  AUm.buildLoopBuffer(pan.pieces);
+  S.prac = { key, ok: 0, need: pan.need, doneAt: null, passed: false };
+  setupPlay(pan, 0, 'practice');
+  R.setPractice({ line: pan.line, icon: pan.icon, need: pan.need, ok: 0, passed: false });
+  UI.show('practice');
+}
+function practiceDone() {
+  if (S.prac) { settings.practiced[S.prac.key] = true; saveSettings(); }
+  S.prac = null; R.setPractice(null); nextPractice();
+}
+function skipPractice() {
+  if (S.prac) settings.practiced[S.prac.key] = true;
+  for (const k of S.pracQueue) settings.practiced[k] = true;
+  saveSettings(); S.pracQueue = []; S.prac = null; R.setPractice(null);
+  startRun(S.level || 'easy', false);
+}
+function practiceAgain() { settings.practiced = {}; saveSettings(); }
+function startRun(lv, retry) {
+  const pan = buildRun(S.D.chart, S.D.song, S.D.kana, lv);
+  S.level = lv;
   AUm.buildPanBuffer(pan);
+  const from = FROMQ && !retry ? pan.T.t(FROMQ) : retry ? pan.retryFrom : pan.from;
+  setupPlay(pan, from, 'run');
+  UI.show(null);
+}
+function setupPlay(pan, from, mode) {
+  stopAll();
+  S.pan = pan; S.mode = mode;
   S.judge = createJudge(pan.notes, preset(), { echoes: pan.echoes, beat: pan.T.avgBeat });
   S.rounds = [];
   for (const ph of pan.phrases) {
@@ -125,17 +167,19 @@ function startPan(id, retry) {
   }
   for (const r of S.rounds) for (const n of r) n.round = r;
   R.setPan(pan, 0);
-  S.photos = []; S.photoQ = []; S.endDone = false; S.comboOpen = false; S.clapPos = null; S.lastHoldPos = null; S.gagPh = new Set(); S.relSched = null;
-  S.frozenT = null; S.gaps = []; S.drawMs = []; S.autoLate = 0; S.autoFired = 0;
-  const from = retry ? pan.retryFrom : pan.from;
+  S.photos = []; S.endDone = false; S.comboOpen = false; S.clapPos = null; S.lastHoldPos = null; S.gagPh = new Set(); S.relSched = null; S.voiceHold = null;
+  S.frozenT = null; S.gaps = []; S.drawMs = []; S.autoLate = 0; S.autoFired = 0; S.freeTaps = 0;
+  // 장면 사진: 장면이 넘어가기 바로 전(넘김 1박 전)마다 한 장 + 끝 한 방 뒤 한 장 = 결과 수첩 사진 4장
+  S.photoQ = mode === 'run' ? pan.scenes.slice(1).map(s => ({ at: s.f0 - 0.03 })).filter(q => q.at > from + 0.3) : [];
   S.playFrom = from;
   S.knockI = pan.knocks.findIndex(k => k.t >= from); if (S.knockI < 0) S.knockI = pan.knocks.length;
+  S.pageI = pan.scenes.findIndex(s => s.f0 >= from - 0.01); if (S.pageI < 0) S.pageI = pan.scenes.length;
   Clock.startSong(AU.panBuf, AU.songBus, from, 0.35);
   setupAuto(from);
-  S.state = 'play'; UI.show(null);
+  S.state = 'play';
 }
 
-// 지연 제안(리듬 검토 10-19 I2): 같은 쪽 앞 노트가 2박 넘게 떨어진 노트(부르는 마디 뒤 첫 노트)만, 창 −245 ~ +450ms 안 가장 가까운 실제 누름
+// 지연 제안(I2): 같은 쪽 앞 노트가 2박 넘게 떨어진 노트(부르는 마디 뒤 첫 노트)만, 창 −245 ~ +450ms 안 가장 가까운 실제 누름
 function suggestOffset(J, pan) {
   const ds = [];
   for (const n of pan.notes) {
@@ -147,7 +191,7 @@ function suggestOffset(J, pan) {
   ds.sort((a, b) => a - b);
   return { n: ds.length, med: ds.length ? Math.round(ds[Math.floor(ds.length / 2)]) : null };
 }
-// 메달: 1 통과(절반 넘게 GOOD 이상) · 2 다 맞힘(MISS 0) · 3 완벽(PERFECT 80% + 빈 터치 ≤ 노트 수 × 0.5, 리듬 검토 10-19 I1 전문가 판단: 1·2는 초보에게 너그럽게 그대로)
+// 메달: 1 통과(절반 넘게 GOOD 이상) · 2 다 맞힘(MISS 0) · 3 완벽(PERFECT 80% + 빈 터치 ≤ 노트 수 × 0.5)
 function medalOf(J, pan, noEmptyRule) {
   const total = pan.notes.length, good = J.goodOrBetter();
   let m = good >= pan.pass ? 1 : 0;
@@ -155,19 +199,19 @@ function medalOf(J, pan, noEmptyRule) {
   if (m === 2 && J.counts.PERFECT / total >= 0.8 && (noEmptyRule || J.emptyCount <= total * 0.5)) m = 3;
   return m;
 }
-// 모의 연주(소리·화면 없이 판정만): opts = { n, bias(초), jitter(초, 정규분포 σ), ghosts(보기 글자·꼬리도 따라 침), mash(초당), rules(false면 마구 누르기·흡수 규칙 끔) }
-function simPan(panId, o) {
+// 모의 연주(소리·화면 없이 판정만): opts = { n, bias(초), jitter(초, σ), ghosts(보기 글자·꼬리도 따라 침), mash(초당), rules(false면 마구 누르기·흡수 규칙 끔), missRate(안 누름 비율) }
+function simRun(level, o) {
   let seed = o.seed || 1; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   const gauss = () => { const u = Math.max(1e-9, rnd()), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
   const medals = [0, 0, 0, 0]; let miss = 0, notesN = 0, empties = 0;
-  for (let k = 0; k < (o.n || 100); k++) {
-    const pan = buildPan(S.D.chart, S.D.song, S.D.kana, panId);
+  for (let k = 0; k < (o.n || 50); k++) {
+    const pan = buildRun(S.D.chart, S.D.song, S.D.kana, level);
     const rules = o.rules !== false;
     const J = createJudge(pan.notes, preset(), { echoes: rules ? pan.echoes : [], beat: pan.T.avgBeat, noEcho: !rules, noMash: !rules });
     const ev = [];
     if (o.mash) { for (let t = pan.from + 0.5 + rnd() / o.mash; t < pan.hitAt; t += 1 / o.mash) { ev.push([t, 'down', 'L']); ev.push([t + 0.04, 'up', 'L']); } }
     else {
-      for (const n of pan.notes) { const p = n.t + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', n.side]); ev.push([n.type === 'hold' ? n.end + (o.bias || 0) + gauss() * (o.jitter || 0) * 0.5 : p + 0.07, 'up', n.side]); }
+      for (const n of pan.notes) { if (o.missRate && rnd() < o.missRate) continue; const p = n.t + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', n.side]); ev.push([n.type === 'hold' ? n.end + (o.bias || 0) + gauss() * (o.jitter || 0) * 0.5 : p + 0.07, 'up', n.side]); }
       if (o.ghosts) for (const e of pan.echoes) { const p = e + (o.bias || 0) + gauss() * (o.jitter || 0); ev.push([p, 'down', 'L']); ev.push([p + 0.06, 'up', 'L']); }
     }
     ev.sort((a, b) => a[0] - b[0]);
@@ -176,33 +220,34 @@ function simPan(panId, o) {
     J.sweep(pan.hitAt + 2, out);
     medals[medalOf(J, pan, !rules)]++; miss += J.counts.MISS; notesN += pan.notes.length; empties += J.emptyCount;
   }
-  return { medals, medal2plus: medals[2] + medals[3], missPct: +(miss / notesN * 100).toFixed(1), emptyAvg: +(empties / (o.n || 100)).toFixed(1) };
-}function finish() {
+  return { medals, medal2plus: medals[2] + medals[3], missPct: +(miss / notesN * 100).toFixed(1), emptyAvg: +(empties / (o.n || 50)).toFixed(1) };
+}
+function finish() {
   stopAll();
   S.state = 'result';
   const J = S.judge, pan = S.pan, total = pan.notes.length, good = J.goodOrBetter();
   const medal = medalOf(J, pan);
   const sg = suggestOffset(J, pan), med = sg.med;
   const suggest = med != null && sg.n >= 2 && Math.abs(med) > 25 ? Math.round((settings.offsetMs + med) / 5) * 5 : 0;
-  const stamped = new Set(); for (const l of J.log) if (l.res !== 'MISS') for (const k of Array.from(l.k)) stamped.add(k);
+  const stamped = new Set(); for (const l of J.log) if (l.res !== 'MISS') for (const k of Array.from(l.k || '')) stamped.add(k);
   const faceId = medal >= 3 ? 'face_camera' : medal >= 1 ? 'face_smile' : 'face_worry';
-  saveRecord(pan.id, { medal, good, total, perfect: J.counts.PERFECT });
-  S.result = { medal, good, total, counts: Object.assign({}, J.counts), maxCombo: J.maxCombo, medMs: med, suggest };
-  UI.showResult({ panName: pan.name + ' · ' + pan.row, good, total, medal, counts: J.counts, maxCombo: J.maxCombo, medMs: med, suggest,
-    face: S.images[faceId] ? S.images[faceId].src : '', photos: S.photos.slice(-3), letters: pan.letters, stamped, info: k => (S.D.kana[k] || {}).ko || '', words: pan.words });
+  saveRecord(pan.level, { medal, good, total, perfect: J.counts.PERFECT });
+  S.result = { level: pan.level, medal, good, total, counts: Object.assign({}, J.counts), maxCombo: J.maxCombo, medMs: med, suggest, photos: S.photos.length };
+  UI.showResult({ levelName: pan.name, good, total, medal, counts: J.counts, maxCombo: J.maxCombo, medMs: med, suggest,
+    face: S.images[faceId] ? S.images[faceId].src : '', photos: S.photos.slice(-4), letters: pan.letters, stamped, info: k => (S.D.kana[k] || {}).ko || '', words: pan.words });
   const T = S.Tsong; AUm.loopStart(T.t('1:1'), T.t('5:1'), -8, 0.2);   // 결과 음악: 곡 전주 네 마디 고리
 }
-function retry() { startPan(S.panId, true); }
+function retry() { startRun(S.level || 'easy', true); }
 function applyOffset(v) { settings.offsetMs = Math.max(-300, Math.min(300, v)); settings.calibrated = true; saveSettings(); UI.refreshOffset(); }
 
 function pause() {
   if (S.state !== 'play') return;
   let t = Clock.songTime();
-  const RS = R.getState(); if (RS.countFrom != null && t < RS.countTo) t = RS.countTo;   // 셈 도중 멈추면 셈 끝 자리로(리듬 검토 S6)
+  const RS = R.getState(); if (RS.countFrom != null && t < RS.countTo) t = RS.countTo;   // 셈 도중 멈추면 셈 끝 자리로(S6)
   S.pausedT = t; stopAll(); if (S.voiceHold) { AUm.voiceCut(S.voiceHold.vh); S.voiceHold = null; }
   for (const r of S.judge.forceRelease(t - off())) afterJudge(r, t);
   R.release('L'); R.release('R');
-  S.state = 'pause'; UI.show('pause');
+  S.state = 'pause'; UI.show('pause', S.mode);
 }
 function resume() {
   if (S.state !== 'pause') return;
@@ -211,12 +256,13 @@ function resume() {
   const from = Math.max(S.playFrom - 0.01, T.timeOfPos(p - 3));
   R.setCountIn(from, T.timeOfPos(p));
   S.knockI = S.pan.knocks.findIndex(k => k.t >= from); if (S.knockI < 0) S.knockI = S.pan.knocks.length;
+  S.pageI = S.pan.scenes.findIndex(s => s.f0 >= from - 0.01); if (S.pageI < 0) S.pageI = S.pan.scenes.length;
   S.clapPos = null; S.relSched = null;
-  Clock.startSong(AU.panBuf, AU.songBus, from, 0.15);
+  Clock.startSong(AU.panBuf, AU.songBus, Math.max(0, from), 0.15);
   setupAuto(from);
-  S.state = 'play'; UI.show(null);
+  S.state = 'play'; UI.show(S.mode === 'practice' ? 'practice' : null);
 }
-function restart() { startPan(S.panId, false); }
+function restart() { if (S.mode === 'practice' && S.prac) { S.pracQueue.unshift(S.prac.key); nextPractice(); } else startRun(S.level || 'easy', false); }
 function quit() { toSelect(); }
 function optionsChanged() { AUm.applySfxLevel(); UI.refreshOffset(); }
 function onPausePress() { if (S.state === 'play') pause(); else if (S.state === 'pause') resume(); }
@@ -233,35 +279,38 @@ function onPress(side, e) {
   if (r.how === 'regrab') { R.press(side, tH); return; }
   if (r.how === 'echo') { AUm.hitNow(side, 'EMPTY'); R.press(side, tH, true); return; }   // 따라 친 글자: 벌 없음
   AUm.hitNow(side, r.res, r.note.crash);
-  // 글자 목소리: 노트 창 안 누름(PERFECT·GREAT·GOOD)이면 누르는 즉시 같이(원칙 3), 길게는 일찍 떼면 30ms 페이드
-  if (r.res !== 'MISS' && (r.how === 'press' || r.how === 'head' || r.how === 'lategrab')) { const vh = AUm.voiceNow(r.note.id); if (r.how !== 'press') S.voiceHold = { n: r.note, vh }; }
+  // 글자 목소리: 노트 창 안 누름이면 누르는 즉시 같이(원칙 3). 길게용 목소리를 톡에 쓰면 반 박 뒤 페이드, 길게는 일찍 떼면 30ms 페이드
+  if (r.res !== 'MISS' && r.note.side === 'L' && (r.how === 'press' || r.how === 'head' || r.how === 'lategrab')) {
+    const n = r.note, bl0 = S.pan.T.beatInfo(n.t).beatLen;
+    let vh = AUm.voiceNow(n.vid);
+    if (!vh && n.type === 'tap') vh = AUm.voiceNow(n.vid + 'h', bl0 * 0.5);
+    if (vh && r.how !== 'press') S.voiceHold = { n, vh };
+  }
   const bl = S.pan.T.beatInfo(r.note.t).beatLen;
   vibrate(r.res, (r.note.t + bl / 4 - tJ) * 1000);
   if (r.how === 'head' || r.how === 'lategrab') vibrateHold('tick');
   R.press(side, tH);
-  if (r.final && r.res !== 'MISS') AUm.tails(r.res, r.note.t, bl, S.chordAt(r.note.t), AU.ctx.currentTime);
+  if (r.final && r.res !== 'MISS') AUm.tails(r.res, r.note.t, bl, S.chordAt(songT(r.note.t)), AU.ctx.currentTime);
   afterJudge(r, tH);
 }
+const songT = t => S.pan && S.pan.songOf ? S.pan.songOf(t) : t;   // 연습 버퍼 시각 → 곡 시각(화음 찾기)
 function onRelease(side, e) {
   R.release(side);
-  if (S.state !== 'play' || !S.judge) return;
+  if (S.state !== 'play' || !S.judge || S.frozenT != null) return;
   Clock.sync();
   const tH = Clock.songTimeOfEvent(e), r = S.judge.release(side, tH - off());
   if (r && r.final) { holdDone(r, tH); afterJudge(r, tH); }
 }
-// 길게 끝 소리(리듬 검토 I2): 끝 0.25초 안이면 곡 시각에 미리 예약. 셔터는 늘 곡 한 방 시각, 뗌 어긋남은 사진 흔들림으로만
+// 길게 끝 소리(I2): 끝 0.25초 안이면 곡 시각에 미리 예약. 셔터는 늘 곡 한 방 시각
 function holdDone(r, tH) {
   const n = r.note, sch = S.relSched && S.relSched.n === n ? S.relSched : null;
   if (!r.ok) { if (sch && n.release !== 'shutter') AUm.cancel(sch.src); S.relSched = null; vibrateHold('stop'); if (S.voiceHold && S.voiceHold.n === n) { AUm.voiceCut(S.voiceHold.vh); S.voiceHold = null; } return; }
-  if (n.release === 'shutter') {
-    if (!sch) AUm.releaseAt('shutter', n.end);
-    const rd = Math.abs((r.relDelta || 0) * 1000);
-    S.photoQ.push({ at: Math.max(tH, n.end) + 0.05, shake: rd <= 50 ? 0 : rd <= 120 ? 2 : 5 });
-  } else if (r.how === 'auto') { if (!sch) AUm.releaseNow('free'); }
+  if (n.release === 'shutter') { if (!sch) AUm.releaseAt('shutter', n.end); }
+  else if (r.how === 'auto') { if (!sch) AUm.releaseNow('free'); }
   else if (!sch || tH < n.end - 0.01) { if (sch) AUm.cancel(sch.src); AUm.releaseNow('free'); }
   S.relSched = null;
   vibrateHold(n.release === 'shutter' ? 'shutter' : 'release');
-  AUm.tails(r.res, n.end, S.pan.T.beatInfo(n.end).beatLen, S.chordAt(n.end), AU.ctx.currentTime - 1);
+  AUm.tails(r.res, n.end, S.pan.T.beatInfo(n.end).beatLen, S.chordAt(songT(n.end)), AU.ctx.currentTime - 1);
 }
 function afterJudge(r, tNow) {
   const n = r.note, pan = S.pan, J = S.judge;
@@ -270,8 +319,13 @@ function afterJudge(r, tNow) {
   if (!r.final) return;
   R.setCombo(J.combo, tNow);
   if (r.res !== 'MISS') { for (const k of n.kanaChars) { fadeRecord(k); if (pan.letters.includes(k)) R.stamp(k, tNow); } }
-  // 콤보 10·20·30: 무리 손뼉(고역만)을 '다음 빈 박'에 — 부르는 구절 안이면 그 받는 마디 첫 박으로 미룸(소리 검토 I3). 하나는 다음 강박에 점프(다음 노트가 2박 넘게 없을 때)
-  if (r.res !== 'MISS' && J.combo > 0 && J.combo % 10 === 0) {
+  if (S.mode === 'practice' && S.prac && !S.prac.passed) {   // 연습 성공 셈(벌 없음)
+    const P = S.prac, okRes = r.res !== 'MISS';
+    const hit = P.key === 'hold' ? n.type === 'hold' && okRes && r.ok !== false : P.key === 'right' ? n.side === 'R' && okRes : n.side === 'L' && okRes;
+    if (hit) { P.ok++; if (P.ok >= P.need) { P.passed = true; P.doneAt = pan.repEnd(n.end || n.t); } R.setPractice({ line: pan.line, icon: pan.icon, need: P.need, ok: P.ok, passed: P.passed }); }
+  }
+  // 콤보 10·20·30: 무리 손뼉(고역만)을 '다음 빈 박'에 — 부르는 구절 안이면 그 받는 마디 첫 박으로 미룸(I3). 하나는 다음 강박에 점프
+  if (r.res !== 'MISS' && J.combo > 0 && J.combo % 10 === 0 && S.mode === 'run') {
     let at = nextBar(tNow);
     for (const ph of pan.phrases) if (at >= ph.call0 - 0.02 && at < ph.resp0) at = ph.resp0;
     if (at < pan.hitAt - 0.05) AUm.crowdAt(at);
@@ -281,11 +335,7 @@ function afterJudge(r, tNow) {
     S.comboOpen = false;
     const key = n.round ? S.rounds.indexOf(n.round) : n.id;
     if (!S.gagPh.has(key)) { S.gagPh.add(key); AUm.gagAt(nextOff(tNow)); }
-  } else if (J.combo >= 10) S.comboOpen = true;
-  if (n.round && n.round.every(x => x.judged)) {
-    const rr = n.round;
-    if (rr.every(x => x.res === 'PERFECT')) { const T = pan.T; const at = T.timeOfPos(Math.floor(T.pos(Math.max(...rr.map(x => x.end || x.t))) + 1e-3) + 1); if (at < pan.hitAt - 0.05) S.photoQ.push({ at: at + 0.03, shake: 0 }); }
-  }
+  } else if (J.combo >= 10 && S.mode === 'run') S.comboOpen = true;
 }
 function nextBar(t) { const T = S.pan.T, p = T.pos(t + 0.02); return T.timeOfPos(Math.ceil((p - 2) / 4) * 4 + 2); }
 function nextOff(t) { const T = S.pan.T, p = T.pos(t + 0.02); let q = Math.floor(p) + 0.5; if (q < p) q += 1; return T.timeOfPos(q); }
@@ -310,7 +360,7 @@ function autoplayTick(t) {
   while (S.auto.length && S.auto[0].at + off() + LAG - t < 0.25) {
     const a = S.auto.shift(), target = Clock.transport.startCtx + a.at + off() + LAG;
     const fire = () => {
-      if (S.state !== 'play') return;
+      if (S.state !== 'play' || S.frozenT != null) return;   // 멈춘 화면(시험)에서는 남은 자동 누름을 버림
       const perfT = Clock.perfOfHeard(target), wait = perfT - performance.now();
       if (wait > 4) { setTimeout(fire, wait - 3); return; }
       if (wait < -8) S.autoLate++;
@@ -325,14 +375,13 @@ function dispatch(side, kind) {
   canvas.dispatchEvent(new PointerEvent(kind === 'down' ? 'pointerdown' : 'pointerup', { clientX: x, clientY: y, pointerId: side === 'L' ? 51 : 52, pointerType: 'touch', bubbles: true, cancelable: true, isPrimary: true }));
 }
 
-// ── 지연 보정: 곡 전주(드럼)에 맞춰 톡. 앞 2번 버림 → 가운데값 → 150ms 넘게 벗어난 톡 버림 → 남은 것 6개(리듬 검토 S2) ─────────────────────────────
+// ── 지연 보정: 마디 첫 박(쿵)에만 톡 → 받는 폭 ±0.9초. 첫 톡 버림, 다섯 개 가운데값(I2) ─────────────────────────────
 function startCalib() {
   stopAll();
   S.state = 'calib'; UI.calibReset(); UI.show('calib');
   S.calib = { taps: [], done: false };
   Clock.startSong(AU.full, AU.songBus, 0, 0.3);
 }
-// 지연 보정(리듬 검토 10-19 I2): 마디 첫 박(쿵)에만 톡 → 받는 폭 ±0.9초라 지연이 반 박을 넘어도 방향이 안 뒤집힘(리듬 닥터 방식). 첫 톡 버림, 다섯 개 가운데값
 function calibTap(e) {
   const c = S.calib; if (!c || c.done || S.state !== 'calib') return;
   Clock.sync(); AUm.hitNow('L', 'GREAT', false); UI.calibTapFx();
@@ -348,7 +397,8 @@ function calibTap(e) {
     settings.offsetMs = Math.max(-300, Math.min(300, ms)); settings.calibrated = true; saveSettings();
     c.done = true; Clock.stopSong(); UI.calibDone(settings.offsetMs);
   }
-}function calibSkip() { settings.calibrated = true; saveSettings(); Clock.stopSong(); if (S.calib) S.calib.done = true; toSelect(); }
+}
+function calibSkip() { settings.calibrated = true; saveSettings(); Clock.stopSong(); if (S.calib) S.calib.done = true; toSelect(); }
 function calibAgain() { startCalib(); }
 function calibGo() { toSelect(); }
 function recalib() { Clock.unlock(); if (S.ready) startCalib(); }
@@ -372,12 +422,14 @@ function frame(now, fromTimer) {
     if (AUTOPLAY || MASH) autoplayTick(t);
     schedule(t);
     holdTicks(t);
-    while (S.photoQ.length && t >= S.photoQ[0].at) { const q = S.photoQ.shift(); S.photos.push(R.capturePhoto(q.shake)); }
-    if (!S.endDone && t >= S.pan.hitAt - 0.005) { S.endDone = true; R.endHit(S.pan.hitAt); if (!S.pan.notes.some(n => n.release === 'shutter')) S.photoQ.push({ at: S.pan.hitAt + 0.06, shake: 0 }); }
+    while (S.photoQ.length && t >= S.photoQ[0].at) { S.photoQ.shift(); S.photos.push(R.capturePhoto()); }
+    const pan = S.pan;
+    if (S.mode === 'run' && !S.endDone && t >= pan.hitAt - 0.005) { S.endDone = true; R.endHit(pan.hitAt); S.photoQ.push({ at: pan.hitAt + 0.06 }); }
     const d0 = performance.now();
     R.draw(t, 'play', dbg, settings.visualMs);
     if (S.drawMs.length < 20000) S.drawMs.push(performance.now() - d0);
-    if (t >= S.pan.hitAt + 1.9) finish();
+    if (S.mode === 'practice') { if ((S.prac && S.prac.doneAt != null && t >= S.prac.doneAt) || t >= pan.hitAt - 0.02) practiceDone(); }
+    else if (t >= pan.hitAt + 1.9) finish();
   } else if (S.state === 'pause') {
     R.draw(S.pausedT, 'pause', dbg, settings.visualMs);
   } else {
@@ -391,12 +443,13 @@ function frame(now, fromTimer) {
 }
 function schedule(t) {
   const pan = S.pan, T = pan.T, ahead = t + 0.25;
-  while (S.knockI < pan.knocks.length && pan.knocks[S.knockI].t < ahead) { const k = pan.knocks[S.knockI++]; if (k.t > t - 0.02) { if (k.hi) AUm.knockHiAt(k.t); else AUm.knockAt(k.t, S.chordAt(k.t)); } }
+  while (S.knockI < pan.knocks.length && pan.knocks[S.knockI].t < ahead) { const k = pan.knocks[S.knockI++]; if (k.t > t - 0.02) { if (k.hi) AUm.knockHiAt(k.t); else AUm.knockAt(k.t, S.chordAt(songT(k.t))); } }
+  while (S.pageI < pan.scenes.length && pan.scenes[S.pageI].f0 < ahead) { const s = pan.scenes[S.pageI++]; if (s.f0 > t - 0.02 && s.f0 > 0) AUm.pageAt(s.f0); }   // 장면 넘김 종이 소리
   if (S.comboOpen) {
     if (S.clapPos == null) S.clapPos = Math.ceil(T.pos(t + 0.05));
     while (T.timeOfPos(S.clapPos) < ahead) {
       const p = S.clapPos++, beat = ((p - 2) % 4 + 4) % 4 + 1, tt = T.timeOfPos(p);
-      if ((beat === 2 || beat === 4) && tt < pan.cut - 0.05) AUm.comboClapAt(tt);
+      if ((beat === 2 || beat === 4) && tt < pan.hitAt - 0.05 && !pan.free.some(fr => tt >= fr.t0 && tt < fr.t1)) AUm.comboClapAt(tt);
     }
   } else S.clapPos = null;
 }
@@ -418,21 +471,22 @@ function report() {
   const J = S.judge; if (!J) return null;
   const ds = J.log.filter(l => l.delta != null && l.how !== 'early-mash').map(l => Math.round(l.delta * 1000));
   const t = S.state === 'play' ? Clock.songTime() : S.pausedT;
-  const { HA, UA } = R.animators();
+  const { HA, CA } = R.animators();
   const body = a => a.changes.length ? { n: a.changes.length, max: +Math.max(...a.changes.map(c => c.body)).toFixed(1), p50: +stats(a.changes.map(c => c.body)).p50 } : null;
+  const cast = {}; for (const w in CA) cast[w] = { frames: CA[w].changes.length + 1, body: body(CA[w]), maxStillBeats: +CA[w].maxStill.toFixed(2), under31ms: CA[w].durs.filter(x => x.ms < 31).length };
   return {
-    state: S.state, pan: S.panId, notes: S.pan.notes.length, counts: J.counts, maxCombo: J.maxCombo, result: S.result || null,
+    state: S.state, mode: S.mode, level: S.level, notes: S.pan.notes.length, counts: J.counts, maxCombo: J.maxCombo, result: S.result || null,
     hows: J.log.reduce((o, l) => (o[l.how] = (o[l.how] || 0) + 1, o), {}),
     deltasMs: ds, deltaAbsMax: ds.length ? Math.max(...ds.map(Math.abs)) : null,
     holds: J.log.filter(l => l.type === 'hold').map(l => ({ id: l.id, res: l.res, how: l.how, headMs: l.delta == null ? null : Math.round(l.delta * 1000), relMs: l.relDelta == null ? null : Math.round(l.relDelta * 1000) })),
     frameGapMs: stats(S.gaps), over20ms: S.gaps.filter(x => x > 20).length, over33ms: S.gaps.filter(x => x > 33.4).length, drawMs: stats(S.drawMs),
-    anim: { hanaFrames: HA.changes.length + 1, hanaFootJumpPx: 0, hanaBodyShift: body(HA), hanaMaxStillBeats: +HA.maxStill.toFixed(2), uncleFrames: UA.changes.length + 1, uncleBodyShift: body(UA), uncleMaxStillBeats: +UA.maxStill.toFixed(2) },
+    anim: { hanaFrames: HA.changes.length + 1, hanaFootJumpPx: 0, hanaBodyShift: body(HA), hanaMaxStillBeats: +HA.maxStill.toFixed(2), cast },
     animDur: animDur(HA), echoCount: J.echoCount, emptyCount: J.emptyCount, freeTaps: S.freeTaps || 0, atlas: { fmt: S.atlasFmt, ms: S.atlasMs }, voiceFiles: AU.stats.voiceFiles,
-    autoFired: S.autoFired, autoLate: S.autoLate, prepMs: S.prepMs, songPeakDb: AU.stats.songPeakDb, decodeShiftMs: AU.stats.decodeShiftMs, hitPeakDb: AU.stats.hitPeakDb,
-    vis: R.visibility(t), photos: S.photos.length, err: S.err,
+    autoFired: S.autoFired, autoLate: S.autoLate, prepMs: S.prepMs, bakeMs: S.bakeMs, songPeakDb: AU.stats.songPeakDb, decodeShiftMs: AU.stats.decodeShiftMs, hitPeakDb: AU.stats.hitPeakDb,
+    vis: R.visibility(t), photos: S.photos.length, prac: S.prac ? { key: S.prac.key, ok: S.prac.ok, passed: S.prac.passed } : null, practiced: settings.practiced, err: S.err,
   };
 }
-// 칸 길이 점검(움직임 재검토 V1): 치기 칸·예비 칸 가장 짧은 ms, 1/16박(31ms) 미만 칸 수, 노트 사이 들을 때 칸 수
+// 칸 길이 점검(V1): 치기 칸·예비 칸 가장 짧은 ms, 1/16박(31ms) 미만 칸 수
 function animDur(HA) {
   const d = HA.durs, mn = k => { const a = d.filter(x => x.key === k && (x.kind === 'pre' || x.kind === 'hit')).map(x => x.ms); return a.length ? Math.round(Math.min(...a)) : null; };
   return { hitMinMs: mn('hit'), windMinMs: mn('wind'), readyMinMs: mn('ready'), under31ms: d.filter(x => x.ms < 31).length, n: d.length };

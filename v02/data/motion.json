@@ -29,13 +29,39 @@
   "bgFilter": { "note": "배경 물림(색 3안 bgf3 바탕). sat = 채도 배율, contrast = 대비, lift = 남색 쪽 절편(RGB 0~1). 3안 원값 0.35·0.70. 새 겹친 종이 배경은 원래 채도가 낮아 0.6으로 올림(색채도 M 목표 55~70)", "sat": 1.0, "contrast": 0.86, "lift": [0.022, 0.034, 0.075], "warmTh": 0.35, "warmSat": 1.0, "perBg": { "p2": { "sat": 0.72, "contrast": 0.82, "warmSat": 0.9, "note": "판 2는 하늘(Lake)이 진해 채도를 그대로 두면 C*≥40 면이 28% → 물림" } }, "note2": "화면 검토 K1(10-19): 칙칙함(M 46~47) → 겹친 종이 배경은 원래 채도가 낮아 채도는 그대로(1.0), 대비만 0.86으로 물림, 따뜻한 색 보호 문턱 0.6 → 0.35" },
   "anim": {
     "note": "동작 이어 그림 넘김 규칙(코디네이터 10-19, 움직임 재검토 10-19 V1~V8 반영). 시각은 박 단위(곡 지도 beatsMs 그대로). 칸 이름은 assets/anim.json.",
+    "note2": "v0.3 명세 6절: 포즈에서 포즈로 — 들을 때 고리는 durs(박 위 핵심 포즈 0.375 · 사이 칸 0.125). 칸 바뀜마다 종이 휨 이음(bend), 발밑 그늘 타원(shadow)",
     "idle": {
-      "A1_idle": { "order": ["down", "rise", "up", "fall"], "per": 0.25 },
-      "A2_clap": { "order": ["clap", "open", "wide", "close"], "per": 0.25 },
-      "A3_step": { "order": ["left", "pass1", "right", "pass2"], "per": 0.5 }
+      "A1_idle": { "order": ["down", "rise", "up", "fall"], "durs": [0.375, 0.125, 0.375, 0.125] },
+      "A2_clap": { "order": ["clap", "open", "wide", "close"], "durs": [0.375, 0.125, 0.375, 0.125] },
+      "A3_step": { "order": ["left", "pass1", "right", "pass2"], "durs": [0.75, 0.25, 0.75, 0.25] }
     },
     "idleSwitchBars": 2,
-    "listen": { "motion": "A1_idle", "order": ["down", "rise"], "per": 0.5, "nodSy": 0.97, "nodBeats": 0.0625, "note": "아저씨가 부를 때 하나는 듣기(박마다 두 칸) + 글자마다 끄덕(V7)" },
+    "listen": { "motion": "A1_idle", "order": ["down", "rise"], "durs": [0.375, 0.125], "nodSy": 0.97, "nodBeats": 0.0625, "note": "부를 때 하나는 듣기(박 위 down 길게) + 글자마다 끄덕(V7)" },
+    "bend": { "from": 0.94, "ms": 70 },
+    "shadow": { "rx": 30, "ry": 5, "alpha": 0.42, "dy": -2 },
+    "flip": { "beats": 1, "slidePx": 130, "inBeats": 1, "stagger": 0.125 },
+    "place": {
+      "hanaX": 112, "truckX": 262,
+      "station": { "uncle": [262, 1, 0] },
+      "odori": { "stall": [268, 1, 0] },
+      "nijo": { "crab": [268, 1, 0] },
+      "lights": { "crab": [206, 0.84, -8], "stall": [346, 0.82, -8], "uncle": [280, 1, 0] },
+      "note": "[x, 크기, 발 높이] · 일루미네이션은 양옆이 한 줄 뒤(작게·8px 위), 가운데 아저씨가 앞장"
+    },
+    "stall": {
+      "call": "S1_stall_call", "breatheAt": -0.125, "holdAfter": 0.125, "relaxAfter": 0.375,
+      "cheer": { "motion": "S2_stall_bell", "order": ["left", "pass1", "right", "pass2"], "durs": [0.375, 0.125, 0.375, 0.125] },
+      "rest": [ { "motion": "S3_stall_idle", "order": ["down", "rise", "up", "fall"], "durs": [0.375, 0.125, 0.375, 0.125] }, { "motion": "S2_stall_bell", "order": ["left", "pass1", "right", "pass2"], "durs": [0.75, 0.25, 0.75, 0.25] } ],
+      "restSwitchBars": 2, "restOffsetBars": 1,
+      "missRelax": { "motion": "S1_stall_call", "key": "relax", "beats": 1 }
+    },
+    "crab": {
+      "call": "K1_crab_call", "breatheAt": -0.125, "holdAfter": 0.125, "relaxAfter": 0.375,
+      "cheer": { "motion": "K2_crab_lift", "order": ["up", "down1", "down", "rise"], "durs": [0.375, 0.125, 0.375, 0.125] },
+      "rest": [ { "motion": "K3_crab_idle", "order": ["down", "rise", "up", "fall"], "durs": [0.375, 0.125, 0.375, 0.125] }, { "motion": "K2_crab_lift", "order": ["up", "down1", "down", "rise"], "durs": [0.75, 0.25, 0.75, 0.25] } ],
+      "restSwitchBars": 2, "restOffsetBars": 0,
+      "missRelax": { "motion": "K1_crab_call", "key": "relax", "beats": 1 }
+    },
     "hitL": ["B1_hitL", "B2_cheerL"], "roundFirstL": "B3_pointL", "hitR": ["C1_hitR", "C2_stompR", "C3_waveR"],
     "pre": [["ready", -0.5], ["wind", -0.25]], "preShort": [["wind", -0.25]], "shortGap": 0.75,
     "after": [["hit", 0], ["bounce", 0.125], ["settle", 0.25]], "afterEnd": 0.5, "nextWithin": 1.0,

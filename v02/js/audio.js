@@ -1,6 +1,5 @@
 // audio.js · 곡·효과음 (원칙 3·4)
-// - 곡 길: 크기·필터·압축 변화 0(덕킹 없음). 판 1·2 끝 = 원곡을 N마디 4&에서 40ms로 줄여 끊고 다음 마디 1박에 곡 자신의 마지막 한 방을 붙인
-//   '판별 곡'을 불러올 때 메모리에서 한 번 만듦(재생 중 이어 붙이지 않음, 원칙 5).
+// - 곡 길: 크기·필터·압축 변화 0(덕킹 없음). v0.3 = 곡 전체가 한 판(원곡 그대로). 연습 = 곡 조각을 불러올 때 이어 붙인 버퍼(재생 중 이어 붙이지 않음, 원칙 5).
 // - 효과음: 불러올 때 앞 무음 자르기 → 필터 → 실제 곡 꼭대기 대비 크기. 판정별 '누르는 즉시' 소리는 층을 미리 섞어 한 버퍼(리미터 지연 없음),
 //   '크게'(+3dB)에서도 섞인 꼭대기가 곡 꼭대기 −6.5dB를 넘지 않게 깎음.
 // - 10-19 소리 검토: 폰 스피커에서 묻힘(C1) → 북 사본에서 만든 500Hz~1kHz 배음 층 + 어택 −12dB · GOOD 2층(I1) · 콤보 무리 손뼉 고역만(I3)
@@ -60,7 +59,9 @@ export async function loadSong(url, beatsMs) {
   return b;
 }
 
+// 곡 전체 한 판(v0.3) = 원곡 그대로(자르기·이어 붙이기 없음)
 export function buildPanBuffer(pan) {
+  if (!pan.cut) { AU.panBuf = AU.full; return AU.full; }
   const F = AU.full, sr = F.sampleRate, eh = pan.endHit;
   const lenSec = pan.hitAt + (eh.until - eh.attack) + 0.05;
   const out = AU.ctx.createBuffer(F.numberOfChannels, Math.ceil(lenSec * sr), sr);
@@ -73,6 +74,25 @@ export function buildPanBuffer(pan) {
     for (let i = 0; i < fadeS; i++) o[cutS - fadeS + i] *= 0.5 * (1 + Math.cos(Math.PI * (i + 1) / fadeS));
     o.set(a.subarray(srcS, srcS + tailS), dstS);
     const f2 = Math.round(0.0015 * sr); for (let i = 0; i < f2; i++) o[dstS + i] *= i / f2;
+  }
+  AU.panBuf = out;
+  return out;
+}
+
+// 연습 버퍼(명세 4절): 곡 조각 [a, b)초들을 이어 붙임. 이음매는 앞 조각 끝 10ms를 다음 조각 앞 10ms와 교차(다음 조각 첫 박 소리는 그대로)
+export function buildLoopBuffer(pieces) {
+  const F = AU.full, sr = F.sampleRate, X = Math.round(0.01 * sr);
+  const seg = pieces.map(([a, b]) => [Math.round(a * sr), Math.round(b * sr)]);
+  const len = seg.reduce((s, [a, b]) => s + (b - a), 0);
+  const out = AU.ctx.createBuffer(F.numberOfChannels, len, sr);
+  for (let c = 0; c < F.numberOfChannels; c++) {
+    const s = F.getChannelData(c), o = out.getChannelData(c); let p = 0;
+    seg.forEach(([a, b], k) => {
+      o.set(s.subarray(a, b), p);
+      const nx = seg[k + 1];
+      if (nx) for (let j = 0; j < X; j++) { const u = (j + 1) / X; o[p + (b - a) - X + j] = s[b - X + j] * (1 - u) + (s[nx[0] - X + j] || 0) * u; }
+      p += b - a;
+    });
   }
   AU.panBuf = out;
   return out;
@@ -306,13 +326,18 @@ export async function loadVoice(base) {
   return AU.voice.ok;
 }
 // 맞힌 누름(노트 창 안)이면 누르는 즉시 함께 울림(원칙 3). 돌려준 핸들로 길게를 일찍 떼면 30ms 페이드
-export function voiceNow(noteId) {
+// maxSec: 길게용 목소리를 톡에 쓸 때(쉬움 24:3 등) 그 길이 뒤 30ms 페이드
+export function voiceNow(noteId, maxSec) {
   const v = AU.voice.notes[noteId]; if (!v) return null;
   const b = AU.voice.buf[v.file]; if (!b) return null;
   const ctx = AU.ctx, s = ctx.createBufferSource(); s.buffer = b;
   const g = ctx.createGain(); g.gain.value = dbl(v.gainDb); s.connect(g); g.connect(AU.voiceBus); s.start(0);
+  if (maxSec) { const t = ctx.currentTime + maxSec; g.gain.setValueAtTime(dbl(v.gainDb), t); g.gain.linearRampToValueAtTime(0, t + 0.03); s.stop(t + 0.04); }
   return { s, g };
 }
+export function hasVoice(noteId) { const v = AU.voice.notes[noteId]; return !!(v && AU.voice.buf[v.file]); }
+// 장면 넘김 종이 소리(장면 사건, Freesound CC0): 곡 대비 −20dB
+export function pageAt(songT) { play(AU.snd.page, Clock.ctxOfSong(songT), -6); }
 export function voiceCut(h) { if (!h) return; try { const t = AU.ctx.currentTime; h.g.gain.cancelScheduledValues(t); h.g.gain.setValueAtTime(h.g.gain.value, t); h.g.gain.linearRampToValueAtTime(0, t + 0.03); h.s.stop(t + 0.04); } catch (e) { /* 이미 끝남 */ } }
 // 시험: 노트마다 목소리(거르개·이득 적용) 꼭대기·RMS를 그 자리 곡과 비교 + 앞 무음
 export function voiceCheck(notes) {

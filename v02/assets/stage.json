@@ -10,7 +10,8 @@
                           "srcW":  1520,
                           "sky":  "#273D6A",
                           "name":  "삿포로역 앞 밤",
-                          "from":  "art/v0.5/bg_ch1_p1_station.png"
+                          "from":  "art/v0.5/bg_ch1_p1_station.png",
+                          "webp":  "assets/bg/p1.webp"
                       },
                "p2":  {
                           "src":  "assets/bg/p2.jpg",
@@ -21,7 +22,32 @@
                           "srcW":  1520,
                           "sky":  "#4466A9",
                           "name":  "오도리 공원 크리스마스 시장",
-                          "from":  "art/v0.5/bg_ch1_p2_odori.png"
+                          "from":  "art/v0.5/bg_ch1_p2_odori.png",
+                          "webp":  "assets/bg/p2.webp"
+                      },
+               "p3":  {
+                          "src":  "assets/bg/p3.jpg",
+                          "w":  1080,
+                          "h":  1910,
+                          "groundY":  1264.7,
+                          "focusX":  540,
+                          "srcW":  1520,
+                          "sky":  "#BADEE2",
+                          "name":  "니조 시장 아침",
+                          "from":  "art/v0.5/bg_ch1_p3_nijo.png",
+                          "webp":  "assets/bg/p3.webp"
+                      },
+               "p4":  {
+                          "src":  "assets/bg/p4.jpg",
+                          "w":  1080,
+                          "h":  1910,
+                          "groundY":  1264.7,
+                          "focusX":  540,
+                          "srcW":  1520,
+                          "sky":  "#224071",
+                          "name":  "일루미네이션 행진",
+                          "from":  "art/v0.5/bg_ch1_p4_lights.png",
+                          "webp":  "assets/bg/p4.webp"
                       }
            }
 }
